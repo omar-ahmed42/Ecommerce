@@ -23,4 +23,4 @@
    - Payment using Stripe
    - Product addition/deletion/modification
    
-   **This project is for educational purposes only. **
+   **This project is for educational purposes only.**
