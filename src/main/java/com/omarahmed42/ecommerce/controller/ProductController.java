@@ -1,17 +1,15 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,7 +32,6 @@ import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.model.ProductMedia;
 import com.omarahmed42.ecommerce.service.ProductMediaService;
 import com.omarahmed42.ecommerce.service.ProductService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 
 @RestController
 @RequestMapping(value = "/v1")
@@ -46,7 +43,6 @@ public class ProductController {
     private final ProductMediaService productMediaService;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
     public ProductController(ProductService productService, ProductMediaService productMediaService) {
         this.productService = productService;
         this.productMediaService = productMediaService;
@@ -57,24 +53,24 @@ public class ProductController {
     @PostMapping("/vendor/{vendorId}/product")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #vendorId)")
     public ResponseEntity<ProductDTO> addNewProduct(@RequestBody ProductDTO productDTO,
-            @PathVariable(name = "vendorId") BigInteger vendorId) {
+            @PathVariable(name = "vendorId") UUID vendorId) {
         try {
             Product product = modelMapper.map(productDTO, Product.class);
-            product.setVendorId(BigIntegerHandler.toByteArray(vendorId));
-            byte[] id = productService.addProduct(product).getId();
+            product.setVendorId(vendorId);
+            UUID id = productService.addProduct(product).getId();
 
             if (Objects.nonNull(productDTO.getMediaURLs()) && !productDTO.getMediaURLs().isEmpty()) {
                 List<ProductMedia> productMediaCollection = createProductMedias(id, productDTO.getMediaURLs());
                 productMediaService.addProductMedia(productMediaCollection);
             }
-            return ResponseEntity.created(URI.create("/products/" + new BigInteger(id))).build();
+            return ResponseEntity.created(URI.create("/products/" + id.toString())).build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    private List<ProductMedia> createProductMedias(byte[] productId, Set<String> mediaUrls) {
+    private List<ProductMedia> createProductMedias(UUID productId, Set<String> mediaUrls) {
         List<ProductMedia> productMediaCollection = new ArrayList<>(mediaUrls.size());
         for (String url : mediaUrls) {
             productMediaCollection.add(new ProductMedia(productId, url));
@@ -84,13 +80,12 @@ public class ProductController {
 
     @DeleteMapping("/vendor/{vendorId}/products/{productId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || principal.userId == #vendorId")
-    public ResponseEntity<ProductDTO> removeProduct(@PathVariable("productId") BigInteger id,
-            @PathVariable("vendorId") BigInteger vendorId, @AuthenticationPrincipal UserDetails authenticatedUser) {
+    public ResponseEntity<ProductDTO> removeProduct(@PathVariable("productId") UUID id,
+            @PathVariable("vendorId") UUID vendorId, @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
-            byte[] productId = BigIntegerHandler.toByteArray(id);
+            UUID productId = id;
             if (nonAdmin(authenticatedUser)
-                    && !Arrays.equals(productService.getProductById(productId).getVendorId(),
-                    BigIntegerHandler.toByteArray(vendorId))) {
+                    && !Objects.equals(productService.getProductById(productId).getVendorId(), vendorId)) {
                 logger.info("Unauthorized user: %d attempted to delete a resource",
                         ((UserDetailsId) authenticatedUser).getUserId());
                 return ResponseEntity.status(401).build();
@@ -111,9 +106,9 @@ public class ProductController {
 
     @PutMapping("/vendor/{vendorId}/products/{productId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || principal.userId == #vendorId")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable(name = "productId") BigInteger productId,
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable(name = "productId") UUID productId,
             @RequestBody ProductDTO productDTO,
-            @PathVariable("vendorId") BigInteger vendorId, @AuthenticationPrincipal UserDetails authenticatedUser) {
+            @PathVariable("vendorId") UUID vendorId, @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
             Product product = modelMapper.map(productDTO, Product.class);
             /*
@@ -125,13 +120,12 @@ public class ProductController {
              * updateProduct)
              */
             if (nonAdmin(authenticatedUser) &&
-                    !Arrays.equals(productService.getProductById(BigIntegerHandler.toByteArray(productId)).getVendorId(),
-                    BigIntegerHandler.toByteArray(vendorId))) {
+                    !Objects.equals(productService.getProductById(productId).getVendorId(), vendorId)) {
                 logger.info("Unauthorized user: %d attempted to update a resource",
                         ((UserDetailsId) authenticatedUser).getUserId());
                 return ResponseEntity.status(401).build();
             }
-            product.setId(BigIntegerHandler.toByteArray(productId));
+            product.setId((productId));
             productService.updateProduct(product);
             return ResponseEntity.noContent().build();
         } catch (ProductNotFoundException productNotFoundException) {
@@ -143,10 +137,10 @@ public class ProductController {
     }
 
     @GetMapping(value = "/products/{productId}", produces = "application/json")
-    public ResponseEntity<String> getProduct(@PathVariable(name = "productId") BigInteger id) {
+    public ResponseEntity<String> getProduct(@PathVariable(name = "productId") UUID id) {
         try {
             Product product = productService
-                    .getProductById(BigIntegerHandler.toByteArray(id));
+                    .getProductById(id);
             ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
 
             return ResponseEntity.ok(new Gson().toJson(productDTO));

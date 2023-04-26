@@ -1,8 +1,8 @@
 package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,24 +15,21 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.GenericGenerator;
-
 @Entity
 @Table(name = "product_review", schema = "ecommerce")
 public class ProductReview implements Serializable {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false, insertable = false, updatable = false)
-    private byte[] id;
+    @GeneratedValue
+    @Column(name = "id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID id;
 
     @Basic
-    @Column(name = "product_id", nullable = false, updatable = false)
-    private byte[] productId;
+    @Column(name = "product_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID productId;
 
     @Basic
-    @Column(name = "customer_id", nullable = false, updatable = false)
-    private byte[] customerId;
+    @Column(name = "customer_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID customerId;
 
     @Basic
     @Column(name = "rating", nullable = false, precision = 0)
@@ -49,27 +46,27 @@ public class ProductReview implements Serializable {
     @OneToOne(mappedBy = "productReviewByProductReviewId", fetch = FetchType.LAZY, optional = true)
     private ReviewComment reviewCommentsById;
 
-    public byte[] getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(byte[] id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public byte[] getProductId() {
+    public UUID getProductId() {
         return productId;
     }
 
-    public void setProductId(byte[] productId) {
+    public void setProductId(UUID productId) {
         this.productId = productId;
     }
 
-    public byte[] getCustomerId() {
+    public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(byte[] customerId) {
+    public void setCustomerId(UUID customerId) {
         this.customerId = customerId;
     }
 
@@ -88,16 +85,16 @@ public class ProductReview implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         ProductReview that = (ProductReview) o;
-        return Double.compare(that.rating, rating) == 0 && Arrays.equals(id, that.id)
-                && Arrays.equals(productId, that.productId) && Arrays.equals(customerId, that.customerId);
+        return Double.compare(that.rating, rating) == 0 && Objects.equals(id, that.id)
+                && Objects.equals(productId, that.productId) && Objects.equals(customerId, that.customerId);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(rating);
-        result = 31 * result + Arrays.hashCode(id);
-        result = 31 * result + Arrays.hashCode(productId);
-        result = 31 * result + Arrays.hashCode(customerId);
+        result = 31 * result + id.hashCode();
+        result = 31 * result + productId.hashCode();
+        result = 31 * result + customerId.hashCode();
         return result;
     }
 

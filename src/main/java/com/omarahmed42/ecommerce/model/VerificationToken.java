@@ -3,6 +3,7 @@ package com.omarahmed42.ecommerce.model;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -34,8 +35,8 @@ public class VerificationToken implements Serializable {
     private Timestamp expiryDate;
 
     @Basic
-    @Column(name = "user_id", nullable = false)
-    private byte[] userId;
+    @Column(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
+    private UUID userId;
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)

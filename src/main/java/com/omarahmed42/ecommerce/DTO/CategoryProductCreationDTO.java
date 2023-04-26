@@ -1,12 +1,12 @@
 package com.omarahmed42.ecommerce.DTO;
 
-import lombok.Data;
-
 import java.io.Serializable;
-import java.math.BigInteger;
+import java.util.UUID;
+
+import lombok.Data;
 
 @Data
 public class CategoryProductCreationDTO implements Serializable {
-    private BigInteger productId;
-    private int categoryId;
+    private UUID productId;
+    private Integer categoryId;
 }

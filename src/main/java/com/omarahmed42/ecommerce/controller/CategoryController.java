@@ -3,7 +3,6 @@ package com.omarahmed42.ecommerce.controller;
 import java.net.URI;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,6 @@ public class CategoryController {
     private final CategoryService categoryService;
     private static ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
         modelMapper.getConfiguration().setSkipNullEnabled(true);

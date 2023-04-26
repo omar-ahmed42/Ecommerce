@@ -1,6 +1,7 @@
 package com.omarahmed42.ecommerce.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,6 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     private final ProductReviewRepository productReviewRepository;
 
-    @Autowired
     public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository) {
         this.productReviewRepository = productReviewRepository;
     }
@@ -27,7 +27,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     @Transactional
     @Override
-    public void deleteProductReview(byte[] id) {
+    public void deleteProductReview(UUID id) {
         productReviewRepository
                 .findById(id)
                 .ifPresentOrElse(productReviewRepository::delete,
@@ -49,7 +49,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     @Transactional
     @Override
-    public byte[] findCustomerIdById(byte[] productReviewId) {
+    public UUID findCustomerIdById(UUID productReviewId) {
         return productReviewRepository.findCustomerIdById(productReviewId)
                 .orElseThrow(() -> new CustomerNotFoundException("Customer not found for the given product review id"));
     }

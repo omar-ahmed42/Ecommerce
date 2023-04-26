@@ -1,15 +1,16 @@
 package com.omarahmed42.ecommerce.service;
 
+import org.springframework.stereotype.Service;
+
 import com.omarahmed42.ecommerce.exception.BillingAddressNotFoundException;
 import com.omarahmed42.ecommerce.model.BillingAddress;
 import com.omarahmed42.ecommerce.repository.BillingAddressRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
+@Service
 public class BillingAddressServiceImpl implements BillingAddressService {
 
     private final BillingAddressRepository billingAddressRepository;
 
-    @Autowired
     public BillingAddressServiceImpl(BillingAddressRepository billingAddressRepository) {
         this.billingAddressRepository = billingAddressRepository;
     }

@@ -1,20 +1,20 @@
 package com.omarahmed42.ecommerce.service;
 
-import com.omarahmed42.ecommerce.exception.ProductMediaNotFoundException;
-import com.omarahmed42.ecommerce.model.ProductMedia;
-import com.omarahmed42.ecommerce.repository.ProductMediaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.omarahmed42.ecommerce.exception.ProductMediaNotFoundException;
+import com.omarahmed42.ecommerce.model.ProductMedia;
+import com.omarahmed42.ecommerce.repository.ProductMediaRepository;
 
 @Service
 public class ProductMediaServiceImpl implements ProductMediaService {
 
     private final ProductMediaRepository productMediaRepository;
 
-    @Autowired
     public ProductMediaServiceImpl(ProductMediaRepository productMediaRepository) {
         this.productMediaRepository = productMediaRepository;
     }
@@ -46,7 +46,7 @@ public class ProductMediaServiceImpl implements ProductMediaService {
 
     @Transactional
     @Override
-    public void deleteProductMediaByProductId(byte[] productId) {
+    public void deleteProductMediaByProductId(UUID productId) {
         productMediaRepository.deleteAllByProductId(productId);
     }
 

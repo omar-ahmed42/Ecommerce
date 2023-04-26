@@ -1,24 +1,25 @@
 package com.omarahmed42.ecommerce.repository;
 
-import com.omarahmed42.ecommerce.model.ReviewComment;
-
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.omarahmed42.ecommerce.model.ReviewComment;
+
 @Repository
-public interface ReviewCommentRepository extends JpaRepository<ReviewComment, byte[]> {
+public interface ReviewCommentRepository extends JpaRepository<ReviewComment, UUID> {
     @Override
     <S extends ReviewComment> S save(S entity);
 
     @Override
-    void deleteById(byte[] id);
+    void deleteById(UUID id);
 
     @Query(value = """
             SELECT c.user_id FROM customer c, product_review pr, review_comment rc WHERE rc.id = :id AND pr.id = rc.product_review_id LIMIT 1
             """, nativeQuery = true)
-    Optional<byte[]> findCustomerIdById(@Param("id") byte[] id);
+    Optional<UUID> findCustomerIdById(@Param("id") UUID id);
 }

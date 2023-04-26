@@ -1,20 +1,19 @@
 package com.omarahmed42.ecommerce.service;
 
-import com.omarahmed42.ecommerce.exception.PaymentNotFoundException;
-import com.omarahmed42.ecommerce.model.Payment;
-import com.omarahmed42.ecommerce.repository.PaymentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import com.omarahmed42.ecommerce.exception.PaymentNotFoundException;
+import com.omarahmed42.ecommerce.model.Payment;
+import com.omarahmed42.ecommerce.repository.PaymentRepository;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
 
-    @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
     }

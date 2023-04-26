@@ -3,9 +3,9 @@ package com.omarahmed42.ecommerce.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -21,7 +21,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -36,10 +35,9 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public class Orders implements Serializable {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false, updatable = false)
-    private byte[] id;
+    @GeneratedValue
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID id;
     @Basic
     @Column(name = "total_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalPrice;
@@ -50,7 +48,7 @@ public class Orders implements Serializable {
 
     @Basic
     @Column(name = "billing_address_id", nullable = false)
-    private byte[] billingAddressId;
+    private UUID billingAddressId;
 
     @Basic
     @Column(name = "created_at", nullable = false)
@@ -82,7 +80,7 @@ public class Orders implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         Orders orders = (Orders) o;
-        return Arrays.equals(id, orders.id) && Objects.equals(totalPrice, orders.totalPrice)
+        return Objects.equals(id, orders.id) && Objects.equals(totalPrice, orders.totalPrice)
                 && Objects.equals(purchaseDate, orders.purchaseDate) && Objects.equals(createdAt, orders.createdAt)
                 && Objects.equals(status, orders.status);
     }
@@ -90,7 +88,7 @@ public class Orders implements Serializable {
     @Override
     public int hashCode() {
         int result = Objects.hash(totalPrice, purchaseDate, createdAt, status);
-        result = 31 * result + Arrays.hashCode(id);
+        result = 31 * result + id.hashCode();
         return result;
     }
 }

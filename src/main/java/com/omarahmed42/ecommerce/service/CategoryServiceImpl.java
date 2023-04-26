@@ -1,19 +1,18 @@
 package com.omarahmed42.ecommerce.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.omarahmed42.ecommerce.exception.CategoryAlreadyExistsException;
 import com.omarahmed42.ecommerce.exception.CategoryNotFoundException;
 import com.omarahmed42.ecommerce.model.Category;
 import com.omarahmed42.ecommerce.repository.CategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    @Autowired
     public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }

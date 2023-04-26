@@ -8,7 +8,7 @@ public class ProductDTO implements Serializable {
     private String name;
     private String description;
     private BigDecimal price;
-    private int stock;
+    private Integer stock;
 
     private Set<String> mediaURLs;
 

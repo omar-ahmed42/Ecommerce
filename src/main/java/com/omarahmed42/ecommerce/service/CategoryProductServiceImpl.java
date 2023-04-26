@@ -1,5 +1,13 @@
 package com.omarahmed42.ecommerce.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.omarahmed42.ecommerce.exception.CategoryNotFoundException;
 import com.omarahmed42.ecommerce.exception.CategoryProductNotFoundException;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
@@ -10,13 +18,6 @@ import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.repository.CategoryProductRepository;
 import com.omarahmed42.ecommerce.repository.CategoryRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @Service
 public class CategoryProductServiceImpl implements CategoryProductService {
@@ -25,7 +26,6 @@ public class CategoryProductServiceImpl implements CategoryProductService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
 
-    @Autowired
     public CategoryProductServiceImpl(CategoryProductRepository categoryProductRepository, CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryProductRepository = categoryProductRepository;
         this.categoryRepository = categoryRepository;
@@ -73,7 +73,7 @@ public class CategoryProductServiceImpl implements CategoryProductService {
 
     @Transactional
     @Override
-    public List<Category> getCategoriesOfProduct(byte[] productId) {
+    public List<Category> getCategoriesOfProduct(UUID productId) {
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));

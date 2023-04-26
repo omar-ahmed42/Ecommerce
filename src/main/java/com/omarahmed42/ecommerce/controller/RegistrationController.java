@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +22,6 @@ public class RegistrationController {
     private final UserService userService;
     private final VerificationTokenService verificationTokenService;
 
-    @Autowired
     public RegistrationController(UserService userService, VerificationTokenService verificationTokenService) {
         this.userService = userService;
         this.verificationTokenService = verificationTokenService;

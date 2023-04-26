@@ -1,5 +1,10 @@
 package com.omarahmed42.ecommerce.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.omarahmed42.ecommerce.exception.CustomerNotFoundException;
 import com.omarahmed42.ecommerce.exception.CustomerOrderAlreadyExistsException;
 import com.omarahmed42.ecommerce.exception.CustomerOrderNotFoundException;
@@ -9,11 +14,6 @@ import com.omarahmed42.ecommerce.model.CustomerOrdersPK;
 import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
 import com.omarahmed42.ecommerce.repository.CustomerRepository;
 import com.omarahmed42.ecommerce.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class CustomerOrderServiceImpl implements CustomerOrderService {
@@ -22,7 +22,6 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
 
-    @Autowired
     public CustomerOrderServiceImpl(CustomerOrdersRepository customerOrdersRepository, CustomerRepository customerRepository, OrderRepository orderRepository) {
         this.customerOrdersRepository = customerOrdersRepository;
         this.customerRepository = customerRepository;

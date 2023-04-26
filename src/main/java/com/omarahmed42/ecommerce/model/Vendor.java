@@ -1,16 +1,25 @@
 package com.omarahmed42.ecommerce.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Vendor implements Serializable {
     @Id
     @Basic
     @Column(name = "user_id", nullable = false)
-    private byte[] userId;
+    private UUID userId;
 
     @Column(name = "verified_vendor", nullable = false)
     private boolean verifiedVendor;
@@ -25,23 +34,23 @@ public class Vendor implements Serializable {
     public Vendor() {
     }
 
-    public Vendor(byte[] userId) {
+    public Vendor(UUID userId) {
         this.userId = userId;
     }
 
-    public byte[] getId() {
+    public UUID getId() {
         return this.userId;
     }
 
-    public void setId(byte[] id) {
+    public void setId(UUID id) {
         this.userId = id;
     }
 
-    public byte[] getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(byte[] userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
@@ -50,13 +59,13 @@ public class Vendor implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Vendor vendor = (Vendor) o;
-        return Arrays.equals(userId, vendor.userId);
+        return Objects.equals(userId, vendor.userId);
     }
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(userId);
-        result = 31 * result + Arrays.hashCode(userId);
+        int result = userId.hashCode();
+        result = 31 * result + userId.hashCode();
         return result;
     }
 

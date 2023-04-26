@@ -1,13 +1,18 @@
 package com.omarahmed42.ecommerce.model;
 
-import javax.persistence.*;
-
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
-@Table(name = "category_product", schema = "ecommerce")
 @IdClass(CategoryProductPK.class)
 public class CategoryProduct implements Serializable{
     @Id
@@ -15,8 +20,8 @@ public class CategoryProduct implements Serializable{
     private int categoryId;
 
     @Id
-    @Column(name = "product_id", nullable = false, insertable = false, updatable = false)
-    private byte[] productId;
+    @Column(name = "product_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID productId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
@@ -29,7 +34,7 @@ public class CategoryProduct implements Serializable{
     public CategoryProduct() {
     }
 
-    public CategoryProduct(int categoryId, byte[] productId) {
+    public CategoryProduct(int categoryId, UUID productId) {
         this.categoryId = categoryId;
         this.productId = productId;
     }
@@ -42,11 +47,11 @@ public class CategoryProduct implements Serializable{
         this.categoryId = categoryId;
     }
 
-    public byte[] getProductId() {
+    public UUID getProductId() {
         return productId;
     }
 
-    public void setProductId(byte[] productId) {
+    public void setProductId(UUID productId) {
         this.productId = productId;
     }
 
@@ -55,13 +60,13 @@ public class CategoryProduct implements Serializable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CategoryProduct that = (CategoryProduct) o;
-        return categoryId == that.categoryId && Arrays.equals(productId, that.productId);
+        return categoryId == that.categoryId && Objects.equals(productId, that.productId);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(categoryId);
-        result = 31 * result + Arrays.hashCode(productId);
+        result = 31 * result + productId.hashCode();
         return result;
     }
 

@@ -3,9 +3,9 @@ package com.omarahmed42.ecommerce.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -19,7 +19,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -34,14 +33,13 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public class Product implements Serializable {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false, updatable = false)
-    private byte[] id;
+    @GeneratedValue
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID id;
 
     @Basic
-    @Column(name = "vendor_id", nullable = false)
-    private byte[] vendorId;
+    @Column(name = "vendor_id", nullable = false, columnDefinition = "BINARY(16)")
+    private UUID vendorId;
 
     @Basic
     @Column(name = "stock", nullable = false)
@@ -56,7 +54,7 @@ public class Product implements Serializable {
     private String name;
 
     @Basic
-    @Column(name = "description", nullable = false, length = -1)
+    @Column(name = "description", nullable = false)
     private String description;
 
     @Basic
@@ -102,7 +100,7 @@ public class Product implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         Product product = (Product) o;
-        return stock == product.stock && Arrays.equals(id, product.id) && Arrays.equals(vendorId, product.vendorId)
+        return stock == product.stock && Objects.equals(id, product.id) && Objects.equals(vendorId, product.vendorId)
                 && Objects.equals(price, product.price) && Objects.equals(name, product.name)
                 && Objects.equals(description, product.description) && Objects.equals(createdAt, product.createdAt)
                 && Objects.equals(modifiedAt, product.modifiedAt) && Objects.equals(rating, product.rating);
@@ -111,8 +109,8 @@ public class Product implements Serializable {
     @Override
     public int hashCode() {
         int result = Objects.hash(stock, price, name, description, createdAt, modifiedAt, rating);
-        result = 31 * result + Arrays.hashCode(id);
-        result = 31 * result + Arrays.hashCode(vendorId);
+        result = 31 * result + id.hashCode();
+        result = 31 * result + vendorId.hashCode();
         return result;
     }
 }

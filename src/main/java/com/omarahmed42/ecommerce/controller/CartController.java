@@ -1,9 +1,8 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +20,6 @@ import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
 import com.omarahmed42.ecommerce.model.Cartitems;
 import com.omarahmed42.ecommerce.model.CartitemsPK;
 import com.omarahmed42.ecommerce.service.CartService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 
 @RestController
 @RequestMapping("/v1")
@@ -29,7 +27,6 @@ public class CartController {
     private final CartService cartService;
     private ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
     public CartController(CartService cartService) {
         this.cartService = cartService;
     }
@@ -37,12 +34,12 @@ public class CartController {
     @PostMapping("/customer/{customerId}/cart")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
     public ResponseEntity<String> addNewCartItemToCart(@RequestBody CartItemDTO cartItemDTO,
-            @PathVariable(name = "customerId") BigInteger customerIdPathVariable) {
+            @PathVariable(name = "customerId") UUID customerIdPathVariable) {
         try {
             Cartitems cartItem = modelMapper.map(cartItemDTO, Cartitems.class);
-            byte[] customerId = BigIntegerHandler.toByteArray(customerIdPathVariable);
+            UUID customerId = customerIdPathVariable;
             cartItem.setCustomerId(customerId);
-            cartItem.setProductId(BigIntegerHandler.toByteArray(cartItemDTO.getProductId()));
+            cartItem.setProductId(cartItemDTO.getProductId());
             cartService.addCartItem(cartItem);
             return ResponseEntity.status(201).build();
         } catch (CartItemAlreadyExistsException cartItemAlreadyExistsException) {
@@ -59,19 +56,17 @@ public class CartController {
 
     @PutMapping("/customer/{customerId}/cart/items/{productId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> updateCartItem(@PathVariable BigInteger productId,
+    public ResponseEntity<String> updateCartItem(@PathVariable UUID productId,
             @RequestBody CartItemDTO cartItemDTO,
-            @PathVariable(name = "customerId") BigInteger customerIdPathVariable) {
+            @PathVariable(name = "customerId") UUID customerId) {
         try {
             Cartitems cartItem = modelMapper.map(cartItemDTO, Cartitems.class);
-            byte[] productIdBytes = BigIntegerHandler.toByteArray(productId);
-            byte[] customerId = BigIntegerHandler.toByteArray(customerIdPathVariable);
             cartItem.setCustomerId(customerId);
-            cartItem.setProductId(productIdBytes);
+            cartItem.setProductId(productId);
             if (cartItem.getQuantity() == 0) {
                 cartService.deleteCartItem(cartItem);
             }
-            cartService.updateCartItem(new CartitemsPK(customerId, productIdBytes), cartItem);
+            cartService.updateCartItem(new CartitemsPK(customerId, productId), cartItem);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,11 +76,10 @@ public class CartController {
 
     @DeleteMapping("/customer/{customerId}/cart/items/{productId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> deleteCartItem(@PathVariable(name = "productId") BigInteger productId,
-            @PathVariable("customerId") BigInteger customerIdPathVariable) {
+    public ResponseEntity<String> deleteCartItem(@PathVariable(name = "productId") UUID productId,
+            @PathVariable("customerId") UUID customerId) {
         try {
-            byte[] customerId = BigIntegerHandler.toByteArray(customerIdPathVariable);
-            cartService.deleteCartItem(new Cartitems(customerId, BigIntegerHandler.toByteArray(productId)));
+            cartService.deleteCartItem(new Cartitems(customerId, productId));
             return ResponseEntity.noContent().build();
         } catch (CartItemNotFoundException cartItemNotFoundException) {
             cartItemNotFoundException.printStackTrace();

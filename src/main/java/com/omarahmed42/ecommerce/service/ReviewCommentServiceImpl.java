@@ -1,9 +1,8 @@
 package com.omarahmed42.ecommerce.service;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +16,6 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
     private final ReviewCommentRepository reviewCommentRepository;
 
-    @Autowired
     public ReviewCommentServiceImpl(ReviewCommentRepository reviewCommentRepository) {
         this.reviewCommentRepository = reviewCommentRepository;
     }
@@ -57,16 +55,16 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
     @Transactional
     @Override
-    public ReviewComment getReviewComment(byte[] commentId) {
+    public ReviewComment getReviewComment(UUID commentId) {
         return reviewCommentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new ReviewCommentNotFoundException("Review comment no found"));
     }
 
     @Override
-    public byte[] findCustomerIdById(byte[] commentId) {
+    public UUID findCustomerIdById(UUID commentId) {
         return reviewCommentRepository.findCustomerIdById(commentId)
                 .orElseThrow(() -> new CustomerNotFoundException(
-                        "Customer not found for comment with id: " + new BigInteger(commentId)));
+                        "Customer not found for comment with id: " + commentId.toString()));
     }
 }

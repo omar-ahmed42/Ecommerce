@@ -1,24 +1,24 @@
 package com.omarahmed42.ecommerce.DTO;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import com.google.gson.annotations.SerializedName;
 
 public class CreatePayment {
     @SerializedName("items")
-    CartItemDTO[] items;
+    private CartItemDTO[] items;
 
     @SerializedName("userId")
-    BigInteger userId;
+    private UUID userId;
 
     @SerializedName("billingAddress")
-    BillingAddressDTO billingAddress;
+    private BillingAddressDTO billingAddress;
 
     public CartItemDTO[] getItems() {
         return this.items;
     }
 
-    public BigInteger getUserId() {
+    public UUID getUserId() {
         return this.userId;
     }
 

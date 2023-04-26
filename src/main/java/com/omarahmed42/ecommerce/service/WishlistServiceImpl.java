@@ -1,5 +1,8 @@
 package com.omarahmed42.ecommerce.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.omarahmed42.ecommerce.exception.CustomerNotFoundException;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
 import com.omarahmed42.ecommerce.exception.WishlistNotFoundException;
@@ -8,9 +11,6 @@ import com.omarahmed42.ecommerce.model.WishlistPK;
 import com.omarahmed42.ecommerce.repository.CustomerRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 import com.omarahmed42.ecommerce.repository.WishlistRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WishlistServiceImpl implements WishlistService {
@@ -19,7 +19,6 @@ public class WishlistServiceImpl implements WishlistService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
-    @Autowired
     public WishlistServiceImpl(WishlistRepository wishlistRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
         this.wishlistRepository = wishlistRepository;
         this.customerRepository = customerRepository;

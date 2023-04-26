@@ -3,7 +3,8 @@ package com.omarahmed42.ecommerce.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -31,12 +32,12 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public class Cartitems implements Serializable {
     @Id
-    @Column(name = "customer_id", nullable = false, insertable = false, updatable = false)
-    private byte[] customerId;
+    @Column(name = "customer_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID customerId;
 
     @Id
-    @Column(name = "product_id", nullable = false, insertable = false, updatable = false)
-    private byte[] productId;
+    @Column(name = "product_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID productId;
 
     @Basic
     @Column(name = "quantity")
@@ -71,7 +72,7 @@ public class Cartitems implements Serializable {
     public Cartitems() {
     }
 
-    public Cartitems(byte[] customerId, byte[] productId) {
+    public Cartitems(UUID customerId, UUID productId) {
         this.customerId = customerId;
         this.productId = productId;
     }
@@ -83,13 +84,13 @@ public class Cartitems implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         Cartitems cartitems = (Cartitems) o;
-        return Arrays.equals(customerId, cartitems.customerId) && Arrays.equals(productId, cartitems.productId);
+        return Objects.equals(customerId, cartitems.customerId) && Objects.equals(productId, cartitems.productId);
     }
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(customerId);
-        result = 31 * result + Arrays.hashCode(productId);
+        int result = customerId.hashCode();
+        result = 31 * result + productId.hashCode();
         return result;
     }
 

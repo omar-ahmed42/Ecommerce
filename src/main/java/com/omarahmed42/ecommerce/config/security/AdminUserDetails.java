@@ -1,8 +1,8 @@
 package com.omarahmed42.ecommerce.config.security;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,14 +13,12 @@ import com.omarahmed42.ecommerce.model.User;
 
 public class AdminUserDetails implements UserDetails, UserDetailsId {
     private User user;
-    private BigInteger userId;
 
     public AdminUserDetails() {
     }
 
     public AdminUserDetails(User user) {
         this.user = user;
-        this.userId = new BigInteger(this.user.getId());
     }
 
     @Override
@@ -58,7 +56,7 @@ public class AdminUserDetails implements UserDetails, UserDetailsId {
         return user.isEnabled();
     }
 
-    public BigInteger getUserId() {
-        return this.userId;
+    public UUID getUserId() {
+        return this.user.getId();
     }
 }

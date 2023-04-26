@@ -1,7 +1,8 @@
 package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,12 +16,12 @@ import javax.persistence.ManyToOne;
 @IdClass(WishlistPK.class)
 public class Wishlist implements Serializable {
     @Id
-    @Column(name = "customer_id", nullable = false, insertable = false, updatable = false)
-    private byte[] customerId;
+    @Column(name = "customer_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID customerId;
 
     @Id
-    @Column(name = "product_id", nullable = false, insertable = false, updatable = false)
-    private byte[] productId;
+    @Column(name = "product_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID productId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", referencedColumnName = "user_id", nullable = true, insertable = false, updatable = false)
@@ -33,24 +34,24 @@ public class Wishlist implements Serializable {
     public Wishlist() {
     }
 
-    public Wishlist(byte[] customerId, byte[] productId) {
+    public Wishlist(UUID customerId, UUID productId) {
         this.customerId = customerId;
         this.productId = productId;
     }
 
-    public byte[] getCustomerId() {
+    public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(byte[] customerId) {
+    public void setCustomerId(UUID customerId) {
         this.customerId = customerId;
     }
 
-    public byte[] getProductId() {
+    public UUID getProductId() {
         return productId;
     }
 
-    public void setProductId(byte[] productId) {
+    public void setProductId(UUID productId) {
         this.productId = productId;
     }
 
@@ -61,13 +62,13 @@ public class Wishlist implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         Wishlist wishlist = (Wishlist) o;
-        return Arrays.equals(customerId, wishlist.customerId) && Arrays.equals(productId, wishlist.productId);
+        return Objects.equals(customerId, wishlist.customerId) && Objects.equals(productId, wishlist.productId);
     }
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(customerId);
-        result = 31 * result + Arrays.hashCode(productId);
+        int result = customerId.hashCode();
+        result = 31 * result + productId.hashCode();
         return result;
     }
 

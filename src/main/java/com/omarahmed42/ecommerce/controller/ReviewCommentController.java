@@ -1,12 +1,12 @@
 package com.omarahmed42.ecommerce.controller;
 
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,7 +27,6 @@ import com.omarahmed42.ecommerce.exception.ReviewCommentNotFoundException;
 import com.omarahmed42.ecommerce.model.ReviewComment;
 import com.omarahmed42.ecommerce.service.ProductReviewService;
 import com.omarahmed42.ecommerce.service.ReviewCommentService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 import com.omarahmed42.ecommerce.util.UserDetailsUtils;
 
 @RestController
@@ -38,7 +37,6 @@ public class ReviewCommentController {
     private static final Logger logger = LogManager.getLogger(ReviewCommentController.class);
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
     public ReviewCommentController(ReviewCommentService reviewCommentService,
             ProductReviewService productReviewService) {
         this.reviewCommentService = reviewCommentService;
@@ -48,21 +46,21 @@ public class ReviewCommentController {
 
     @PostMapping(value = "/customer/{customerId}/products/{productId}/reviews/{reviewId}/comments", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerId)")
-    public ResponseEntity<String> addNewReviewComment(@PathVariable("productId") BigInteger productId,
-            @PathVariable("reviewId") BigInteger reviewId,
+    public ResponseEntity<String> addNewReviewComment(@PathVariable("productId") UUID productId,
+            @PathVariable("reviewId") UUID reviewId,
             @RequestBody ReviewCommentDTO reviewCommentDTO,
-            @PathVariable("customerId") BigInteger customerId,
+            @PathVariable("customerId") UUID customerId,
             @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
             if (UserDetailsUtils.nonAdmin(authenticatedUser)
-                    && !Arrays.equals(BigIntegerHandler.toByteArray(customerId),
-                            productReviewService.findCustomerIdById(BigIntegerHandler.toByteArray(reviewId)))) {
-                logger.info("Unauthorized user: %d attempted to delete a resource",
-                        ((UserDetailsId) authenticatedUser).getUserId());
+                    && !Objects.equals(customerId,
+                            productReviewService.findCustomerIdById(reviewId))) {
+                logger.info("Unauthorized user: %s attempted to delete a resource",
+                        ((UserDetailsId) authenticatedUser).getUserId().toString());
                 return ResponseEntity.status(401).build();
             }
             ReviewComment reviewComment = modelMapper.map(reviewCommentDTO, ReviewComment.class);
-            reviewComment.setProductReviewId(BigIntegerHandler.toByteArray(reviewId));
+            reviewComment.setProductReviewId(reviewId);
             reviewCommentService.addReviewComment(reviewComment);
             return ResponseEntity.status(201).build();
         } catch (Exception e) {
@@ -73,19 +71,19 @@ public class ReviewCommentController {
 
     @DeleteMapping("/customer/{customerId}/products/{productId}/reviews/{reviewId}/comments/{commentId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerId)")
-    public ResponseEntity<String> deleteReviewComment(@PathVariable("productId") BigInteger productId,
-            @PathVariable("reviewId") BigInteger reviewId, @PathVariable("commentId") BigInteger commentId,
-            @PathVariable("customerId") BigInteger customerId,
+    public ResponseEntity<String> deleteReviewComment(@PathVariable("productId") UUID productId,
+            @PathVariable("reviewId") UUID reviewId, @PathVariable("commentId") UUID commentId,
+            @PathVariable("customerId") UUID customerId,
             @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
             if (UserDetailsUtils.nonAdmin(authenticatedUser)
-                    && !Arrays.equals(BigIntegerHandler.toByteArray(customerId),
-                            reviewCommentService.findCustomerIdById(BigIntegerHandler.toByteArray(commentId)))) {
-                logger.info("Unauthorized user: %d attempted to delete a resource",
-                        ((UserDetailsId) authenticatedUser).getUserId());
+                    && !Objects.equals(customerId,
+                            reviewCommentService.findCustomerIdById(commentId))) {
+                logger.info("Unauthorized user: %s attempted to delete a resource",
+                        ((UserDetailsId) authenticatedUser).getUserId().toString());
                 return ResponseEntity.status(401).build();
             }
-            reviewCommentService.deleteReviewComment(new ReviewComment(BigIntegerHandler.toByteArray(commentId)));
+            reviewCommentService.deleteReviewComment(new ReviewComment(commentId));
             return ResponseEntity.noContent().build();
         } catch (ReviewCommentNotFoundException reviewCommentNotFoundException) {
             return ResponseEntity.notFound().build();
@@ -97,13 +95,13 @@ public class ReviewCommentController {
 
     @PutMapping(value = "/products/{productId}/reviews/{reviewId}/comments/{commentId}", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> updateReviewComment(@PathVariable("productId") BigInteger productId,
-            @PathVariable("reviewId") BigInteger reviewId, @PathVariable("commentId") BigInteger commentId,
+    public ResponseEntity<String> updateReviewComment(@PathVariable("productId") UUID productId,
+            @PathVariable("reviewId") UUID reviewId, @PathVariable("commentId") UUID commentId,
             @RequestBody ReviewCommentDTO reviewCommentDTO) {
         try {
             ReviewComment reviewComment = modelMapper.map(reviewCommentDTO, ReviewComment.class);
-            reviewComment.setId(BigIntegerHandler.toByteArray(commentId));
-            reviewComment.setProductReviewId(BigIntegerHandler.toByteArray(reviewId));
+            reviewComment.setId(commentId);
+            reviewComment.setProductReviewId(reviewId);
             reviewCommentService.updateReviewComment(reviewComment);
             return ResponseEntity.noContent().build();
         } catch (ReviewCommentNotFoundException reviewCommentNotFoundException) {
@@ -115,11 +113,11 @@ public class ReviewCommentController {
     }
 
     @GetMapping(value = "/products/{productId}/reviews/{reviewId}/comments/{commentId}", produces = "application/json")
-    public ResponseEntity<String> getReviewComment(@PathVariable("productId") BigInteger productId,
-            @PathVariable("reviewId") BigInteger reviewId, @PathVariable("commentId") BigInteger commentId) {
+    public ResponseEntity<String> getReviewComment(@PathVariable("productId") UUID productId,
+            @PathVariable("reviewId") BigInteger reviewId, @PathVariable("commentId") UUID commentId) {
         try {
             ReviewComment reviewComment = reviewCommentService
-                    .getReviewComment(BigIntegerHandler.toByteArray(commentId));
+                    .getReviewComment(commentId);
             ReviewCommentDTO reviewCommentDTO = modelMapper.map(reviewComment, ReviewCommentDTO.class);
             return ResponseEntity.ok(new Gson().toJson(reviewCommentDTO));
         } catch (ReviewCommentNotFoundException reviewCommentNotFoundException) {

@@ -1,6 +1,7 @@
 package com.omarahmed42.ecommerce.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,6 @@ public class BannedUserServiceImpl implements BannedUserService {
     private final BannedUserRepository bannedUserRepository;
     private final UserRepository userRepository;
 
-    @Autowired
     public BannedUserServiceImpl(BannedUserRepository bannedUserRepository, UserRepository userRepository) {
         this.bannedUserRepository = bannedUserRepository;
         this.userRepository = userRepository;
@@ -40,7 +40,7 @@ public class BannedUserServiceImpl implements BannedUserService {
 
     @Transactional
     @Override
-    public void deleteBannedUser(byte[] id) {
+    public void deleteBannedUser(UUID id) {
         bannedUserRepository
                 .findById(id)
                 .ifPresentOrElse(
@@ -73,7 +73,7 @@ public class BannedUserServiceImpl implements BannedUserService {
     }
 
     @Override
-    public BannedUser getBannedUser(byte[] id) {
+    public BannedUser getBannedUser(UUID id) {
         return bannedUserRepository
                 .findById(id)
                 .orElseThrow(() -> new BannedUserNotFoundException("Banned user not found"));

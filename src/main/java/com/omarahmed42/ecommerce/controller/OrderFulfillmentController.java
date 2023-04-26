@@ -1,14 +1,13 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +25,6 @@ import com.omarahmed42.ecommerce.model.ProductItem;
 import com.omarahmed42.ecommerce.service.OrdersService;
 import com.omarahmed42.ecommerce.service.PaymentService;
 import com.omarahmed42.ecommerce.service.ProductService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
@@ -48,7 +46,6 @@ public class OrderFulfillmentController {
 
     private final ProductService productService;
 
-    @Autowired
     public OrderFulfillmentController(OrdersService ordersService, PaymentService paymentService,
             ProductService productService) {
         this.ordersService = ordersService;
@@ -121,7 +118,7 @@ public class OrderFulfillmentController {
         }
 
         Map<String, String> metadata = paymentIntent.getMetadata();
-        byte[] orderId = BigIntegerHandler.toByteArray(new BigInteger(metadata.get("orderId")));
+        UUID orderId = UUID.fromString(metadata.get("orderId"));
         Payment payment = new Payment(paymentIntent.getId(), paymentIntent.getAmount(), PaymentStatus.CREATED, orderId);
         paymentService.addPayment(payment);
     }
@@ -133,7 +130,7 @@ public class OrderFulfillmentController {
         }
 
         Map<String, String> metadata = paymentIntent.getMetadata();
-        byte[] orderId = BigIntegerHandler.toByteArray(new BigInteger(metadata.get("orderId")));
+        UUID orderId = UUID.fromString(metadata.get("orderId"));
         Orders order = ordersService.getOrder(orderId);
         order.setStatus(Status.COMPLETED);
         ordersService.updateOrder(order);
@@ -148,7 +145,7 @@ public class OrderFulfillmentController {
             return;
         }
         Map<String, String> metadata = paymentIntent.getMetadata();
-        byte[] orderId = BigIntegerHandler.toByteArray(new BigInteger(metadata.get("orderId")));
+        UUID orderId = UUID.fromString(metadata.get("orderId"));
         Orders order = ordersService.getOrder(orderId);
         order.setStatus(Status.FAILED);
         ordersService.updateOrder(order);

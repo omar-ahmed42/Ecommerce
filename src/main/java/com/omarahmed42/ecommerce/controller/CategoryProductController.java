@@ -1,14 +1,13 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,7 +28,6 @@ import com.omarahmed42.ecommerce.model.Category;
 import com.omarahmed42.ecommerce.model.CategoryProduct;
 import com.omarahmed42.ecommerce.model.CategoryProductPK;
 import com.omarahmed42.ecommerce.service.CategoryProductService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 
 @RestController
 @RequestMapping("/v1")
@@ -37,7 +35,6 @@ public class CategoryProductController {
     private final CategoryProductService categoryProductService;
     private static ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
     public CategoryProductController(CategoryProductService categoryProductService) {
         this.categoryProductService = categoryProductService;
         modelMapper.getConfiguration().setSkipNullEnabled(true);
@@ -67,18 +64,18 @@ public class CategoryProductController {
             categoryProducts
                     .add(
                             new CategoryProduct(creationDTOS.get(i).getCategoryId(),
-                                    BigIntegerHandler.toByteArray(creationDTOS.get(i).getProductId())));
+                                    creationDTOS.get(i).getProductId()));
         }
         return categoryProducts;
     }
 
     @DeleteMapping("/products/{productId}/categories/{categoryId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> deleteCategoryProduct(@PathVariable(name = "productId") BigInteger productId,
+    public ResponseEntity<String> deleteCategoryProduct(@PathVariable(name = "productId") UUID productId,
             @PathVariable(name = "categoryId") int categoryId) {
         try {
             categoryProductService.deleteCategoryFromProduct(
-                    new CategoryProductPK(categoryId, BigIntegerHandler.toByteArray(productId)));
+                    new CategoryProductPK(categoryId, productId));
             return ResponseEntity.noContent().build();
         } catch (CategoryProductNotFoundException notFoundException) {
             return ResponseEntity.notFound().build();
@@ -89,10 +86,10 @@ public class CategoryProductController {
     }
 
     @GetMapping(value = "/products/{productId}/categories", produces = "application/json")
-    public ResponseEntity<String> getCategoriesOfProduct(@PathVariable(name = "productId") BigInteger productId) {
+    public ResponseEntity<String> getCategoriesOfProduct(@PathVariable(name = "productId") UUID productId) {
         try {
             List<Category> categoriesOfProduct = categoryProductService
-                    .getCategoriesOfProduct(BigIntegerHandler.toByteArray(productId));
+                    .getCategoriesOfProduct(productId);
             List<CategoryDTO> categories = categoriesOfProduct.stream()
                     .map(category -> modelMapper.map(category, CategoryDTO.class)).collect(Collectors.toList());
             return ResponseEntity.ok()

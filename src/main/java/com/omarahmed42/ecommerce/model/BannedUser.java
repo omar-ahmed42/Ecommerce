@@ -2,16 +2,16 @@ package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -19,15 +19,15 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "banned_user", schema = "ecommerce")
+@Table(name = "banned_user")
 @EntityListeners(AuditingEntityListener.class)
 public class BannedUser implements Serializable {
     @Id
-    @Column(name = "user_id", nullable = false)
-    private byte[] userId;
+    @Column(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
+    private UUID userId;
 
     @Basic
-    @Column(name = "ban_reason", nullable = false, length = -1)
+    @Column(name = "ban_reason", nullable = false)
     private String banReason;
 
     @Basic
@@ -53,14 +53,14 @@ public class BannedUser implements Serializable {
     private Integer numberOfViolations;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
+    @PrimaryKeyJoinColumn(name = "user_id", referencedColumnName = "id")
     private User userByUserId;
 
-    public byte[] getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(byte[] userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
@@ -117,13 +117,13 @@ public class BannedUser implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BannedUser that = (BannedUser) o;
-        return Arrays.equals(userId, that.userId) && Objects.equals(banReason, that.banReason) && Objects.equals(ip, that.ip) && Objects.equals(expirationDate, that.expirationDate) && Objects.equals(createdAt, that.createdAt) && Objects.equals(modifiedAt, that.modifiedAt) && Objects.equals(numberOfViolations, that.numberOfViolations);
+        return userId.equals(that.userId) && Objects.equals(banReason, that.banReason) && Objects.equals(ip, that.ip) && Objects.equals(expirationDate, that.expirationDate) && Objects.equals(createdAt, that.createdAt) && Objects.equals(modifiedAt, that.modifiedAt) && Objects.equals(numberOfViolations, that.numberOfViolations);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(banReason, ip, expirationDate, createdAt, modifiedAt, numberOfViolations);
-        result = 31 * result + Arrays.hashCode(userId);
+        result = 31 * result + userId.hashCode();
         return result;
     }
 

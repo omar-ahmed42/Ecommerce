@@ -1,7 +1,7 @@
 package com.omarahmed42.ecommerce.config.security;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 public interface UserDetailsId {
-    BigInteger getUserId();
+    UUID getUserId();
 }

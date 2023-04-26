@@ -1,9 +1,8 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +18,6 @@ import com.omarahmed42.ecommerce.DTO.BannedUserDTO;
 import com.omarahmed42.ecommerce.exception.BannedUserNotFoundException;
 import com.omarahmed42.ecommerce.model.BannedUser;
 import com.omarahmed42.ecommerce.service.BannedUserService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 
     /*
       No testing has been done for this controller yet
@@ -31,7 +29,6 @@ public class BannedUserController {
     private final BannedUserService bannedUserService;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
     public BannedUserController(BannedUserService bannedUserService) {
         this.bannedUserService = bannedUserService;
     }
@@ -44,9 +41,9 @@ public class BannedUserController {
     }
 
     @DeleteMapping("/users/bans/{bannedUserId}")
-    public ResponseEntity<String> deleteBannedUser(@PathVariable(name = "bannedUserId") BigInteger bannedUserId) {
+    public ResponseEntity<String> deleteBannedUser(@PathVariable(name = "bannedUserId") UUID bannedUserId) {
         try {
-            bannedUserService.deleteBannedUser(BigIntegerHandler.toByteArray(bannedUserId));
+            bannedUserService.deleteBannedUser(bannedUserId);
             return ResponseEntity.noContent().build();
         } catch (BannedUserNotFoundException bannedUserNotFoundException) {
             return ResponseEntity.notFound().build();
@@ -56,9 +53,9 @@ public class BannedUserController {
     }
 
     @GetMapping("/users/bans/{bannedUserId}")
-    public ResponseEntity<String> getBannedUser(@PathVariable(name = "bannedUserId") BigInteger bannedUserId) {
+    public ResponseEntity<String> getBannedUser(@PathVariable(name = "bannedUserId") UUID bannedUserId) {
         try {
-            BannedUser bannedUser = bannedUserService.getBannedUser(bannedUserId.toByteArray());
+            BannedUser bannedUser = bannedUserService.getBannedUser(bannedUserId);
             BannedUserDTO bannedUserDTO = modelMapper.map(bannedUser, BannedUserDTO.class);
             String response = new JSONObject()
                     .put("success", true)
@@ -73,10 +70,10 @@ public class BannedUserController {
     }
 
     @PutMapping("/users/bans/{bannedUserId}")
-    public ResponseEntity<String> updateBannedUser(@PathVariable(name = "bannedUserId") BigInteger bannedUserId, BannedUserDTO bannedUserDTO) {
+    public ResponseEntity<String> updateBannedUser(@PathVariable(name = "bannedUserId") UUID bannedUserId, BannedUserDTO bannedUserDTO) {
         try {
             BannedUser bannedUser = modelMapper.map(bannedUserDTO, BannedUser.class);
-            bannedUser.setUserId(BigIntegerHandler.toByteArray(bannedUserId));
+            bannedUser.setUserId(bannedUserId);
             bannedUserService.updateBannedUser(bannedUser);
             return ResponseEntity.noContent().build();
         } catch (BannedUserNotFoundException bannedUserNotFoundException) {

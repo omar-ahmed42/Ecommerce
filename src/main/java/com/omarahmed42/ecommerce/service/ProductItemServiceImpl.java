@@ -1,15 +1,16 @@
 package com.omarahmed42.ecommerce.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.omarahmed42.ecommerce.exception.ProductItemNotFoundException;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
 import com.omarahmed42.ecommerce.model.ProductItem;
 import com.omarahmed42.ecommerce.repository.ProductItemRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class ProductItemServiceImpl implements ProductItemService {
@@ -17,7 +18,6 @@ public class ProductItemServiceImpl implements ProductItemService {
     private final ProductItemRepository productItemRepository;
     private final ProductRepository productRepository;
 
-    @Autowired
     public ProductItemServiceImpl(ProductItemRepository productItemRepository, ProductRepository productRepository) {
         this.productItemRepository = productItemRepository;
         this.productRepository = productRepository;
@@ -65,7 +65,7 @@ public class ProductItemServiceImpl implements ProductItemService {
 
     @Transactional
     @Override
-    public ProductItem getProductItem(byte[] productItemId) {
+    public ProductItem getProductItem(UUID productItemId) {
         return productItemRepository
                 .findById(productItemId)
                 .orElseThrow(() -> new ProductItemNotFoundException("Product item not found"));

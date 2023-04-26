@@ -1,9 +1,8 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +20,6 @@ import com.omarahmed42.ecommerce.exception.ProductItemNotFoundException;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
 import com.omarahmed42.ecommerce.model.ProductItem;
 import com.omarahmed42.ecommerce.service.ProductItemService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 
 @RestController
 @RequestMapping("/v1")
@@ -29,7 +27,6 @@ public class OrderItemController {
     private final ProductItemService productItemService;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
     public OrderItemController(ProductItemService productItemService) {
         this.productItemService = productItemService;
     }
@@ -45,8 +42,8 @@ public class OrderItemController {
             }
             
             ProductItem productItem = modelMapper.map(orderItemDTO, ProductItem.class);
-            productItem.setProductId(BigIntegerHandler.toByteArray(orderItemDTO.getProductId()));
-            productItem.setOrderId(BigIntegerHandler.toByteArray(orderItemDTO.getOrderId()));
+            productItem.setProductId(orderItemDTO.getProductId());
+            productItem.setOrderId(orderItemDTO.getOrderId());
             productItemService.addProductItem(productItem);
             return ResponseEntity.status(201).build();
         } catch (ProductNotFoundException productNotFoundException) {
@@ -59,11 +56,11 @@ public class OrderItemController {
 
     @PutMapping(value = "/orders/items/{orderItemId}", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> updateOrderItem(@PathVariable(name = "orderItemId") BigInteger orderItemId,
+    public ResponseEntity<String> updateOrderItem(@PathVariable(name = "orderItemId") UUID orderItemId,
             @RequestBody OrderItemDTO orderItemDTO) {
         try {
             ProductItem productItem = modelMapper.map(orderItemDTO, ProductItem.class);
-            productItem.setId(BigIntegerHandler.toByteArray(orderItemId));
+            productItem.setId(orderItemId);
             productItemService.updateProductItem(productItem);
             return ResponseEntity.noContent().build();
         } catch (ProductItemNotFoundException | ProductNotFoundException notFoundException) {
@@ -76,9 +73,9 @@ public class OrderItemController {
 
     @DeleteMapping("/orders/items/{orderItemId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> deleteOrderItem(@PathVariable(name = "orderItemId") BigInteger orderItemId) {
+    public ResponseEntity<String> deleteOrderItem(@PathVariable(name = "orderItemId") UUID orderItemId) {
         try {
-            productItemService.deleteProductItem(new ProductItem(BigIntegerHandler.toByteArray(orderItemId)));
+            productItemService.deleteProductItem(new ProductItem(orderItemId));
             return ResponseEntity.noContent().build();
         } catch (ProductItemNotFoundException productItemNotFoundException) {
             return ResponseEntity.notFound().build();
@@ -89,10 +86,10 @@ public class OrderItemController {
     }
 
     @GetMapping(value = "/orders/items/{orderItemId}", produces = "application/json")
-    public ResponseEntity<String> getOrderItem(@PathVariable(name = "orderItemId") BigInteger orderItemId) {
+    public ResponseEntity<String> getOrderItem(@PathVariable(name = "orderItemId") UUID orderItemId) {
         try {
             OrderItemDTO orderItemDTO = modelMapper
-                    .map(productItemService.getProductItem(BigIntegerHandler.toByteArray(orderItemId)), OrderItemDTO.class);
+                    .map(productItemService.getProductItem(orderItemId), OrderItemDTO.class);
             return ResponseEntity.ok(new Gson().toJson(orderItemDTO));
         } catch (ProductItemNotFoundException productItemNotFoundException) {
             return ResponseEntity.notFound().build();

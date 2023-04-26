@@ -1,7 +1,8 @@
 package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -9,33 +10,33 @@ import javax.persistence.Id;
 public class CartitemsPK implements Serializable {
     @Column(name = "customer_id", nullable = false, insertable = false, updatable = false)
     @Id
-    private byte[] customerId;
+    private UUID customerId;
 
     @Column(name = "product_id", nullable = false, insertable = false, updatable = false)
     @Id
-    private byte[] productId;
+    private UUID productId;
 
     public CartitemsPK() {
     }
 
-    public CartitemsPK(byte[] customerId, byte[] productItemId) {
+    public CartitemsPK(UUID customerId, UUID productItemId) {
         this.customerId = customerId;
         this.productId = productItemId;
     }
 
-    public byte[] getCustomerId() {
+    public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(byte[] customerId) {
+    public void setCustomerId(UUID customerId) {
         this.customerId = customerId;
     }
 
-    public byte[] getProductItemId() {
+    public UUID getProductItemId() {
         return productId;
     }
 
-    public void setProductItemId(byte[] productItemId) {
+    public void setProductItemId(UUID productItemId) {
         this.productId = productItemId;
     }
 
@@ -44,13 +45,13 @@ public class CartitemsPK implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CartitemsPK that = (CartitemsPK) o;
-        return Arrays.equals(customerId, that.customerId) && Arrays.equals(productId, that.productId);
+        return Objects.equals(customerId, that.customerId) && Objects.equals(productId, that.productId);
     }
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(customerId);
-        result = 31 * result + Arrays.hashCode(productId);
+        int result = customerId.hashCode();
+        result = 31 * result + productId.hashCode();
         return result;
     }
 }

@@ -1,8 +1,7 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,25 +20,22 @@ import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.model.Wishlist;
 import com.omarahmed42.ecommerce.model.WishlistPK;
 import com.omarahmed42.ecommerce.service.WishlistService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 
 @RestController
 @RequestMapping("/v1")
 public class WishlistController {
     private final WishlistService wishlistService;
 
-    @Autowired
     public WishlistController(WishlistService wishlistService) {
         this.wishlistService = wishlistService;
     }
 
     @PostMapping("/customer/{customerId}/products/{productId}/wishlist")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<Object> addNewWishlist(@PathVariable("productId") BigInteger productId,
-            @PathVariable("customerId") BigInteger customerIdPathVariable) {
+    public ResponseEntity<Object> addNewWishlist(@PathVariable("productId") UUID productId,
+            @PathVariable("customerId") UUID customerId) {
         try {
-            byte[] customerId = BigIntegerHandler.toByteArray(customerIdPathVariable);
-            wishlistService.addWishlist(new Wishlist(customerId, BigIntegerHandler.toByteArray(productId)));
+            wishlistService.addWishlist(new Wishlist(customerId, productId));
             return ResponseEntity.ok().build();
         } catch (CustomerNotFoundException | ProductNotFoundException notFoundException) {
             return ResponseEntity.notFound().build();
@@ -51,11 +47,10 @@ public class WishlistController {
 
     @DeleteMapping("/customer/{customerId}/wishlist/{productId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> deleteWishlist(@PathVariable("productId") BigInteger productId,
-            @PathVariable("customerId") BigInteger customerIdPathVariable) {
+    public ResponseEntity<String> deleteWishlist(@PathVariable("productId") UUID productId,
+            @PathVariable("customerId") UUID customerId) {
         try {
-            byte[] customerId = BigIntegerHandler.toByteArray(customerIdPathVariable);
-            wishlistService.deleteWishlist(new WishlistPK(customerId, BigIntegerHandler.toByteArray(productId)));
+            wishlistService.deleteWishlist(new WishlistPK(customerId, productId));
             return ResponseEntity.noContent().build();
         } catch (WishlistNotFoundException notFoundException) {
             return ResponseEntity.notFound().build();
@@ -67,12 +62,11 @@ public class WishlistController {
 
     @GetMapping(value = "/customer/{customerId}/wishlist/{productId}", produces = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> getWishlist(@PathVariable("productId") BigInteger productId,
-            @PathVariable("customerId") BigInteger customerIdPathVariable) {
+    public ResponseEntity<String> getWishlist(@PathVariable("productId") UUID productId,
+            @PathVariable("customerId") UUID customerId) {
         try {
-            byte[] customerId = BigIntegerHandler.toByteArray(customerIdPathVariable);
             Wishlist wishlist = wishlistService
-                    .getWishlist(new WishlistPK(customerId, BigIntegerHandler.toByteArray(productId)));
+                    .getWishlist(new WishlistPK(customerId, productId));
             Product product = wishlist.getProductByProductId();
             WishlistItemDTO wishlistItemDTO = new WishlistItemDTO(productId, product.getName(),
                     product.getDescription());

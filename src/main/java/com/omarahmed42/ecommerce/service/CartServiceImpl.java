@@ -1,20 +1,18 @@
 package com.omarahmed42.ecommerce.service;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.omarahmed42.ecommerce.exception.CartItemNotFoundException;
 import com.omarahmed42.ecommerce.model.Cartitems;
 import com.omarahmed42.ecommerce.model.CartitemsPK;
 import com.omarahmed42.ecommerce.repository.CartItemsRepository;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 public class CartServiceImpl implements CartService {
     private final CartItemsRepository cartItemsRepository;
 
-    @Autowired
     public CartServiceImpl(CartItemsRepository cartItemsRepository) {
         this.cartItemsRepository = cartItemsRepository;
     }

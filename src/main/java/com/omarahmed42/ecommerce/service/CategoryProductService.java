@@ -1,10 +1,11 @@
 package com.omarahmed42.ecommerce.service;
 
+import java.util.List;
+import java.util.UUID;
+
 import com.omarahmed42.ecommerce.model.Category;
 import com.omarahmed42.ecommerce.model.CategoryProduct;
 import com.omarahmed42.ecommerce.model.CategoryProductPK;
-
-import java.util.List;
 
 public interface CategoryProductService {
     void addCategoryToProduct(CategoryProduct categoryProduct);
@@ -14,5 +15,5 @@ public interface CategoryProductService {
     void deleteCategoryFromProduct(CategoryProductPK categoryProductPK);
 
     void updateCategoryProduct(CategoryProduct categoryProduct);
-    List<Category> getCategoriesOfProduct(byte[] productId);
+    List<Category> getCategoriesOfProduct(UUID productId);
 }

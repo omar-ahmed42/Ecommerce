@@ -1,9 +1,6 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
-
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +16,6 @@ import com.omarahmed42.ecommerce.model.BillingAddress;
 import com.omarahmed42.ecommerce.model.Orders;
 import com.omarahmed42.ecommerce.model.ProductItem;
 import com.omarahmed42.ecommerce.service.OrdersService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
@@ -32,7 +28,6 @@ public class PaymentController {
     private final OrdersService ordersService;
     private static ModelMapper modelMapper = new ModelMapper();
 
-    @Autowired
     public PaymentController(OrdersService ordersService) {
         this.ordersService = ordersService;
         modelMapper.getConfiguration().setSkipNullEnabled(true);
@@ -47,15 +42,15 @@ public class PaymentController {
             int numberOfItems = cartItems.length;
             ProductItem[] productItems = new ProductItem[numberOfItems];
             for (int i = 0; i < numberOfItems; i++) {
-                productItems[i] = new ProductItem(BigIntegerHandler.toByteArray(cartItems[i].getProductId()), cartItems[i].getPrice(),
+                productItems[i] = new ProductItem(cartItems[i].getProductId(), cartItems[i].getPrice(),
                         cartItems[i].getQuantity());
             }
             BillingAddress billingAddress = modelMapper.map(createPayment.getBillingAddress(), BillingAddress.class);
-            Orders order = ordersService.addNewOrders(BigIntegerHandler.toByteArray(createPayment.getUserId()), productItems, billingAddress);
+            Orders order = ordersService.addNewOrders(createPayment.getUserId(), productItems, billingAddress);
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(order.getTotalPrice().longValueExact() * 100L)
                     .setCurrency("usd")
-                    .putMetadata("orderId", new BigInteger(order.getId()).toString())
+                    .putMetadata("orderId", order.getId().toString())
                     .setAutomaticPaymentMethods(
                             PaymentIntentCreateParams.AutomaticPaymentMethods
                                     .builder()

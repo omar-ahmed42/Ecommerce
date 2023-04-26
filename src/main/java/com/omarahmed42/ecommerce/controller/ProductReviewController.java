@@ -1,8 +1,7 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.math.BigInteger;
+import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,23 +16,21 @@ import com.omarahmed42.ecommerce.DTO.ProductReviewDTO;
 import com.omarahmed42.ecommerce.exception.ProductReviewNotFoundException;
 import com.omarahmed42.ecommerce.model.ProductReview;
 import com.omarahmed42.ecommerce.service.ProductReviewService;
-import com.omarahmed42.ecommerce.util.BigIntegerHandler;
 
 @RestController
 @RequestMapping("/v1")
 public class ProductReviewController {
     private final ProductReviewService productReviewService;
 
-    @Autowired
     public ProductReviewController(ProductReviewService productReviewService) {
         this.productReviewService = productReviewService;
     }
 
     @PostMapping(value = "/customer/{customerId}/products/{productId}/reviews", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> addNewProductReview(@PathVariable("productId") BigInteger productId,
+    public ResponseEntity<String> addNewProductReview(@PathVariable("productId") UUID productId,
             @RequestBody ProductReviewDTO productReviewDTO,
-            @PathVariable(name = "customerId") BigInteger customerIdPathVariable) {
+            @PathVariable(name = "customerId") UUID customerId) {
         try {
             // TODO: Allow only users who purchased product X to review it
             Integer rating = productReviewDTO.getRating();
@@ -41,10 +38,9 @@ public class ProductReviewController {
                 return ResponseEntity.unprocessableEntity().build();
             }
 
-            byte[] customerId = BigIntegerHandler.toByteArray(customerIdPathVariable);
             ProductReview productReview = new ProductReview();
             productReview.setCustomerId(customerId);
-            productReview.setProductId(BigIntegerHandler.toByteArray(productId));
+            productReview.setProductId(productId);
             productReview.setRating(rating);
             productReviewService.addProductReview(productReview);
             return ResponseEntity.status(201).build();
@@ -60,10 +56,10 @@ public class ProductReviewController {
 
     @DeleteMapping("/products/{productId}/reviews/{reviewId}")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> deleteProductReview(@PathVariable("productId") BigInteger productId,
-            @PathVariable("reviewId") BigInteger reviewId) {
+    public ResponseEntity<String> deleteProductReview(@PathVariable("productId") UUID productId,
+            @PathVariable("reviewId") UUID reviewId) {
         try {
-            productReviewService.deleteProductReview(BigIntegerHandler.toByteArray(reviewId));
+            productReviewService.deleteProductReview(reviewId);
             return ResponseEntity.noContent().build();
         } catch (ProductReviewNotFoundException productReviewNotFoundException) {
             return ResponseEntity.notFound().build();
@@ -75,8 +71,8 @@ public class ProductReviewController {
 
     @PutMapping(value = "/products/{productId}/reviews/{reviewId}", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> updateProductReview(@PathVariable("productId") BigInteger productId,
-            @PathVariable("reviewId") BigInteger reviewId,
+    public ResponseEntity<String> updateProductReview(@PathVariable("productId") UUID productId,
+            @PathVariable("reviewId") UUID reviewId,
             @RequestBody ProductReviewDTO productReviewDTO) {
         try {
             Integer rating = productReviewDTO.getRating();
@@ -84,8 +80,8 @@ public class ProductReviewController {
                 return ResponseEntity.unprocessableEntity().build();
             }
             ProductReview productReview = new ProductReview();
-            productReview.setId(BigIntegerHandler.toByteArray(reviewId));
-            productReview.setProductId(BigIntegerHandler.toByteArray(productId));
+            productReview.setId(reviewId);
+            productReview.setProductId(productId);
             productReview.setRating(rating);
             productReviewService.updateProductReview(productReview);
             return ResponseEntity.noContent().build();

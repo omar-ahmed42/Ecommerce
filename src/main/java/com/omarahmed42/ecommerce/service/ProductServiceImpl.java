@@ -1,22 +1,21 @@
 package com.omarahmed42.ecommerce.service;
 
-import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
-import com.omarahmed42.ecommerce.model.Product;
-import com.omarahmed42.ecommerce.repository.ProductRepository;
+import java.util.List;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
+import com.omarahmed42.ecommerce.model.Product;
+import com.omarahmed42.ecommerce.repository.ProductRepository;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
-    @Autowired
     public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
@@ -29,7 +28,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public void deleteProduct(byte[] id) {
+    public void deleteProduct(UUID id) {
         productRepository
                 .findById(id)
                 .ifPresentOrElse(productRepository::delete, () -> {
@@ -55,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public Product getProductById(byte[] id) {
+    public Product getProductById(UUID id) {
         return productRepository
                 .findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));

@@ -1,12 +1,21 @@
 package com.omarahmed42.ecommerce.model;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.UUID;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
 
 @Entity
 @Getter
@@ -14,12 +23,12 @@ import java.util.Collection;
 public class Customer implements Serializable {
     @Id
     @Basic
-    @Column(name = "user_id", nullable = false)
-    private byte[] userId;
+    @Column(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
+    private UUID userId;
 
     @Basic
-    @Column(name = "billing_address_id", nullable = true, insertable = false, updatable = false)
-    private byte[] billingAddressId;
+    @Column(name = "billing_address_id", nullable = true, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID billingAddressId;
 
     @OneToMany(mappedBy = "customerByCustomerId", fetch = FetchType.LAZY)
     private Collection<Cartitems> cartitemsById;
@@ -31,7 +40,7 @@ public class Customer implements Serializable {
     public Customer() {
     }
 
-    public Customer(byte[] userId) {
+    public Customer(UUID userId) {
         this.userId = userId;
     }
 
@@ -49,11 +58,11 @@ public class Customer implements Serializable {
     @OneToMany(mappedBy = "customerByCustomerId", fetch = FetchType.LAZY)
     private Collection<Wishlist> wishlistsById;
 
-    public byte[] getId() {
+    public UUID getId() {
         return this.userId;
     }
 
-    public void setId(byte[] id){
+    public void setId(UUID id){
         this.userId = id;
     }
 
@@ -62,14 +71,14 @@ public class Customer implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Customer customer = (Customer) o;
-        return Arrays.equals(userId, customer.userId) && Arrays.equals(billingAddressId, customer.billingAddressId);
+        return userId.equals(customer.userId) && billingAddressId.equals(customer.billingAddressId);
     }
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(userId);
-        result = 31 * result + Arrays.hashCode(userId);
-        result = 31 * result + Arrays.hashCode(billingAddressId);
+        int result = userId.hashCode();
+        result = 31 * result + userId.hashCode();
+        result = 31 * result + billingAddressId.hashCode();
         return result;
     }
 }

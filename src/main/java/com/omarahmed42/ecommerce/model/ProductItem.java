@@ -2,8 +2,8 @@ package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -13,9 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,21 +20,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "product_item", schema = "ecommerce")
 public class ProductItem implements Serializable {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false, updatable = false)
-    private byte[] id;
+    @GeneratedValue
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID id;
 
     @Basic
-    @Column(name = "order_id", nullable = false)
-    private byte[] orderId;
+    @Column(name = "order_id", nullable = false, columnDefinition = "BINARY(16)")
+    private UUID orderId;
 
     @Basic
-    @Column(name = "product_id", nullable = false)
-    private byte[] productId;
+    @Column(name = "product_id", nullable = false, columnDefinition = "BINARY(16)")
+    private UUID productId;
 
     @Basic
     @Column(name = "quantity", nullable = false)
@@ -58,11 +53,11 @@ public class ProductItem implements Serializable {
     public ProductItem() {
     }
 
-    public ProductItem(byte[] id) {
+    public ProductItem(UUID id) {
         this.id = id;
     }
 
-    public ProductItem(byte[] productId, BigDecimal totalPrice, int quantity) {
+    public ProductItem(UUID productId, BigDecimal totalPrice, int quantity) {
         this.productId = productId;
         this.totalPrice = totalPrice;
         this.quantity = quantity;
@@ -75,15 +70,15 @@ public class ProductItem implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         ProductItem that = (ProductItem) o;
-        return quantity == that.quantity && Arrays.equals(id, that.id) && Arrays.equals(productId, that.productId)
+        return quantity == that.quantity && Objects.equals(id, that.id) && Objects.equals(productId, that.productId)
                 && Objects.equals(totalPrice, that.totalPrice);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(quantity, totalPrice);
-        result = 31 * result + Arrays.hashCode(id);
-        result = 31 * result + Arrays.hashCode(productId);
+        result = 31 * result + id.hashCode();
+        result = 31 * result + productId.hashCode();
         return result;
     }
 }

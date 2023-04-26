@@ -1,13 +1,15 @@
 package com.omarahmed42.ecommerce.service;
 
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.omarahmed42.ecommerce.exception.UserNotFoundException;
 import com.omarahmed42.ecommerce.exception.VendorNotFoundException;
 import com.omarahmed42.ecommerce.model.Vendor;
 import com.omarahmed42.ecommerce.repository.UserRepository;
 import com.omarahmed42.ecommerce.repository.VendorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class VendorServiceImpl implements VendorService {
@@ -15,7 +17,6 @@ public class VendorServiceImpl implements VendorService {
     private final VendorRepository vendorRepository;
     private final UserRepository userRepository;
 
-    @Autowired
     public VendorServiceImpl(VendorRepository vendorRepository, UserRepository userRepository) {
         this.vendorRepository = vendorRepository;
         this.userRepository = userRepository;
@@ -32,7 +33,7 @@ public class VendorServiceImpl implements VendorService {
 
     @Transactional
     @Override
-    public void deleteVendor(byte[] id) {
+    public void deleteVendor(UUID id) {
         vendorRepository
                 .findById(id)
                 .ifPresentOrElse(

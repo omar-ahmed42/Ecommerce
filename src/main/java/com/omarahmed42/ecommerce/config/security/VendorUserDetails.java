@@ -1,20 +1,20 @@
 package com.omarahmed42.ecommerce.config.security;
 
-import com.omarahmed42.ecommerce.enums.Role;
-import com.omarahmed42.ecommerce.model.User;
-import com.omarahmed42.ecommerce.model.Vendor;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Collections;
+import com.omarahmed42.ecommerce.enums.Role;
+import com.omarahmed42.ecommerce.model.User;
+import com.omarahmed42.ecommerce.model.Vendor;
 
 public class VendorUserDetails implements UserDetails, UserDetailsId {
     private User user;
     private Vendor vendor;
-    private BigInteger userId;
 
     public VendorUserDetails() {
     }
@@ -22,7 +22,6 @@ public class VendorUserDetails implements UserDetails, UserDetailsId {
     public VendorUserDetails(User user, Vendor vendor) {
         this.user = user;
         this.vendor = vendor;
-        this.userId = new BigInteger(this.user.getId());
     }
 
     @Override
@@ -60,7 +59,7 @@ public class VendorUserDetails implements UserDetails, UserDetailsId {
         return user.isEnabled();
     }
     
-    public BigInteger getUserId(){
-        return this.userId;
+    public UUID getUserId(){
+        return this.user.getId();
     }
 }

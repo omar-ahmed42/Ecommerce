@@ -1,18 +1,17 @@
 package com.omarahmed42.ecommerce.service;
 
+import org.springframework.stereotype.Service;
+
 import com.omarahmed42.ecommerce.exception.VerificationTokenNotFoundException;
 import com.omarahmed42.ecommerce.model.User;
 import com.omarahmed42.ecommerce.model.VerificationToken;
 import com.omarahmed42.ecommerce.repository.VerificationTokenRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     private final VerificationTokenRepository verificationTokenRepository;
 
-    @Autowired
     public VerificationTokenServiceImpl(VerificationTokenRepository verificationTokenRepository) {
         this.verificationTokenRepository = verificationTokenRepository;
     }

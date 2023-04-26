@@ -1,24 +1,25 @@
 package com.omarahmed42.ecommerce.service;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+
 import com.omarahmed42.ecommerce.exception.CustomerNotFoundException;
 import com.omarahmed42.ecommerce.exception.UserNotFoundException;
 import com.omarahmed42.ecommerce.model.Customer;
 import com.omarahmed42.ecommerce.repository.CustomerRepository;
 import com.omarahmed42.ecommerce.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.util.Optional;
 
 @Service
-public class CustomerServiceImpl implements CustomerService{
+public class CustomerServiceImpl implements CustomerService {
 
 
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
 
-    @Autowired
     public CustomerServiceImpl(UserRepository userRepository, CustomerRepository customerRepository) {
         this.userRepository = userRepository;
         this.customerRepository = customerRepository;
@@ -36,7 +37,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Transactional
     @Override
-    public void deleteCustomer(byte[] id) {
+    public void deleteCustomer(UUID id) {
         if (customerRepository.existsById(id)){
             throw new CustomerNotFoundException("Customer not found");
         }

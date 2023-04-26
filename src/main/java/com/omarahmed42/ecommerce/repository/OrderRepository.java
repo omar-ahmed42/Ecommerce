@@ -1,22 +1,24 @@
 package com.omarahmed42.ecommerce.repository;
 
-import com.omarahmed42.ecommerce.model.Orders;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.omarahmed42.ecommerce.model.Orders;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Orders, byte[]> {
+public interface OrderRepository extends JpaRepository<Orders, UUID> {
     @Override
-    Optional<Orders> findById(byte[] id);
+    Optional<Orders> findById(UUID id);
 
     @Override
-    boolean existsById(byte[] id);
+    boolean existsById(UUID id);
 
     @Override
     <S extends Orders> S save(S order);
 
     @Override
-    void deleteById(byte[] id);
+    void deleteById(UUID id);
 }

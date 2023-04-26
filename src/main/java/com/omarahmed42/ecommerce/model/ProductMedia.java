@@ -1,8 +1,8 @@
 package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -12,25 +12,20 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "product_media", schema = "ecommerce")
 public class ProductMedia implements Serializable{
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false)
-    private byte[] id;
+    @GeneratedValue
+    @Column(name = "id", nullable = false, columnDefinition = "BINARY(16)")
+    private UUID id;
 
     @Basic
-    @Column(name = "product_id", nullable = false, insertable = false, updatable = false)
-    private byte[] productId;
+    @Column(name = "product_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID productId;
 
     @Basic
-    @Column(name = "media_url", nullable = true, length = -1)
+    @Column(name = "media_url", nullable = true)
     private String mediaUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,24 +35,24 @@ public class ProductMedia implements Serializable{
     public ProductMedia() {
     }
 
-    public ProductMedia(byte[] productId, String mediaUrl) {
+    public ProductMedia(UUID productId, String mediaUrl) {
         this.productId = productId;
         this.mediaUrl = mediaUrl;
     }
 
-    public byte[] getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(byte[] id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public byte[] getProductId() {
+    public UUID getProductId() {
         return productId;
     }
 
-    public void setProductId(byte[] productId) {
+    public void setProductId(UUID productId) {
         this.productId = productId;
     }
 
@@ -74,14 +69,14 @@ public class ProductMedia implements Serializable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProductMedia that = (ProductMedia) o;
-        return Arrays.equals(id, that.id) && Arrays.equals(productId, that.productId) && Objects.equals(mediaUrl, that.mediaUrl);
+        return Objects.equals(id, that.id) && Objects.equals(productId, that.productId) && Objects.equals(mediaUrl, that.mediaUrl);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(mediaUrl);
-        result = 31 * result + Arrays.hashCode(id);
-        result = 31 * result + Arrays.hashCode(productId);
+        result = 31 * result + id.hashCode();
+        result = 31 * result + productId.hashCode();
         return result;
     }
 

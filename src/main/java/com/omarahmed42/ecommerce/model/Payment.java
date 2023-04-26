@@ -2,6 +2,7 @@ package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -45,8 +46,8 @@ public class Payment implements Serializable {
     @CreatedDate
     private Instant createdAt;
 
-    @Column(name = "order_id")
-    private byte[] orderId;
+    @Column(name = "order_id", columnDefinition = "BINARY(16)")
+    private UUID orderId;
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", updatable = false, insertable = false, referencedColumnName = "id")
     private Orders orderByOrderId;
@@ -55,7 +56,7 @@ public class Payment implements Serializable {
     }
 
     public Payment(String paymentIntentId, long paymentAmount, PaymentStatus paymentStatus,
-            byte[] orderId) {
+            UUID orderId) {
         this.paymentIntentId = paymentIntentId;
         this.paymentAmount = paymentAmount;
         this.paymentStatus = paymentStatus;

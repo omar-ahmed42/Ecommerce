@@ -1,14 +1,17 @@
 package com.omarahmed42.ecommerce.repository;
 
-import com.omarahmed42.ecommerce.model.ProductItem;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.omarahmed42.ecommerce.model.ProductItem;
+
 @Repository
-public interface ProductItemRepository extends JpaRepository<ProductItem, byte[]> {
+public interface ProductItemRepository extends JpaRepository<ProductItem, UUID> {
     @Override
     <S extends ProductItem> S save(S entity);
 
     @Override
-    void deleteById(byte[] id);
+    void deleteById(UUID id);
 }

@@ -1,32 +1,34 @@
 package com.omarahmed42.ecommerce.model;
 
-import javax.persistence.*;
-
-import org.hibernate.annotations.GenericGenerator;
-
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
-@Table(name = "review_comment", schema = "ecommerce")
 public class ReviewComment implements Serializable{
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false, updatable = false)
-    private byte[] id;
+    @GeneratedValue
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID id;
 
     @Basic
-    @Column(name = "product_review_id", nullable = false, updatable = false)
-    private byte[] productReviewId;
+    @Column(name = "product_review_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    private UUID productReviewId;
 
     @Basic
-    @Column(name = "title", nullable = false, length = -1)
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Basic
-    @Column(name = "content", nullable = false, length = -1)
+    @Column(name = "content", nullable = false)
     private String content;
 
     @OneToOne
@@ -36,23 +38,23 @@ public class ReviewComment implements Serializable{
     public ReviewComment() {
     }
 
-    public ReviewComment(byte[] id) {
+    public ReviewComment(UUID id) {
         this.id = id;
     }
 
-    public byte[] getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(byte[] id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public byte[] getProductReviewId() {
+    public UUID getProductReviewId() {
         return productReviewId;
     }
 
-    public void setProductReviewId(byte[] productReviewId) {
+    public void setProductReviewId(UUID productReviewId) {
         this.productReviewId = productReviewId;
     }
 
@@ -77,14 +79,14 @@ public class ReviewComment implements Serializable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ReviewComment that = (ReviewComment) o;
-        return Arrays.equals(id, that.id) && Arrays.equals(productReviewId, that.productReviewId) && Objects.equals(title, that.title) && Objects.equals(content, that.content);
+        return Objects.equals(id, that.id) && Objects.equals(productReviewId, that.productReviewId) && Objects.equals(title, that.title) && Objects.equals(content, that.content);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(title, content);
-        result = 31 * result + Arrays.hashCode(id);
-        result = 31 * result + Arrays.hashCode(productReviewId);
+        result = 31 * result + id.hashCode();
+        result = 31 * result + productReviewId.hashCode();
         return result;
     }
 

@@ -5,10 +5,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.LockModeType;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,10 @@ import com.omarahmed42.ecommerce.repository.OrderRepository;
 import com.omarahmed42.ecommerce.repository.ProductItemRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class OrdersServiceImpl implements OrdersService {
 
     private final OrderRepository orderRepository;
@@ -36,16 +39,6 @@ public class OrdersServiceImpl implements OrdersService {
     private final ProductRepository productRepository;
     private final CustomerOrdersRepository customerOrdersRepository;
     private final BillingAddressRepository billingAddressRepository;
-
-    @Autowired
-    public OrdersServiceImpl(OrderRepository orderRepository, ProductItemRepository productItemRepository,
-            ProductRepository productRepository, CustomerOrdersRepository customerOrdersRepository, BillingAddressRepository billingAddressRepository) {
-        this.orderRepository = orderRepository;
-        this.productItemRepository = productItemRepository;
-        this.productRepository = productRepository;
-        this.customerOrdersRepository = customerOrdersRepository;
-        this.billingAddressRepository = billingAddressRepository;
-    }
 
     @Transactional
     @Override
@@ -55,7 +48,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Transactional
     @Override
-    public void deleteOrder(byte[] id) {
+    public void deleteOrder(UUID id) {
         orderRepository
                 .findById(id)
                 .ifPresentOrElse(orderRepository::delete,
@@ -77,7 +70,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public Orders addNewOrders(byte[] customerId, ProductItem[] productItems, BillingAddress billingAddress) {
+    public Orders addNewOrders(UUID customerId, ProductItem[] productItems, BillingAddress billingAddress) {
         BigDecimal totalPrice = new BigDecimal(0);
         Product[] products = new Product[productItems.length];
         for (int i = 0; i < productItems.length; i++) {
@@ -117,7 +110,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Transactional
-    public Orders getOrder(byte[] orderId) {
+    public Orders getOrder(UUID orderId) {
         return orderRepository
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Orders not found"));

@@ -1,22 +1,24 @@
 package com.omarahmed42.ecommerce.repository;
 
-import com.omarahmed42.ecommerce.model.Customer;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.omarahmed42.ecommerce.model.Customer;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, byte[]> {
+public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     @Override
     <S extends Customer> S save(S customer);
 
     @Override
-    void deleteById(byte[] id);
+    void deleteById(UUID id);
 
     @Override
-    boolean existsById(byte[] id);
+    boolean existsById(UUID id);
 
     @Override
-    Optional<Customer> findById(byte[] id);
+    Optional<Customer> findById(UUID id);
 }
