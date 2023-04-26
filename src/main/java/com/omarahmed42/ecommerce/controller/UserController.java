@@ -2,7 +2,6 @@ package com.omarahmed42.ecommerce.controller;
 
 import java.util.UUID;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.omarahmed42.ecommerce.DTO.UserRegistrationDTO;
 import com.omarahmed42.ecommerce.DTO.UserResponse;
 import com.omarahmed42.ecommerce.exception.UserNotFoundException;
-import com.omarahmed42.ecommerce.model.User;
 import com.omarahmed42.ecommerce.service.UserService;
 
 
@@ -32,12 +30,7 @@ public class UserController {
 
     @PostMapping("/users")
     public ResponseEntity<String> register(@RequestBody UserRegistrationDTO userRegistrationDTO){
-        ModelMapper modelMapper = new ModelMapper();
-        User user = modelMapper.map(userRegistrationDTO, User.class);
-        user.setActive(false);
-        user.setVerified(false);
-        user.setBanned(false);
-        userService.addUser(user);
+        userService.addUser(userRegistrationDTO);
         return ResponseEntity.ok().build();
     }
 

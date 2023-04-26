@@ -1,10 +1,8 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.net.URI;
-
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,28 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.omarahmed42.ecommerce.DTO.CategoryDTO;
 import com.omarahmed42.ecommerce.exception.CategoryAlreadyExistsException;
 import com.omarahmed42.ecommerce.exception.CategoryNotFoundException;
-import com.omarahmed42.ecommerce.model.Category;
 import com.omarahmed42.ecommerce.service.CategoryService;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping(value = "/v1", produces = "application/json", consumes = "application/json")
 public class CategoryController {
     private final CategoryService categoryService;
-    private static ModelMapper modelMapper = new ModelMapper();
 
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
     }
 
-    @PostMapping(value = "/category", consumes = "application/json")
-    public ResponseEntity<Category> addNewCategory(@RequestBody CategoryDTO categoryDTO) {
+    @PostMapping(value = "/categories")
+    public ResponseEntity<Void> addCategory(@RequestBody CategoryDTO categoryDTO) {
         try {
-            Category category = modelMapper.map(categoryDTO, Category.class);
-            categoryService.addCategory(new Category(category.getName()));
-            return ResponseEntity
-                    .created(URI.create("/categories/" + categoryService.getByName(category.getName()).getId()))
-                    .build();
+            categoryService.addCategory(categoryDTO);
+            return ResponseEntity.status(201).build();
         } catch (CategoryAlreadyExistsException categoryAlreadyExistsException) {
             return ResponseEntity.status(303).build();
         } catch (Exception e) {
@@ -46,9 +38,9 @@ public class CategoryController {
     }
 
     @DeleteMapping("/categories/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable("id") int id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable("id") Integer id) {
         try {
-            categoryService.deleteCategory(new Category(id));
+            categoryService.deleteCategory(id);
             return ResponseEntity.noContent().build();
         } catch (CategoryNotFoundException categoryNotFoundException) {
             return ResponseEntity.notFound().build();
@@ -58,14 +50,19 @@ public class CategoryController {
     }
 
     @PutMapping("/categories/{id}")
-    public ResponseEntity<String> updateCategory(@PathVariable("id") int id, @RequestBody CategoryDTO categoryDTO) {
+    public ResponseEntity<Void> updateCategory(@PathVariable("id") Integer id, @RequestBody CategoryDTO categoryDTO) {
         try {
-            categoryService.updateCategory(new Category(id, categoryDTO.getName()));
+            categoryService.updateCategory(id, categoryDTO);
             return ResponseEntity.noContent().build();
         } catch (CategoryNotFoundException categoryNotFoundException) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<CategoryDTO> getCategory(@PathVariable("id") Integer id) {
+        return ResponseEntity.ok(categoryService.getCategory(id));
     }
 }

@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
-import com.omarahmed42.ecommerce.DTO.ProductDTO;
+import com.omarahmed42.ecommerce.DTO.ProductRequest;
+import com.omarahmed42.ecommerce.DTO.ProductResponse;
 import com.omarahmed42.ecommerce.config.security.AdminUserDetails;
 import com.omarahmed42.ecommerce.config.security.UserDetailsId;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
@@ -34,7 +35,7 @@ import com.omarahmed42.ecommerce.service.ProductMediaService;
 import com.omarahmed42.ecommerce.service.ProductService;
 
 @RestController
-@RequestMapping(value = "/v1")
+@RequestMapping(value = "/v1", produces = "application/json", consumes = "application/json")
 public class ProductController {
     // TODO Implement Search
     private final ProductService productService;
@@ -51,13 +52,10 @@ public class ProductController {
     // TODO: handle media saving (media storage, uploading)
     // Upload images
     @PostMapping("/vendor/{vendor-id}/product")
-    @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #vendorId)")
-    public ResponseEntity<ProductDTO> addNewProduct(@RequestBody ProductDTO productDTO,
+    public ResponseEntity<Void> addProduct(@RequestBody ProductRequest productDTO,
             @PathVariable(name = "vendorId") UUID vendorId) {
         try {
-            Product product = modelMapper.map(productDTO, Product.class);
-            product.setVendorId(vendorId);
-            UUID id = productService.addProduct(product).getId();
+            UUID id = productService.addProduct(vendorId, productDTO).getId();
 
             if (Objects.nonNull(productDTO.getMediaURLs()) && !productDTO.getMediaURLs().isEmpty()) {
                 List<ProductMedia> productMediaCollection = createProductMedias(id, productDTO.getMediaURLs());
@@ -80,7 +78,7 @@ public class ProductController {
 
     @DeleteMapping("/vendor/{vendor-id}/products/{product-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || principal.userId == #vendorId")
-    public ResponseEntity<ProductDTO> removeProduct(@PathVariable("product-id") UUID id,
+    public ResponseEntity<Void> deleteProduct(@PathVariable("product-id") UUID id,
             @PathVariable("vendorId") UUID vendorId, @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
             UUID productId = id;
@@ -106,8 +104,8 @@ public class ProductController {
 
     @PutMapping("/vendor/{vendor-id}/products/{product-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || principal.userId == #vendorId")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable(name = "product-id") UUID productId,
-            @RequestBody ProductDTO productDTO,
+    public ResponseEntity<ProductRequest> updateProduct(@PathVariable(name = "product-id") UUID productId,
+            @RequestBody ProductRequest productDTO,
             @PathVariable("vendorId") UUID vendorId, @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
             Product product = modelMapper.map(productDTO, Product.class);
@@ -141,7 +139,7 @@ public class ProductController {
         try {
             Product product = productService
                     .getProductById(id);
-            ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+            ProductRequest productDTO = modelMapper.map(product, ProductRequest.class);
 
             return ResponseEntity.ok(new Gson().toJson(productDTO));
         } catch (ProductNotFoundException productNotFoundException) {

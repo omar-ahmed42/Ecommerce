@@ -1,10 +1,10 @@
 package com.omarahmed42.ecommerce.service;
 
-import com.omarahmed42.ecommerce.model.Category;
+import com.omarahmed42.ecommerce.DTO.CategoryDTO;
 
 public interface CategoryService {
-    void addCategory(Category category);
-    void deleteCategory(Category category);
-    void updateCategory(Category category);
-    Category getByName(String name);
+    void addCategory(CategoryDTO category);
+    void deleteCategory(Integer id);
+    void updateCategory(Integer id, CategoryDTO category);
+    CategoryDTO getCategory(Integer id);
 }

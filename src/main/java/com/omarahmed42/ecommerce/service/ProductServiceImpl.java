@@ -4,9 +4,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.omarahmed42.ecommerce.DTO.ProductRequest;
+import com.omarahmed42.ecommerce.DTO.ProductResponse;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
 import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
@@ -15,15 +19,21 @@ import com.omarahmed42.ecommerce.repository.ProductRepository;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private ModelMapper modelMapper;
 
     public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setSkipNullEnabled(true);
     }
 
-    @Transactional
     @Override
-    public Product addProduct(Product product) {
-        return productRepository.save(product);
+    @Transactional
+    @Secured("hasRole(Role.ADMIN.toString()) || (principal.userId == #vendorId)")
+    public ProductResponse addProduct(UUID vendorId, ProductRequest productRequest) {
+        Product product = modelMapper.map(productRequest, Product.class);
+        product = productRepository.save(product);
+        return modelMapper.map(product, ProductResponse.class);
     }
 
     @Transactional
@@ -31,33 +41,26 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(UUID id) {
         productRepository
                 .findById(id)
-                .ifPresentOrElse(productRepository::delete, () -> {
-                    throw new ProductNotFoundException("Product not found");
-                });
+                .ifPresentOrElse(productRepository::delete, ProductNotFoundException::new);
     }
 
     @Transactional
     @Override
-    public void updateProduct(Product product) {
-        productRepository
-                .findById(product.getId()) // A custom findById could be implemented to project only the "id" of the entity
-                .ifPresentOrElse(present -> {
-                    ModelMapper modelMapper = new ModelMapper();
-                    modelMapper.getConfiguration().setSkipNullEnabled(true);
-                    modelMapper.map(product, present);
-                    productRepository.save(present);
-                },
-                        () -> {
-                            throw new ProductNotFoundException("Product not found");
-                        });
-    }
-
-    @Transactional
-    @Override
-    public Product getProductById(UUID id) {
-        return productRepository
+    public void updateProduct(UUID id, ProductRequest productRequest) {
+        Product product = productRepository
                 .findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+                .orElseThrow(ProductNotFoundException::new);
+        product = modelMapper.map(productRequest, Product.class);
+        productRepository.save(product);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductResponse getProduct(UUID id) {
+        Product product = productRepository
+                .findById(id)
+                .orElseThrow(ProductNotFoundException::new);
+        return modelMapper.map(product, ProductResponse.class);
     }
 
     @Transactional
