@@ -44,12 +44,12 @@ public class ReviewCommentController {
         modelMapper.getConfiguration().setSkipNullEnabled(true);
     }
 
-    @PostMapping(value = "/customer/{customerId}/products/{productId}/reviews/{reviewId}/comments", consumes = "application/json")
+    @PostMapping(value = "/customer/{customer-id}/products/{product-id}/reviews/{review-id}/comments", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerId)")
-    public ResponseEntity<String> addNewReviewComment(@PathVariable("productId") UUID productId,
-            @PathVariable("reviewId") UUID reviewId,
+    public ResponseEntity<String> addNewReviewComment(@PathVariable("product-id") UUID productId,
+            @PathVariable("review-id") UUID reviewId,
             @RequestBody ReviewCommentDTO reviewCommentDTO,
-            @PathVariable("customerId") UUID customerId,
+            @PathVariable("customer-id") UUID customerId,
             @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
             if (UserDetailsUtils.nonAdmin(authenticatedUser)
@@ -69,11 +69,11 @@ public class ReviewCommentController {
         }
     }
 
-    @DeleteMapping("/customer/{customerId}/products/{productId}/reviews/{reviewId}/comments/{commentId}")
+    @DeleteMapping("/customer/{customer-id}/products/{product-id}/reviews/{review-id}/comments/{comment-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerId)")
-    public ResponseEntity<String> deleteReviewComment(@PathVariable("productId") UUID productId,
-            @PathVariable("reviewId") UUID reviewId, @PathVariable("commentId") UUID commentId,
-            @PathVariable("customerId") UUID customerId,
+    public ResponseEntity<String> deleteReviewComment(@PathVariable("product-id") UUID productId,
+            @PathVariable("review-id") UUID reviewId, @PathVariable("comment-id") UUID commentId,
+            @PathVariable("customer-id") UUID customerId,
             @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
             if (UserDetailsUtils.nonAdmin(authenticatedUser)
@@ -93,10 +93,10 @@ public class ReviewCommentController {
         }
     }
 
-    @PutMapping(value = "/products/{productId}/reviews/{reviewId}/comments/{commentId}", consumes = "application/json")
+    @PutMapping(value = "/products/{product-id}/reviews/{review-id}/comments/{comment-id}", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> updateReviewComment(@PathVariable("productId") UUID productId,
-            @PathVariable("reviewId") UUID reviewId, @PathVariable("commentId") UUID commentId,
+    public ResponseEntity<String> updateReviewComment(@PathVariable("product-id") UUID productId,
+            @PathVariable("review-id") UUID reviewId, @PathVariable("comment-id") UUID commentId,
             @RequestBody ReviewCommentDTO reviewCommentDTO) {
         try {
             ReviewComment reviewComment = modelMapper.map(reviewCommentDTO, ReviewComment.class);
@@ -112,9 +112,9 @@ public class ReviewCommentController {
         }
     }
 
-    @GetMapping(value = "/products/{productId}/reviews/{reviewId}/comments/{commentId}", produces = "application/json")
-    public ResponseEntity<String> getReviewComment(@PathVariable("productId") UUID productId,
-            @PathVariable("reviewId") BigInteger reviewId, @PathVariable("commentId") UUID commentId) {
+    @GetMapping(value = "/products/{product-id}/reviews/{review-id}/comments/{comment-id}", produces = "application/json")
+    public ResponseEntity<String> getReviewComment(@PathVariable("product-id") UUID productId,
+            @PathVariable("review-id") BigInteger reviewId, @PathVariable("comment-id") UUID commentId) {
         try {
             ReviewComment reviewComment = reviewCommentService
                     .getReviewComment(commentId);

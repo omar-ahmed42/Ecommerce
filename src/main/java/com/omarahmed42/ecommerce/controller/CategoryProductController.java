@@ -69,10 +69,10 @@ public class CategoryProductController {
         return categoryProducts;
     }
 
-    @DeleteMapping("/products/{productId}/categories/{categoryId}")
+    @DeleteMapping("/products/{product-id}/categories/{category-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> deleteCategoryProduct(@PathVariable(name = "productId") UUID productId,
-            @PathVariable(name = "categoryId") int categoryId) {
+    public ResponseEntity<String> deleteCategoryProduct(@PathVariable(name = "product-id") UUID productId,
+            @PathVariable(name = "category-id") int categoryId) {
         try {
             categoryProductService.deleteCategoryFromProduct(
                     new CategoryProductPK(categoryId, productId));
@@ -85,8 +85,8 @@ public class CategoryProductController {
         }
     }
 
-    @GetMapping(value = "/products/{productId}/categories", produces = "application/json")
-    public ResponseEntity<String> getCategoriesOfProduct(@PathVariable(name = "productId") UUID productId) {
+    @GetMapping(value = "/products/{product-id}/categories", produces = "application/json")
+    public ResponseEntity<String> getCategoriesOfProduct(@PathVariable(name = "product-id") UUID productId) {
         try {
             List<Category> categoriesOfProduct = categoryProductService
                     .getCategoriesOfProduct(productId);

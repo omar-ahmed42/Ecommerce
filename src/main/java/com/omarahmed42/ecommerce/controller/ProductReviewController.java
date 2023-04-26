@@ -26,11 +26,11 @@ public class ProductReviewController {
         this.productReviewService = productReviewService;
     }
 
-    @PostMapping(value = "/customer/{customerId}/products/{productId}/reviews", consumes = "application/json")
+    @PostMapping(value = "/customer/{customer-id}/products/{product-id}/reviews", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> addNewProductReview(@PathVariable("productId") UUID productId,
+    public ResponseEntity<String> addNewProductReview(@PathVariable("product-id") UUID productId,
             @RequestBody ProductReviewDTO productReviewDTO,
-            @PathVariable(name = "customerId") UUID customerId) {
+            @PathVariable(name = "customer-id") UUID customerId) {
         try {
             // TODO: Allow only users who purchased product X to review it
             Integer rating = productReviewDTO.getRating();
@@ -54,10 +54,10 @@ public class ProductReviewController {
         return (rating != null) && (rating <= 5) && (rating >= 1);
     }
 
-    @DeleteMapping("/products/{productId}/reviews/{reviewId}")
+    @DeleteMapping("/products/{product-id}/reviews/{review-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> deleteProductReview(@PathVariable("productId") UUID productId,
-            @PathVariable("reviewId") UUID reviewId) {
+    public ResponseEntity<String> deleteProductReview(@PathVariable("product-id") UUID productId,
+            @PathVariable("review-id") UUID reviewId) {
         try {
             productReviewService.deleteProductReview(reviewId);
             return ResponseEntity.noContent().build();
@@ -69,10 +69,10 @@ public class ProductReviewController {
         }
     }
 
-    @PutMapping(value = "/products/{productId}/reviews/{reviewId}", consumes = "application/json")
+    @PutMapping(value = "/products/{product-id}/reviews/{review-id}", consumes = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> updateProductReview(@PathVariable("productId") UUID productId,
-            @PathVariable("reviewId") UUID reviewId,
+    public ResponseEntity<String> updateProductReview(@PathVariable("product-id") UUID productId,
+            @PathVariable("review-id") UUID reviewId,
             @RequestBody ProductReviewDTO productReviewDTO) {
         try {
             Integer rating = productReviewDTO.getRating();

@@ -31,10 +31,10 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @PostMapping("/customer/{customerId}/cart")
+    @PostMapping("/customer/{customer-id}/cart")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
     public ResponseEntity<String> addNewCartItemToCart(@RequestBody CartItemDTO cartItemDTO,
-            @PathVariable(name = "customerId") UUID customerIdPathVariable) {
+            @PathVariable(name = "customer-id") UUID customerIdPathVariable) {
         try {
             Cartitems cartItem = modelMapper.map(cartItemDTO, Cartitems.class);
             UUID customerId = customerIdPathVariable;
@@ -54,11 +54,11 @@ public class CartController {
         }
     }
 
-    @PutMapping("/customer/{customerId}/cart/items/{productId}")
+    @PutMapping("/customer/{customer-id}/cart/items/{product-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
     public ResponseEntity<String> updateCartItem(@PathVariable UUID productId,
             @RequestBody CartItemDTO cartItemDTO,
-            @PathVariable(name = "customerId") UUID customerId) {
+            @PathVariable(name = "customer-id") UUID customerId) {
         try {
             Cartitems cartItem = modelMapper.map(cartItemDTO, Cartitems.class);
             cartItem.setCustomerId(customerId);
@@ -74,10 +74,10 @@ public class CartController {
         }
     }
 
-    @DeleteMapping("/customer/{customerId}/cart/items/{productId}")
+    @DeleteMapping("/customer/{customer-id}/cart/items/{product-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> deleteCartItem(@PathVariable(name = "productId") UUID productId,
-            @PathVariable("customerId") UUID customerId) {
+    public ResponseEntity<String> deleteCartItem(@PathVariable(name = "product-id") UUID productId,
+            @PathVariable("customer-id") UUID customerId) {
         try {
             cartService.deleteCartItem(new Cartitems(customerId, productId));
             return ResponseEntity.noContent().build();

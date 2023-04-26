@@ -26,8 +26,8 @@ public class ProductMediaController {
         this.productMediaService = productMediaService;
     }
 
-    @PostMapping("/{productId}/media")
-    public ResponseEntity<String> addNewMedia(@PathVariable("productId") UUID productId, @RequestBody Set<String> mediaUrls) {
+    @PostMapping("/products/{product-id}/media")
+    public ResponseEntity<String> addNewMedia(@PathVariable("product-id") UUID productId, @RequestBody Set<String> mediaUrls) {
         try {
             List<ProductMedia> productMedia = new ArrayList<>(mediaUrls.size());
             mediaUrls

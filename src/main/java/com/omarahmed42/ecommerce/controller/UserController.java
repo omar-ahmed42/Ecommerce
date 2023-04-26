@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.omarahmed42.ecommerce.DTO.UserRegistrationDTO;
@@ -31,7 +30,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
+    @PostMapping("/users")
     public ResponseEntity<String> register(@RequestBody UserRegistrationDTO userRegistrationDTO){
         ModelMapper modelMapper = new ModelMapper();
         User user = modelMapper.map(userRegistrationDTO, User.class);
@@ -47,9 +46,9 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
-    @DeleteMapping("/user/id=:id")
+    @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString())")
-    public ResponseEntity<String> deleteUser(@RequestParam("id") UUID id){
+    public ResponseEntity<String> deleteUser(@PathVariable("id") UUID id){
         if (isEmptyOrNullOrBlank(id)) {
             return ResponseEntity.unprocessableEntity().build();
         }

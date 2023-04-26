@@ -30,10 +30,10 @@ public class WishlistController {
         this.wishlistService = wishlistService;
     }
 
-    @PostMapping("/customer/{customerId}/products/{productId}/wishlist")
+    @PostMapping("/customer/{customer-id}/products/{product-id}/wishlist")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<Object> addNewWishlist(@PathVariable("productId") UUID productId,
-            @PathVariable("customerId") UUID customerId) {
+    public ResponseEntity<Object> addNewWishlist(@PathVariable("product-id") UUID productId,
+            @PathVariable("customer-id") UUID customerId) {
         try {
             wishlistService.addWishlist(new Wishlist(customerId, productId));
             return ResponseEntity.ok().build();
@@ -45,10 +45,10 @@ public class WishlistController {
         }
     }
 
-    @DeleteMapping("/customer/{customerId}/wishlist/{productId}")
+    @DeleteMapping("/customer/{customer-id}/wishlist/{product-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> deleteWishlist(@PathVariable("productId") UUID productId,
-            @PathVariable("customerId") UUID customerId) {
+    public ResponseEntity<String> deleteWishlist(@PathVariable("product-id") UUID productId,
+            @PathVariable("customer-id") UUID customerId) {
         try {
             wishlistService.deleteWishlist(new WishlistPK(customerId, productId));
             return ResponseEntity.noContent().build();
@@ -60,10 +60,10 @@ public class WishlistController {
         }
     }
 
-    @GetMapping(value = "/customer/{customerId}/wishlist/{productId}", produces = "application/json")
+    @GetMapping(value = "/customer/{customer-id}/wishlist/{product-id}", produces = "application/json")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #customerIdPathVariable)")
-    public ResponseEntity<String> getWishlist(@PathVariable("productId") UUID productId,
-            @PathVariable("customerId") UUID customerId) {
+    public ResponseEntity<String> getWishlist(@PathVariable("product-id") UUID productId,
+            @PathVariable("customer-id") UUID customerId) {
         try {
             Wishlist wishlist = wishlistService
                     .getWishlist(new WishlistPK(customerId, productId));

@@ -50,7 +50,7 @@ public class ProductController {
 
     // TODO: handle media saving (media storage, uploading)
     // Upload images
-    @PostMapping("/vendor/{vendorId}/product")
+    @PostMapping("/vendor/{vendor-id}/product")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || (principal.userId == #vendorId)")
     public ResponseEntity<ProductDTO> addNewProduct(@RequestBody ProductDTO productDTO,
             @PathVariable(name = "vendorId") UUID vendorId) {
@@ -78,9 +78,9 @@ public class ProductController {
         return productMediaCollection;
     }
 
-    @DeleteMapping("/vendor/{vendorId}/products/{productId}")
+    @DeleteMapping("/vendor/{vendor-id}/products/{product-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || principal.userId == #vendorId")
-    public ResponseEntity<ProductDTO> removeProduct(@PathVariable("productId") UUID id,
+    public ResponseEntity<ProductDTO> removeProduct(@PathVariable("product-id") UUID id,
             @PathVariable("vendorId") UUID vendorId, @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
             UUID productId = id;
@@ -104,9 +104,9 @@ public class ProductController {
         return !(authentedUser instanceof AdminUserDetails);
     }
 
-    @PutMapping("/vendor/{vendorId}/products/{productId}")
+    @PutMapping("/vendor/{vendor-id}/products/{product-id}")
     @PreAuthorize("hasRole(Role.ADMIN.toString()) || principal.userId == #vendorId")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable(name = "productId") UUID productId,
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable(name = "product-id") UUID productId,
             @RequestBody ProductDTO productDTO,
             @PathVariable("vendorId") UUID vendorId, @AuthenticationPrincipal UserDetails authenticatedUser) {
         try {
@@ -136,8 +136,8 @@ public class ProductController {
         }
     }
 
-    @GetMapping(value = "/products/{productId}", produces = "application/json")
-    public ResponseEntity<String> getProduct(@PathVariable(name = "productId") UUID id) {
+    @GetMapping(value = "/products/{product-id}", produces = "application/json")
+    public ResponseEntity<String> getProduct(@PathVariable(name = "product-id") UUID id) {
         try {
             Product product = productService
                     .getProductById(id);
