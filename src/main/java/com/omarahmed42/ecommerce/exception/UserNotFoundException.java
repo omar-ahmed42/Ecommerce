@@ -1,6 +1,6 @@
 package com.omarahmed42.ecommerce.exception;
 
-public class UserNotFoundException extends RuntimeException {
+public class UserNotFoundException extends NotFoundException {
     private static final String USER_NOT_FOUND = "User not found";
 
     public UserNotFoundException() {
