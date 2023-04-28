@@ -2,7 +2,9 @@ package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.Basic;
@@ -11,7 +13,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.JoinColumn;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
@@ -31,7 +36,7 @@ public class User implements Serializable {
     private UUID id;
 
     @Basic
-    @Column(name = "email", nullable = false, length = 256)
+    @Column(name = "email", nullable = false, length = 256, unique = true)
     private String email;
 
     @Basic
@@ -79,6 +84,14 @@ public class User implements Serializable {
 
     @OneToOne(mappedBy = "userByUserId", fetch = FetchType.LAZY)
     private Vendor vendorsById;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "user_role",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
