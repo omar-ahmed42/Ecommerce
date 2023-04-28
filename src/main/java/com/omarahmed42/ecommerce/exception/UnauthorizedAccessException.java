@@ -1,7 +1,7 @@
 package com.omarahmed42.ecommerce.exception;
 
 public class UnauthorizedAccessException extends RuntimeException {
-    private static final int STATUS_CODE = 403;
+    public static final int STATUS_CODE = 403;
     private static final String UNAUTHORIZED_ACCESS = "Unauthorized access to resource";
 
     public UnauthorizedAccessException() {

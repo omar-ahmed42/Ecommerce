@@ -8,6 +8,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.omarahmed42.ecommerce.exception.AlreadyExistsException;
 import com.omarahmed42.ecommerce.exception.NotFoundException;
+import com.omarahmed42.ecommerce.exception.TokenAlreadyConsumedException;
+import com.omarahmed42.ecommerce.exception.TokenExpiredException;
+import com.omarahmed42.ecommerce.exception.TokenRevokedException;
 import com.omarahmed42.ecommerce.exception.UnauthorizedAccessException;
 import com.omarahmed42.ecommerce.exception.ValidationException;
 
@@ -33,6 +36,23 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Object> handleValidationException(ValidationException validationException) {
         return ResponseEntity.status(ValidationException.STATUS_CODE).body(validationException.getMessage());
+    }
+
+    @ExceptionHandler(TokenAlreadyConsumedException.class)
+    public ResponseEntity<Object> handleTokenAlreadyConsumedException(
+            TokenAlreadyConsumedException tokenAlreadyConsumedException) {
+        return ResponseEntity.status(TokenAlreadyConsumedException.STATUS_CODE)
+                .body(tokenAlreadyConsumedException.getMessage());
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException tokenExpiredException) {
+        return ResponseEntity.status(TokenExpiredException.STATUS_CODE).body(tokenExpiredException.getMessage());
+    }
+
+    @ExceptionHandler(TokenRevokedException.class)
+    public ResponseEntity<Object> handleTokenRevokedException(TokenRevokedException tokenRevokedException) {
+        return ResponseEntity.badRequest().body(tokenRevokedException.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
