@@ -8,13 +8,16 @@ import java.util.UUID;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
+
+import com.omarahmed42.ecommerce.enums.TokenStatus;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,15 +27,17 @@ import lombok.Setter;
 @Entity
 public class VerificationToken implements Serializable {
     @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    private String token;
+    @GeneratedValue
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID token;
 
     @Basic
     @Column(name = "expiry_date")
     private Timestamp expiryDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "token_status")
+    private TokenStatus status;
 
     @Basic
     @Column(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
@@ -47,16 +52,14 @@ public class VerificationToken implements Serializable {
     public VerificationToken() {
     }
 
-    public VerificationToken(String token, User user) {
+    public VerificationToken(UUID token, User user) {
         this.token = token;
         this.userId = user.getId();
     }
 
-    private Timestamp calculateExpiryDate(int expiryTimeInMinutes) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Timestamp(calendar.getTime().getTime()));
-        calendar.add(Calendar.MINUTE, expiryTimeInMinutes);
-        return new Timestamp(calendar.getTime().getTime());
+    public VerificationToken(User user) {
+        this.user = user;
+        this.userId = user.getId();
     }
 
     @PrePersist

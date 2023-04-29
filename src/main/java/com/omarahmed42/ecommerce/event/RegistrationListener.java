@@ -31,12 +31,11 @@ public class RegistrationListener {
 
     private void confirmRegistration(OnRegistrationEvent event) {
         User user = event.getUser();
-        String token = UUID.randomUUID().toString();
-        verificationTokenService.addVerificationToken(token, user);
+        UUID token = verificationTokenService.addVerificationToken(user);
 
         String recipientEmail = user.getEmail();
         String subject = "Verify your email";
-        String confirmationURL = "http://localhost:8080/confirm?token=" + token; // Frontend should call /v1/confirm?token=${TOKEN}
+        String confirmationURL = "http://localhost:8080/confirm?token=" + token.toString();
 
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom(SENDER);
