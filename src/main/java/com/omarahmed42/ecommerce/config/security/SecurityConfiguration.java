@@ -11,7 +11,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.omarahmed42.ecommerce.enums.Role;
 
-import co.elastic.clients.elasticsearch.nodes.Http;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
