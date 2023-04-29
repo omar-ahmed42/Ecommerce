@@ -4,17 +4,22 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import com.omarahmed42.ecommerce.DTO.UserRegistrationDTO;
 import com.omarahmed42.ecommerce.DTO.UserResponse;
 import com.omarahmed42.ecommerce.event.OnRegistrationEvent;
 import com.omarahmed42.ecommerce.exception.EmailAlreadyExistsException;
+import com.omarahmed42.ecommerce.exception.MissingFieldException;
 import com.omarahmed42.ecommerce.exception.UserNotFoundException;
 import com.omarahmed42.ecommerce.model.User;
 import com.omarahmed42.ecommerce.repository.UserRepository;
+
+import io.micrometer.core.instrument.util.StringUtils;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -35,32 +40,49 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @Secured("hasRole(Role.ADMIN.toString()) || isAnonymous()")
     public void addUser(UserRegistrationDTO userRegistrationDTO) {
+        validateUser(userRegistrationDTO);
         User user = modelMapper.map(userRegistrationDTO, User.class);
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(user.getEmail()))
             throw new EmailAlreadyExistsException("Email " + user.getEmail() + " is already in use");
-        }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
         applicationEventPublisher.publishEvent(new OnRegistrationEvent(user));
     }
 
+    private void validateUser(UserRegistrationDTO userRegistrationDTO) {
+        if (StringUtils.isBlank(userRegistrationDTO.getFirstName()))
+            throw new MissingFieldException("First name is missing");
+        if (StringUtils.isBlank(userRegistrationDTO.getLastName()))
+            throw new MissingFieldException("Last name is missing");
+        if (StringUtils.isBlank(userRegistrationDTO.getEmail()))
+            throw new MissingFieldException("Email is missing");
+        if (StringUtils.isBlank(userRegistrationDTO.getPassword()))
+            throw new MissingFieldException("Password is missing");
+        if (StringUtils.isBlank(userRegistrationDTO.getPhoneNumber()))
+            throw new MissingFieldException("Phone number is missing");
+    }
+
     @Override
     @Transactional
+    @Secured("hasRole(Role.ADMIN.toString())")
     public void deleteUser(UUID id) {
+        if (ObjectUtils.isEmpty(id))
+            throw new MissingFieldException("User id is missing");
         userRepository
                 .findById(id)
                 .ifPresentOrElse(userRepository::delete, UserNotFoundException::new);
     }
 
-    @Transactional
     @Override
-    public void updateUser(User user) {
-        if (!userRepository.existsById(user.getId())) {
-            throw new UserNotFoundException("User doesn't exist");
-        }
-
+    @Transactional
+    public void updateUser(UUID userId, UserRegistrationDTO userRegistrationDTO) {
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        user = modelMapper.map(userRegistrationDTO, User.class);
         userRepository.save(user);
     }
 
