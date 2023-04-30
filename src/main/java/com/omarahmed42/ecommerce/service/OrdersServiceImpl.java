@@ -3,20 +3,29 @@ package com.omarahmed42.ecommerce.service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.LockModeType;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.omarahmed42.ecommerce.DTO.BillingAddressDTO;
+import com.omarahmed42.ecommerce.DTO.CartItemDTO;
+import com.omarahmed42.ecommerce.DTO.OrderDetailsDTO;
 import com.omarahmed42.ecommerce.enums.Status;
+import com.omarahmed42.ecommerce.exception.InvalidInputException;
+import com.omarahmed42.ecommerce.exception.MissingFieldException;
 import com.omarahmed42.ecommerce.exception.MoreThanStockCapacityException;
 import com.omarahmed42.ecommerce.exception.OrderNotFoundException;
-import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
 import com.omarahmed42.ecommerce.model.BillingAddress;
 import com.omarahmed42.ecommerce.model.CustomerOrders;
 import com.omarahmed42.ecommerce.model.Orders;
@@ -25,29 +34,36 @@ import com.omarahmed42.ecommerce.model.ProductItem;
 import com.omarahmed42.ecommerce.repository.BillingAddressRepository;
 import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
 import com.omarahmed42.ecommerce.repository.OrderRepository;
-import com.omarahmed42.ecommerce.repository.ProductItemRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class OrdersServiceImpl implements OrdersService {
 
     private final OrderRepository orderRepository;
-    private final ProductItemRepository productItemRepository;
     private final ProductRepository productRepository;
     private final CustomerOrdersRepository customerOrdersRepository;
     private final BillingAddressRepository billingAddressRepository;
+    private ModelMapper modelMapper;
 
-    @Transactional
+    public OrdersServiceImpl(OrderRepository orderRepository,
+            ProductRepository productRepository, CustomerOrdersRepository customerOrdersRepository,
+            BillingAddressRepository billingAddressRepository) {
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
+        this.customerOrdersRepository = customerOrdersRepository;
+        this.billingAddressRepository = billingAddressRepository;
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setSkipNullEnabled(true);
+    }
+
     @Override
+    @Transactional
     public void addOrder(Orders order) {
         orderRepository.save(order);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void deleteOrder(UUID id) {
         orderRepository
                 .findById(id)
@@ -57,8 +73,23 @@ public class OrdersServiceImpl implements OrdersService {
                         });
     }
 
-    @Transactional
     @Override
+    @Transactional
+    public void updateOrderPartially(UUID id, OrderDetailsDTO orderDetailsDTO) {
+        if (orderDetailsDTO.getTotalPrice() != null && orderDetailsDTO.getTotalPrice().compareTo(BigDecimal.ZERO) < 0)
+            throw new InvalidInputException("Total price cannot be less than 0");
+
+        try {
+            Orders order = orderRepository.getReferenceById(id);
+            order = modelMapper.map(orderDetailsDTO, Orders.class);
+            orderRepository.save(order);
+        } catch (EntityNotFoundException entityNotFoundException) {
+            throw new OrderNotFoundException();
+        }
+    }
+
+    @Override
+    @Transactional
     public void updateOrder(Orders order) {
         orderRepository
                 .findById(order.getId())
@@ -68,51 +99,72 @@ public class OrdersServiceImpl implements OrdersService {
                         });
     }
 
+    @Transactional(readOnly = true)
+    public Orders getOrder(UUID orderId) {
+        return orderRepository
+                .findById(orderId)
+                .orElseThrow(OrderNotFoundException::new);
+    }
+
+    @Override
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public Orders addNewOrders(UUID customerId, ProductItem[] productItems, BillingAddress billingAddress) {
-        BigDecimal totalPrice = new BigDecimal(0);
-        Product[] products = new Product[productItems.length];
-        for (int i = 0; i < productItems.length; i++) {
-            products[i] = productRepository
-                    .findById(productItems[i].getProductId())
-                    .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-            productItems[i].setProductId(products[i].getId());
-            int remainingStock = (products[i].getStock() - productItems[i].getQuantity());
-            if (remainingStock < 0) {
-                throw new MoreThanStockCapacityException("More than stock capacity");
-            }
-            products[i].setStock(remainingStock);
-            BigDecimal subtotal = products[i].getPrice().multiply(BigDecimal.valueOf(productItems[i].getQuantity()));
-            productItems[i].setTotalPrice(subtotal);
-            totalPrice = totalPrice.add(subtotal);
+    @Secured("principal.user.id == #userId")
+    public Orders addOrder(UUID userId, CartItemDTO[] cartItems, BillingAddressDTO billingAddressDTO) {
+        Map<UUID, Integer> productIdToQuantity = mapProductIdsToQuantity(cartItems);
+        Set<UUID> productIds = productIdToQuantity.keySet();
+        if (productIds.isEmpty())
+            throw new MissingFieldException("Products ids are missing");
+
+        List<Product> products = productRepository.findAllById(productIds);
+        List<ProductItem> orderItems = new ArrayList<>(products.size());
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for (Product product : products) {
+            Integer quantity = productIdToQuantity.get(product.getId());
+            updateStock(product, quantity);
+            ProductItem orderItem = new ProductItem(product.getId(), calculateSubTotal(product, quantity), quantity);
+            orderItems.add(orderItem);
+            totalPrice = totalPrice.add(orderItem.getTotalPrice());
         }
 
-        new Thread(() -> productRepository.saveAll(Arrays.asList(products))).start();
+        productRepository.saveAll(products);
 
+        BillingAddress billingAddress = modelMapper.map(billingAddressDTO, BillingAddress.class);
         billingAddress = billingAddressRepository.save(billingAddress);
+
         Orders order = new Orders();
         order.setBillingAddressId(billingAddress.getId());
         order.setTotalPrice(totalPrice);
         order.setStatus(Status.PENDING);
         order.setPurchaseDate(Instant.now());
+        order.addAllOrderItems(orderItems);
         order = orderRepository.save(order);
-        customerOrdersRepository.save(new CustomerOrders(customerId, order.getId()));
 
-        List<ProductItem> productItemsToBeSaved = new ArrayList<>(productItems.length);
-        for (ProductItem productItem : productItems){
-            productItem.setOrderId(order.getId());
-            productItemsToBeSaved.add(productItem);
-        }
-        productItemRepository.saveAll(productItemsToBeSaved);
-       
+        customerOrdersRepository.save(new CustomerOrders(userId, order.getId()));
         return order;
     }
 
-    @Transactional
-    public Orders getOrder(UUID orderId) {
-        return orderRepository
-                .findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Orders not found"));
+    private Map<UUID, Integer> mapProductIdsToQuantity(CartItemDTO[] cartItems) {
+        Map<UUID, Integer> productIdToQuantity = new HashMap<>(cartItems.length);
+        for (CartItemDTO cartItem : cartItems) {
+            if (cartItem == null || cartItem.getProductId() == null)
+                continue;
+            productIdToQuantity.put(cartItem.getProductId(), cartItem.getQuantity());
+        }
+        return productIdToQuantity;
     }
+
+    private void updateStock(Product product, Integer quantity) {
+        int remainingStock = product.getStock() - quantity;
+        if (remainingStock < 0)
+            throw new MoreThanStockCapacityException("More than stock capacity");
+
+        product.setStock(remainingStock);
+    }
+
+    private BigDecimal calculateSubTotal(Product product, Integer quantity) {
+        return product.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
+
 }

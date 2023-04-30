@@ -3,11 +3,13 @@ package com.omarahmed42.ecommerce.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -66,12 +68,30 @@ public class Orders implements Serializable {
     @OneToOne(mappedBy = "orderByOrderId", fetch = FetchType.LAZY)
     private Payment payment;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "ordersById")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "ordersById", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ProductItem> productItemsById;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "billing_address_id", referencedColumnName = "id", insertable = false, updatable = false)
     private BillingAddress billingAddressByBillingAddressId;
+
+    public void addAllOrderItems(Collection<ProductItem> orderItems) {
+        if (orderItems.isEmpty())
+            return;
+        for (ProductItem orderItem : orderItems) {
+            addOrderItem(orderItem);
+        }
+    }
+
+    public void addOrderItem(ProductItem orderItem) {
+        productItemsById.add(orderItem);
+        orderItem.setOrdersById(this);
+    }
+
+    public void removeComment(ProductItem orderItem) {
+        orderItem.setOrdersById(null);
+        this.productItemsById.remove(orderItem);
+    }
 
     @Override
     public boolean equals(Object o) {
