@@ -28,17 +28,18 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = modelMapper.map(categoryDTO, Category.class);
         categoryRepository
                 .findByName(category.getName())
-                .ifPresentOrElse(presentCategory -> new CategoryAlreadyExistsException("Category already exists"),
+                .ifPresentOrElse(presentCategory -> {
+                    throw new CategoryAlreadyExistsException("Category already exists");
+                },
                         () -> categoryRepository.save(category));
     }
 
     @Override
     @Transactional
     public void deleteCategory(Integer id) {
-        categoryRepository
+        categoryRepository.delete(categoryRepository
                 .findById(id)
-                .ifPresentOrElse(presentCategory -> categoryRepository.deleteById(presentCategory.getId()),
-                        CategoryNotFoundException::new);
+                .orElseThrow(CategoryNotFoundException::new));
     }
 
     @Override
