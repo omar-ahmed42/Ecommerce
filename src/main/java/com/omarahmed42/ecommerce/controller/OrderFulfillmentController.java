@@ -1,11 +1,5 @@
 package com.omarahmed42.ecommerce.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,14 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonSyntaxException;
-import com.omarahmed42.ecommerce.enums.PaymentStatus;
-import com.omarahmed42.ecommerce.enums.Status;
-import com.omarahmed42.ecommerce.model.Orders;
-import com.omarahmed42.ecommerce.model.Payment;
-import com.omarahmed42.ecommerce.model.ProductItem;
-import com.omarahmed42.ecommerce.service.OrdersService;
 import com.omarahmed42.ecommerce.service.PaymentService;
-import com.omarahmed42.ecommerce.service.ProductService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
@@ -41,16 +28,10 @@ public class OrderFulfillmentController {
     @Value("${stripe.endpoint.secret}")
     private String endpointSecret;
 
-    private final OrdersService ordersService;
     private final PaymentService paymentService;
 
-    private final ProductService productService;
-
-    public OrderFulfillmentController(OrdersService ordersService, PaymentService paymentService,
-            ProductService productService) {
-        this.ordersService = ordersService;
+    public OrderFulfillmentController(PaymentService paymentService) {
         this.paymentService = paymentService;
-        this.productService = productService;
     }
 
     @PostMapping("/order-webhook")
@@ -90,82 +71,7 @@ public class OrderFulfillmentController {
             return ResponseEntity.status(400).build();
         }
         // Handle the event
-        switch (event.getType()) {
-            case "payment_intent.created":
-                PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
-                logger.info("Payment for {} created.", paymentIntent.getAmount());
-                handlePaymentCreated(paymentIntent);
-                break;
-            case "payment_intent.succeeded":
-                paymentIntent = (PaymentIntent) stripeObject;
-                logger.info("Payment for {} succeeded.", paymentIntent.getAmount());
-                handlePaymentIntentSucceeded(paymentIntent);
-                break;
-            case "payment_intent.payment_failed":
-                paymentIntent = (PaymentIntent) stripeObject;
-                handlePaymentIntentFailed(paymentIntent);
-                break;
-            default:
-                logger.warn("Unhandled event type: {}", event.getType());
-                break;
-        }
+        paymentService.handlePaymentIntent(event.getType(), (PaymentIntent) stripeObject);
         return ResponseEntity.ok().build();
     }
-
-    private void handlePaymentCreated(PaymentIntent paymentIntent) {
-        if (paymentService.findPayment(paymentIntent.getId()).isPresent()) {
-            return;
-        }
-
-        Map<String, String> metadata = paymentIntent.getMetadata();
-        UUID orderId = UUID.fromString(metadata.get("orderId"));
-        Payment payment = new Payment(paymentIntent.getId(), paymentIntent.getAmount(), PaymentStatus.CREATED, orderId);
-        paymentService.addPayment(payment);
-    }
-
-    private void handlePaymentIntentSucceeded(PaymentIntent paymentIntent) {
-        Optional<Payment> retrievedPayment = paymentService.findPayment(paymentIntent.getId());
-        if (retrievedPayment.isEmpty()) {
-            return;
-        }
-
-        Map<String, String> metadata = paymentIntent.getMetadata();
-        UUID orderId = UUID.fromString(metadata.get("orderId"));
-        Orders order = ordersService.getOrder(orderId);
-        order.setStatus(Status.COMPLETED);
-        ordersService.updateOrder(order);
-        Payment payment = retrievedPayment.get();
-        payment.setPaymentStatus(PaymentStatus.COMPLETED);
-        paymentService.addPayment(payment);
-    }
-
-    private void handlePaymentIntentFailed(PaymentIntent paymentIntent) {
-        Optional<Payment> retrievedPayment = paymentService.findPayment(paymentIntent.getId());
-        if (retrievedPayment.isEmpty()) {
-            return;
-        }
-        Map<String, String> metadata = paymentIntent.getMetadata();
-        UUID orderId = UUID.fromString(metadata.get("orderId"));
-        Orders order = ordersService.getOrder(orderId);
-        order.setStatus(Status.FAILED);
-        ordersService.updateOrder(order);
-
-        Payment payment = retrievedPayment.get();
-        payment.setPaymentStatus(PaymentStatus.FAILED);
-        paymentService.addPayment(payment);
-        new Thread(() -> updateProductStock(order)).start();
-    }
-
-    private void updateProductStock(Orders order) {
-        List<ProductItem> productItemsById = order.getProductItemsById();
-        List<com.omarahmed42.ecommerce.model.Product> products = new ArrayList<>(productItemsById.size());
-        for (ProductItem productItem : productItemsById) {
-            com.omarahmed42.ecommerce.model.Product product = productItem.getProductByProductId();
-            int stock = product.getStock() + productItem.getQuantity();
-            product.setStock(stock);
-            products.add(product);
-        }
-        productService.updateProducts(products);
-    }
-
 }
