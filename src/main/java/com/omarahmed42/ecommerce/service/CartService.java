@@ -1,10 +1,13 @@
 package com.omarahmed42.ecommerce.service;
 
-import com.omarahmed42.ecommerce.model.Cartitems;
-import com.omarahmed42.ecommerce.model.CartitemsPK;
+import java.util.UUID;
+
+import com.omarahmed42.ecommerce.DTO.CartItemDTO;
 
 public interface CartService {
-    void addCartItem(Cartitems cartitems);
-    void deleteCartItem(Cartitems cartitems);
-    void updateCartItem(CartitemsPK cartitemsPK, Cartitems newCartItem);
+    void addCartItem(CartItemDTO cartItemDTO);
+    void updateCartItem(UUID productId, CartItemDTO cartItemDTO);
+    CartItemDTO getCartItem(UUID userId, UUID productId);
+
+    void deleteCartItem(UUID productId);
 }
