@@ -1,12 +1,13 @@
 package com.omarahmed42.ecommerce.service;
 
-import com.omarahmed42.ecommerce.model.Wishlist;
-import com.omarahmed42.ecommerce.model.WishlistPK;
+import java.util.UUID;
+
+import com.omarahmed42.ecommerce.DTO.ProductResponse;
 
 public interface WishlistService {
-    void addWishlist(Wishlist wishlist);
-    void deleteWishlist(WishlistPK wishlistPK);
-    void updateWishlist(Wishlist wishlist);
+    void addWishlist(UUID productId);
 
-    Wishlist getWishlist(WishlistPK wishlistPK);
+    void deleteWishlist(UUID productId);
+
+    ProductResponse getWishlist(UUID customerId, UUID productId);
 }

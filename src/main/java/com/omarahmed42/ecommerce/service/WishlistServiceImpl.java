@@ -1,65 +1,60 @@
 package com.omarahmed42.ecommerce.service;
 
+import java.util.UUID;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.omarahmed42.ecommerce.exception.CustomerNotFoundException;
-import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
+import com.omarahmed42.ecommerce.DTO.ProductResponse;
+import com.omarahmed42.ecommerce.exception.WishlistAlreadyExistsException;
 import com.omarahmed42.ecommerce.exception.WishlistNotFoundException;
+import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.model.Wishlist;
 import com.omarahmed42.ecommerce.model.WishlistPK;
-import com.omarahmed42.ecommerce.repository.CustomerRepository;
-import com.omarahmed42.ecommerce.repository.ProductRepository;
 import com.omarahmed42.ecommerce.repository.WishlistRepository;
+import com.omarahmed42.ecommerce.util.UserDetailsUtils;
 
 @Service
 public class WishlistServiceImpl implements WishlistService {
 
     private final WishlistRepository wishlistRepository;
-    private final CustomerRepository customerRepository;
-    private final ProductRepository productRepository;
+    private ModelMapper modelMapper;
 
-    public WishlistServiceImpl(WishlistRepository wishlistRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
+    public WishlistServiceImpl(WishlistRepository wishlistRepository) {
         this.wishlistRepository = wishlistRepository;
-        this.customerRepository = customerRepository;
-        this.productRepository = productRepository;
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setSkipNullEnabled(true);
     }
 
-    @Transactional
     @Override
-    public void addWishlist(Wishlist wishlist) {
-        if (customerRepository.findById(wishlist.getCustomerId()).isEmpty()){
-            throw new CustomerNotFoundException("Customer not found");
-        } else if (productRepository.findById(wishlist.getProductId()).isEmpty()){
-            throw new ProductNotFoundException("Product not found");
-        }
+    @Transactional
+    @Secured("hasRole(Role.CUSTOMER.toString())")
+    public void addWishlist(UUID productId) {
+        if (wishlistRepository.existsById(new WishlistPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId)))
+            throw new WishlistAlreadyExistsException();
 
-        wishlistRepository.save(wishlist);
+        wishlistRepository.save(new Wishlist(UserDetailsUtils.getAuthenticatedUser().getId(), productId));
     }
 
-    @Transactional
     @Override
-    public void deleteWishlist(WishlistPK wishlistPK) {
+    @Transactional
+    @Secured("hasRole(Role.CUSTOMER.toString())")
+    public void deleteWishlist(UUID productId) {
+        WishlistPK wishlistPK = new WishlistPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId);
         wishlistRepository.findById(wishlistPK)
-                .ifPresentOrElse(wishlistRepository::delete,
-                        () -> {throw new WishlistNotFoundException("Wishlist not found");});
+                .ifPresentOrElse(wishlistRepository::delete, WishlistNotFoundException::new);
     }
 
-    @Transactional
     @Override
-    public void updateWishlist(Wishlist wishlist) {
-        wishlistRepository
-                .findById(new WishlistPK(wishlist.getCustomerId(), wishlist.getProductId()))
-                .orElseThrow(() -> new WishlistNotFoundException("Wishlist not found"));
-
-        wishlistRepository.save(wishlist);
-    }
-
-    @Transactional
-    @Override
-    public Wishlist getWishlist(WishlistPK wishlistPK) {
-        return wishlistRepository
-                .findById(wishlistPK)
-                .orElseThrow(() -> new WishlistNotFoundException("Wishlist not found"));
+    @Transactional(readOnly = true)
+    @Secured("hasRole(Role.ADMIN.toString()) || (hasRole(Role.CUSTOMER.toString()) && (principal.user.id == #customerId))")
+    public ProductResponse getWishlist(UUID customerId, UUID productId) {
+        WishlistPK wishlistPK = new WishlistPK(customerId, productId);
+        Product product = wishlistRepository
+                .findProductByWishlistPK(wishlistPK)
+                .orElseThrow(WishlistNotFoundException::new);
+        return modelMapper.map(product, ProductResponse.class);
     }
 }
