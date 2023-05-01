@@ -28,7 +28,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     @Override
     public void addCustomer(Customer customer) {
-        if (userRepository.existsById(customer.getUserId())){
+        if (userRepository.existsById(customer.getId())){
             throw new UserNotFoundException("Cannot add a new customer for a non-existent user");
         }
 
@@ -53,7 +53,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new CustomerNotFoundException("Customer not found");
         }
 
-        if (customer.getUserId() != customerRetrieved.get().getUserId() && !userRepository.existsById(customer.getUserId())){
+        if (customer.getId() != customerRetrieved.get().getId() && !userRepository.existsById(customer.getId())){
                 throw new UserNotFoundException("Cannot set a customer's userId to an non-existent one");
         }
 

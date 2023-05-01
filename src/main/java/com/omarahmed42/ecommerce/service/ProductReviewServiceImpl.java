@@ -2,7 +2,7 @@ package com.omarahmed42.ecommerce.service;
 
 import java.util.UUID;
 
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +30,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public void addProductReview(UUID productId, ProductReviewRequest productReviewRequest) {
         validateProductReview(productReviewRequest);
         ProductReview productReview = new ProductReview();
@@ -42,7 +42,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.ADMIN.toString()) || hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('CUSTOMER')")
     public void deleteProductReview(UUID id) {
         ProductReview productReview = productReviewRepository
                 .findById(id).orElseThrow(ProductReviewNotFoundException::new);
@@ -58,20 +58,17 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public void updateProductReview(UUID id, ProductReviewRequest productReviewRequest) {
         validateProductReview(productReviewRequest);
-        productReviewRepository
-                .findById(id)
-                .ifPresentOrElse(present -> {
-                    UUID authenticatedUserId = UserDetailsUtils.getAuthenticatedUser().getId();
-                    if (!present.getCustomerId().equals(authenticatedUserId))
-                        throw new UnauthorizedAccessException(authenticatedUserId.toString(), "update",
-                                "a product review");
-                    present.setRating(productReviewRequest.getRating());
-                    productReviewRepository.save(present);
-                },
-                        ProductReviewNotFoundException::new);
+        ProductReview productReview = productReviewRepository
+                .findById(id).orElseThrow(ProductReviewNotFoundException::new);
+        UUID authenticatedUserId = UserDetailsUtils.getAuthenticatedUser().getId();
+        if (!productReview.getCustomerId().equals(authenticatedUserId))
+            throw new UnauthorizedAccessException(authenticatedUserId.toString(), "update",
+                    "a product review");
+        productReview.setRating(productReviewRequest.getRating());
+        productReviewRepository.save(productReview);
     }
 
     private void validateProductReview(ProductReviewRequest productReviewRequest) {
