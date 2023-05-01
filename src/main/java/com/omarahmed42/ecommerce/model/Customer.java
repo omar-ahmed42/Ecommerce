@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,9 +23,8 @@ import lombok.Setter;
 @Setter
 public class Customer implements Serializable {
     @Id
-    @Basic
-    @Column(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
-    private UUID userId;
+    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    private UUID id;
 
     @Basic
     @Column(name = "billing_address_id", nullable = true, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
@@ -33,15 +33,15 @@ public class Customer implements Serializable {
     @OneToMany(mappedBy = "customerByCustomerId", fetch = FetchType.LAZY)
     private Collection<Cartitems> cartitemsById;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    @OneToOne
+    @PrimaryKeyJoinColumn(name = "user_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private User userByUserId;
 
     public Customer() {
     }
 
     public Customer(UUID userId) {
-        this.userId = userId;
+        this.id = userId;
     }
 
     // TODO: Make the relationship OneToMany instead of ManyToOne
@@ -59,25 +59,27 @@ public class Customer implements Serializable {
     private Collection<Wishlist> wishlistsById;
 
     public UUID getId() {
-        return this.userId;
+        return this.id;
     }
 
-    public void setId(UUID id){
-        this.userId = id;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Customer customer = (Customer) o;
-        return userId.equals(customer.userId) && billingAddressId.equals(customer.billingAddressId);
+        return id.equals(customer.id) && billingAddressId.equals(customer.billingAddressId);
     }
 
     @Override
     public int hashCode() {
-        int result = userId.hashCode();
-        result = 31 * result + userId.hashCode();
+        int result = id.hashCode();
+        result = 31 * result + id.hashCode();
         result = 31 * result + billingAddressId.hashCode();
         return result;
     }

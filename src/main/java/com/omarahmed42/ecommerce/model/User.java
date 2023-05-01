@@ -79,9 +79,6 @@ public class User implements Serializable {
     @OneToOne(mappedBy = "userByUserId", fetch = FetchType.LAZY)
     private BannedUser bannedUserById;
 
-    @OneToOne(mappedBy = "userByUserId", fetch = FetchType.LAZY)
-    private Customer customersById;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_role",
