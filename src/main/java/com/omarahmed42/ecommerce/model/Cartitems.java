@@ -32,11 +32,11 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public class Cartitems implements Serializable {
     @Id
-    @Column(name = "customer_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "customer_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     private UUID customerId;
 
     @Id
-    @Column(name = "product_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "product_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     private UUID productId;
 
     @Basic
@@ -52,7 +52,7 @@ public class Cartitems implements Serializable {
     private BigDecimal subtotal;
 
     @Basic
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     @CreatedDate
     private Instant createdAt;
 
@@ -62,7 +62,7 @@ public class Cartitems implements Serializable {
     private Instant modifiedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", insertable = false, updatable = false, nullable = false)
+    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Customer customerByCustomerId;
 
     @ManyToOne(fetch = FetchType.LAZY)

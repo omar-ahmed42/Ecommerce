@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public void addCartItem(CartItemDTO cartItemDTO) {
         validateCartItem(cartItemDTO);
         saveCartItem(cartItemDTO);
@@ -50,11 +51,12 @@ public class CartServiceImpl implements CartService {
 
         Cartitems cartItem = new Cartitems(UserDetailsUtils.getAuthenticatedUser().getId(), cartItemDTO.getProductId());
         cartItem.setQuantity(cartItemDTO.getQuantity());
-        cartItem.setPrice(calculatePrice(cartItemDTO, product.getPrice()));
+        cartItem.setPrice(product.getPrice());
+        cartItem.setSubtotal(calculateSubtotal(cartItemDTO, product.getPrice()));
         cartItemRepository.save(cartItem);
     }
 
-    private BigDecimal calculatePrice(CartItemDTO cartItemDTO, BigDecimal unitPrice) {
+    private BigDecimal calculateSubtotal(CartItemDTO cartItemDTO, BigDecimal unitPrice) {
         if (cartItemDTO == null || cartItemDTO.getQuantity() == null || cartItemDTO.getQuantity() <= 0
                 || unitPrice == null || unitPrice.compareTo(BigDecimal.ZERO) < 0)
             return BigDecimal.ZERO;
@@ -80,18 +82,16 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public void deleteCartItem(UUID productId) {
-        cartItemRepository
+        cartItemRepository.delete(cartItemRepository
                 .findById(new CartitemsPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId))
-                .ifPresentOrElse(cartItemRepository::delete, () -> {
-                    throw new CartItemNotFoundException("Cart item not found");
-                });
+                .orElseThrow(CartItemNotFoundException::new));
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Secured("hasRole(Role.ADMIN.toString()) || (hasRole(Role.CUSTOMER.toString()) && #userId == principal.user.id)")
+    @PreAuthorize("hasRole('ADMIN') || (hasRole('CUSTOMER') && #userId == principal.user.id)")
     public CartItemDTO getCartItem(UUID userId, UUID productId) {
         Cartitems cartItem = cartItemRepository.findById(new CartitemsPK(userId, productId))
                 .orElseThrow(CartItemNotFoundException::new);
@@ -100,12 +100,14 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public void updateCartItem(UUID productId, CartItemDTO cartItemDTO) {
         validateCartItem(cartItemDTO);
         CartitemsPK cartItemPK = new CartitemsPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId);
-        if (cartItemDTO.getQuantity() == 0)
+        if (cartItemDTO.getQuantity() == 0) {
             cartItemRepository.deleteById(cartItemPK);
+            return;
+        }
 
         saveCartItem(cartItemDTO);
     }
