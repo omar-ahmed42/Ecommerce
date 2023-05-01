@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -44,13 +44,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.ADMIN.toString()) || ((principal.user.id == #vendorId) && hasRole(Role.VERIFIED_VENDOR.toString()))")
+    @PreAuthorize("hasRole('ADMIN') || ((principal.user.id == #vendorId) && hasRole('VERIFIED_VENDOR'))")
     public ProductResponse addProduct(UUID vendorId, ProductRequest productRequest) {
         ProductValidation.validateProduct(productRequest);
         Product product = modelMapper.map(productRequest, Product.class);
-        Vendor vendor = vendorRepository.getReferenceById(vendorId);
+        // Vendor vendor = vendorRepository.getReferenceById(vendorId);
         product.setVendorId(vendorId);
-        product.setVendorByVendorId(vendor);
+        // product.setVendorByVendorId(vendor);
         product = productRepository.save(product);
 
         addProductMedia(product.getId(), productRequest);
@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.ADMIN.toString()) || hasRole(Role.VERIFIED_VENDOR.toString())")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('VERIFIED_VENDOR')")
     public void deleteProduct(UUID id) {
         Product product = productRepository
                 .findById(id).orElseThrow(ProductNotFoundException::new);
@@ -91,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.ADMIN.toString()) || hasRole(Role.VERIFIED_VENDOR.toString())")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('VERIFIED_VENDOR')")
     public void updateProduct(UUID id, ProductRequest productRequest) {
         ProductValidation.validateProduct(productRequest);
         Product product = productRepository

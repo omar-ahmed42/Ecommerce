@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.omarahmed42.ecommerce.DTO.CategoryDTO;
-import com.omarahmed42.ecommerce.model.CategoryProduct;
 import com.omarahmed42.ecommerce.model.CategoryProductPK;
 
 public interface CategoryProductService {
