@@ -71,9 +71,8 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(UUID id) {
         if (ObjectUtils.isEmpty(id))
             throw new MissingFieldException("User id is missing");
-        userRepository
-                .findById(id)
-                .ifPresentOrElse(userRepository::delete, UserNotFoundException::new);
+        userRepository.delete(userRepository
+                .findById(id).orElseThrow(UserNotFoundException::new));
     }
 
     @Override
