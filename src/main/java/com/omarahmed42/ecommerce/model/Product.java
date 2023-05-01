@@ -18,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -58,24 +59,24 @@ public class Product implements Serializable {
     private String description;
 
     @Basic
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     @CreatedDate
     private Instant createdAt;
 
     @Basic
-    @Column(name = "modified_at", nullable = true)
+    @Column(name = "modified_at")
     @LastModifiedDate
     private Instant modifiedAt;
 
     @Basic
-    @Column(name = "rating", nullable = true, precision = 0)
+    @Column(name = "rating", precision = 0)
     private Double rating;
 
     @OneToMany(mappedBy = "productByProductId", fetch = FetchType.LAZY)
     private Collection<CategoryProduct> categoryProductsById;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vendor_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "vendor_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Vendor vendorByVendorId;
 
     @OneToMany(mappedBy = "productByProductId", fetch = FetchType.LAZY)

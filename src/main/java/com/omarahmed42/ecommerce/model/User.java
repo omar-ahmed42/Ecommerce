@@ -13,10 +13,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.JoinColumn;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
@@ -81,9 +81,6 @@ public class User implements Serializable {
 
     @OneToOne(mappedBy = "userByUserId", fetch = FetchType.LAZY)
     private Customer customersById;
-
-    @OneToOne(mappedBy = "userByUserId", fetch = FetchType.LAZY)
-    private Vendor vendorsById;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

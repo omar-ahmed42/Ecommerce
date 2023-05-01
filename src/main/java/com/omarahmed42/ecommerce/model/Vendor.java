@@ -5,21 +5,19 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 
 @Entity
 public class Vendor implements Serializable {
     @Id
-    @Basic
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    private UUID id;
 
     @Column(name = "verified_vendor", nullable = false)
     private boolean verifiedVendor;
@@ -27,45 +25,47 @@ public class Vendor implements Serializable {
     @OneToMany(mappedBy = "vendorByVendorId", fetch = FetchType.LAZY)
     private Collection<Product> productsById;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @OneToOne
+    @PrimaryKeyJoinColumn(name = "user_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
     private User userByUserId;
 
     public Vendor() {
     }
 
     public Vendor(UUID userId) {
-        this.userId = userId;
+        this.id = userId;
     }
 
     public UUID getId() {
-        return this.userId;
+        return this.id;
     }
 
     public void setId(UUID id) {
-        this.userId = id;
+        this.id = id;
     }
 
     public UUID getUserId() {
-        return userId;
+        return id;
     }
 
     public void setUserId(UUID userId) {
-        this.userId = userId;
+        this.id = userId;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Vendor vendor = (Vendor) o;
-        return Objects.equals(userId, vendor.userId);
+        return Objects.equals(id, vendor.id);
     }
 
     @Override
     public int hashCode() {
-        int result = userId.hashCode();
-        result = 31 * result + userId.hashCode();
+        int result = id.hashCode();
+        result = 31 * result + id.hashCode();
         return result;
     }
 
