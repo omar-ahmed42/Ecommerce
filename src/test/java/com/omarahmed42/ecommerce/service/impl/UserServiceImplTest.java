@@ -3,12 +3,14 @@ package com.omarahmed42.ecommerce.service.impl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -48,6 +50,11 @@ public class UserServiceImplTest {
 
     @Captor
     private ArgumentCaptor<OnRegistrationEvent> captor;
+
+    @AfterEach
+    public void tearDown() {
+        reset(mockedUserRepository, passwordEncoder, applicationEventPublisher);
+    }
 
     private UserRegistrationDTO prepareUserRegistrationDTO() {
         UserRegistrationDTO userRegistrationDTO = new UserRegistrationDTO();

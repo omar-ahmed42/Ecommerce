@@ -1,6 +1,7 @@
 package com.omarahmed42.ecommerce.service.impl;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
@@ -137,6 +138,7 @@ public class CartServiceImplTest {
         user = null;
         customer = null;
         vendor = null;
+        reset(cartItemsRepository);
     }
 
     @Test

@@ -34,3 +34,6 @@ build/
 
 .apt_generated_tests
 src/main/resources/env.properties
+*.gz
+*.tmp
+*.log

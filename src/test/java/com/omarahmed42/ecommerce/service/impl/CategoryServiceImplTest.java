@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +26,20 @@ public class CategoryServiceImplTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    private Category category;
+
+    @BeforeEach
+    public void init() {
+        category = new Category("Fashion");
+        category = categoryRepository.saveAndFlush(category);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        categoryRepository.deleteAll();
+        category = null;
+    }
+
     @Test
     public void addCategorySuccessfully() {
         CategoryDTO categoryDTO = new CategoryDTO();
@@ -33,14 +49,14 @@ public class CategoryServiceImplTest {
 
         Category expected = new Category(1, "Electronics");
         Category actual = categoryRepository.findByName("Electronics").get();
-        Assertions.assertThat(actual).usingRecursiveComparison().ignoringFields("categoryProductsById")
+        Assertions.assertThat(actual).usingRecursiveComparison().ignoringFields("categoryProductsById", "id")
                 .isEqualTo(expected);
     }
 
     @Test
     public void addCategory_ThrowsCategoryAlreadyExistsException() {
         CategoryDTO categoryDTO = new CategoryDTO();
-        categoryDTO.setName("Electronics");
+        categoryDTO.setName("Fashion");
         org.junit.jupiter.api.Assertions.assertThrows(CategoryAlreadyExistsException.class,
                 () -> categoryService.addCategory(categoryDTO), "Category already exists");
     }
@@ -60,10 +76,10 @@ public class CategoryServiceImplTest {
     @Test
     public void getCategory_ReturnsSuccessfully() {
         CategoryDTO expected = new CategoryDTO();
-        expected.setId(1);
-        expected.setName("Electronics");
+        expected.setId(category.getId());
+        expected.setName("Fashion");
 
-        CategoryDTO actual = categoryService.getCategory(1);
+        CategoryDTO actual = categoryService.getCategory(category.getId());
         Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 }

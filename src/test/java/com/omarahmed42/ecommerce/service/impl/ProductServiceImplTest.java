@@ -68,7 +68,7 @@ public class ProductServiceImplTest {
         Product product = new Product();
         product.setName("Modern phone");
         product.setDescription("This is a description");
-        product.setPrice(BigDecimal.ONE);
+        product.setPrice(BigDecimal.ONE.setScale(2));
         product.setStock(5);
         product.setRating(0D);
         return product;
@@ -99,7 +99,7 @@ public class ProductServiceImplTest {
         ProductRequest productRequest = new ProductRequest();
         productRequest.setName("Modern phone");
         productRequest.setDescription("This is a description");
-        productRequest.setPrice(BigDecimal.ONE);
+        productRequest.setPrice(BigDecimal.ONE.setScale(2));
         productRequest.setStock(5);
         return productRequest;
     }

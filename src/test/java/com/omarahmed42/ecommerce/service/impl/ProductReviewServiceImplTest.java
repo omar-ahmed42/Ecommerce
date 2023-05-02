@@ -1,6 +1,7 @@
 package com.omarahmed42.ecommerce.service.impl;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
@@ -133,9 +134,13 @@ public class ProductReviewServiceImplTest {
         vendorRepository.delete(vendor);
         customerRepository.delete(customer);
         userRepository.delete(user);
+        userRepository.delete(admin);
+        roleRepository.deleteAll();
         user = null;
         customer = null;
         vendor = null;
+        admin = null;
+        reset(productReviewRepository);
     }
 
     @Test
