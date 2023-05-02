@@ -19,6 +19,6 @@ public interface WishlistRepository extends JpaRepository<Wishlist, WishlistPK> 
     @Override
     void deleteById(WishlistPK wishlistPK);
 
-    @Query("SELECT productByProductId FROM Wishlist WHERE customerId = :#{#wishlistPK.customerId} AND productId = :#{#wishlistPK.productId}")
+    @Query("SELECT w.productByProductId FROM Wishlist w WHERE w.customerId = :#{#wishlistPK.customerId} AND w.productId = :#{#wishlistPK.productId}")
     Optional<Product> findProductByWishlistPK(@Param("wishlistPK") WishlistPK wishlistPK);
 }
