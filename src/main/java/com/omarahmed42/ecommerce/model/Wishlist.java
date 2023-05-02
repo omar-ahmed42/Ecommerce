@@ -16,19 +16,19 @@ import javax.persistence.ManyToOne;
 @IdClass(WishlistPK.class)
 public class Wishlist implements Serializable {
     @Id
-    @Column(name = "customer_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "customer_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     private UUID customerId;
 
     @Id
-    @Column(name = "product_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "product_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     private UUID productId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", nullable = true, insertable = false, updatable = false)
+    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Customer customerByCustomerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = true, insertable = false, updatable = false)
+    @JoinColumn(name = "product_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Product productByProductId;
 
     public Wishlist() {
