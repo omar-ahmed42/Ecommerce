@@ -3,7 +3,7 @@ package com.omarahmed42.ecommerce.service;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +30,7 @@ public class WishlistServiceImpl implements WishlistService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public void addWishlist(UUID productId) {
         if (wishlistRepository.existsById(new WishlistPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId)))
             throw new WishlistAlreadyExistsException();
@@ -40,16 +40,15 @@ public class WishlistServiceImpl implements WishlistService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public void deleteWishlist(UUID productId) {
         WishlistPK wishlistPK = new WishlistPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId);
-        wishlistRepository.findById(wishlistPK)
-                .ifPresentOrElse(wishlistRepository::delete, WishlistNotFoundException::new);
+        wishlistRepository.delete(wishlistRepository.findById(wishlistPK).orElseThrow(WishlistNotFoundException::new));
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Secured("hasRole(Role.ADMIN.toString()) || (hasRole(Role.CUSTOMER.toString()) && (principal.user.id == #customerId))")
+    @PreAuthorize("hasRole('ADMIN') || (hasRole('CUSTOMER') && (principal.user.id == #customerId))")
     public ProductResponse getWishlist(UUID customerId, UUID productId) {
         WishlistPK wishlistPK = new WishlistPK(customerId, productId);
         Product product = wishlistRepository
