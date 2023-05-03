@@ -8,10 +8,10 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 
 public class CustomerOrdersPK implements Serializable {
-    @Column(name = "customer_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "customer_id", updatable = false, columnDefinition = "BINARY(16)")
     @Id
     private UUID customerId;
-    @Column(name = "order_id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "order_id", updatable = false, columnDefinition = "BINARY(16)")
     @Id
     private UUID orderId;
 

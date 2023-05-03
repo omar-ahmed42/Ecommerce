@@ -22,11 +22,11 @@ import lombok.Setter;
 @Setter
 public class CustomerOrders implements Serializable{
     @Id
-    @Column(name = "customer_id", nullable = false, updatable = false, insertable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "customer_id", updatable = false, columnDefinition = "BINARY(16)")
     private UUID customerId;
 
     @Id
-    @Column(name = "order_id", nullable = false, updatable = false, insertable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "order_id", updatable = false, columnDefinition = "BINARY(16)")
     private UUID orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -27,7 +27,7 @@ public class ProductItem implements Serializable {
     private UUID id;
 
     @Basic
-    @Column(name = "order_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "order_id", columnDefinition = "BINARY(16)")
     private UUID orderId;
 
     @Basic

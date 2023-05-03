@@ -3,6 +3,7 @@ package com.omarahmed42.ecommerce.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -38,8 +39,9 @@ import lombok.Setter;
 public class Orders implements Serializable {
     @Id
     @GeneratedValue
-    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "id", updatable = false, columnDefinition = "BINARY(16)")
     private UUID id;
+
     @Basic
     @Column(name = "total_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalPrice;
@@ -49,7 +51,7 @@ public class Orders implements Serializable {
     private Instant purchaseDate;
 
     @Basic
-    @Column(name = "billing_address_id", nullable = false)
+    @Column(name = "billing_address_id", nullable = false, columnDefinition = "BINARY(16)")
     private UUID billingAddressId;
 
     @Basic
@@ -69,7 +71,7 @@ public class Orders implements Serializable {
     private Payment payment;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "ordersById", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<ProductItem> productItemsById;
+    private List<ProductItem> productItemsById = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "billing_address_id", referencedColumnName = "id", insertable = false, updatable = false)
