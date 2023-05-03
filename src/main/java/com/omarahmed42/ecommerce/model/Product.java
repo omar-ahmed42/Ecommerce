@@ -58,7 +58,7 @@ public class Product implements Serializable {
     private String description;
 
     @Basic
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, precision = 9, scale = 6)
     @CreatedDate
     private Instant createdAt;
 

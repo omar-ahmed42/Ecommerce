@@ -3,13 +3,13 @@ package com.omarahmed42.ecommerce.service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.LockModeType;
 
 import org.modelmapper.ModelMapper;
@@ -58,12 +58,6 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     @Transactional
-    public void addOrder(Orders order) {
-        orderRepository.save(order);
-    }
-
-    @Override
-    @Transactional
     public void deleteOrder(UUID id) {
         orderRepository
                 .findById(id)
@@ -79,13 +73,10 @@ public class OrdersServiceImpl implements OrdersService {
         if (orderDetailsDTO.getTotalPrice() != null && orderDetailsDTO.getTotalPrice().compareTo(BigDecimal.ZERO) < 0)
             throw new InvalidInputException("Total price cannot be less than 0");
 
-        try {
-            Orders order = orderRepository.getReferenceById(id);
-            order = modelMapper.map(orderDetailsDTO, Orders.class);
-            orderRepository.save(order);
-        } catch (EntityNotFoundException entityNotFoundException) {
-            throw new OrderNotFoundException();
-        }
+        Orders order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+        modelMapper.map(orderDetailsDTO, order);
+        order.setId(id);
+        orderRepository.save(order);
     }
 
     @Override
@@ -146,6 +137,8 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     private Map<UUID, Integer> mapProductIdsToQuantity(CartItemDTO[] cartItems) {
+        if (cartItems == null || cartItems.length == 0)
+            return Collections.emptyMap();
         Map<UUID, Integer> productIdToQuantity = new HashMap<>(cartItems.length);
         for (CartItemDTO cartItem : cartItems) {
             if (cartItem == null || cartItem.getProductId() == null)
