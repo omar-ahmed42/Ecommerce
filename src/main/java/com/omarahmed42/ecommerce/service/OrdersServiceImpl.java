@@ -14,7 +14,7 @@ import javax.persistence.LockModeType;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.Lock;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,7 +100,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Secured("principal.user.id == #userId")
+    @PreAuthorize("principal.user.id == #userId")
     public Orders addOrder(UUID userId, CartItemDTO[] cartItems, BillingAddressDTO billingAddressDTO) {
         Map<UUID, Integer> productIdToQuantity = mapProductIdsToQuantity(cartItems);
         Set<UUID> productIds = productIdToQuantity.keySet();

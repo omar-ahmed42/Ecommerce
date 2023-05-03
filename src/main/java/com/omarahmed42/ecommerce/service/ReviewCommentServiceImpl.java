@@ -3,7 +3,7 @@ package com.omarahmed42.ecommerce.service;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +40,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public UUID addReviewComment(UUID reviewId, ReviewCommentRequest reviewCommentRequest) {
         validateReviewComment(reviewCommentRequest);
         ProductReview productReview = productReviewRepository.findById(reviewId)
@@ -68,7 +68,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.ADMIN.toString()) || hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('ADMIN') || hasRole('CUSTOMER')")
     public void deleteReviewComment(UUID id) {
         ReviewComment reviewComment = reviewCommentRepository
                 .findById(id).orElseThrow(ReviewCommentNotFoundException::new);
@@ -81,7 +81,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.CUSTOMER.toString())")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public void updateReviewComment(UUID id, ReviewCommentRequest reviewCommentRequest) {
         validateReviewComment(reviewCommentRequest);
         ReviewComment reviewComment = reviewCommentRepository
