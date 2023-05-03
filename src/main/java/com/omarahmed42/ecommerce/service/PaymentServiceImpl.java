@@ -134,7 +134,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = retrievedPayment.get();
         payment.setPaymentStatus(PaymentStatus.FAILED);
         paymentRepository.save(payment);
-        new Thread(() -> updateProductStock(orderId)).start();
+        updateProductStock(orderId);
     }
 
     private void updateProductStock(UUID orderId) {
