@@ -1,12 +1,14 @@
 package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -15,8 +17,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 @Entity
 @Table(name = "product_review", schema = "ecommerce")
+@EntityListeners(AuditingEntityListener.class)
 public class ProductReview implements Serializable {
     @Id
     @GeneratedValue
@@ -45,6 +52,14 @@ public class ProductReview implements Serializable {
 
     @OneToOne(mappedBy = "productReviewByProductReviewId", fetch = FetchType.LAZY, optional = true)
     private ReviewComment reviewCommentsById;
+
+    @Column(name = "created_at", updatable = false, precision = 9, scale = 6)
+    @CreatedDate
+    private Instant createdAt;
+
+    @Column(name = "modified_at")
+    @LastModifiedDate
+    private Instant modifiedAt;
 
     public UUID getId() {
         return id;
@@ -76,6 +91,14 @@ public class ProductReview implements Serializable {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getModifiedAt() {
+        return modifiedAt;
     }
 
     @Override

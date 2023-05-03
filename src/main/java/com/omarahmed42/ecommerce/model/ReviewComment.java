@@ -1,19 +1,26 @@
 package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 @Entity
-public class ReviewComment implements Serializable{
+@EntityListeners(AuditingEntityListener.class)
+public class ReviewComment implements Serializable {
     @Id
     @GeneratedValue
     @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
@@ -34,6 +41,14 @@ public class ReviewComment implements Serializable{
     @OneToOne
     @JoinColumn(name = "product_review_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
     private ProductReview productReviewByProductReviewId;
+
+    @Column(name = "created_at", updatable = false, precision = 9, scale = 6)
+    @CreatedDate
+    private Instant createdAt;
+
+    @Column(name = "modified_at")
+    @LastModifiedDate
+    private Instant modifiedAt;
 
     public ReviewComment() {
     }
@@ -74,12 +89,23 @@ public class ReviewComment implements Serializable{
         this.content = content;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getModifiedAt() {
+        return modifiedAt;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ReviewComment that = (ReviewComment) o;
-        return Objects.equals(id, that.id) && Objects.equals(productReviewId, that.productReviewId) && Objects.equals(title, that.title) && Objects.equals(content, that.content);
+        return Objects.equals(id, that.id) && Objects.equals(productReviewId, that.productReviewId)
+                && Objects.equals(title, that.title) && Objects.equals(content, that.content);
     }
 
     @Override
