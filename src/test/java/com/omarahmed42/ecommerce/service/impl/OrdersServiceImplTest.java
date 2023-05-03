@@ -139,7 +139,8 @@ class OrdersServiceImplTest {
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
     void addOrder_NoProducts_ThrowsMissingFieldException() {
-        Assertions.assertThrows(MissingFieldException.class, () -> orderService.addOrder(null, null, null),
+        UUID customerId = customer.getId();
+        Assertions.assertThrows(MissingFieldException.class, () -> orderService.addOrder(customerId, null, null),
                 "Products ids are missing");
     }
 
