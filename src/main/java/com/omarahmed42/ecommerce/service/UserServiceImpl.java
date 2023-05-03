@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(UserNotFoundException::new);
-        user = modelMapper.map(userRegistrationDTO, User.class);
+        modelMapper.map(userRegistrationDTO, user);
         userRepository.save(user);
     }
 
