@@ -31,7 +31,7 @@ import com.omarahmed42.ecommerce.repository.UserRepository;
 import com.omarahmed42.ecommerce.service.UserService;
 
 @SpringBootTest
-public class UserServiceImplTest {
+class UserServiceImplTest {
 
     @Autowired
     private UserService userService;
@@ -79,7 +79,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void addUser_ThrowsEmailAlreadyExistsException() {
+    void addUser_ThrowsEmailAlreadyExistsException() {
         UserRegistrationDTO userRegistration = prepareUserRegistrationDTO();
         when(mockedUserRepository.existsByEmail(userRegistration.getEmail())).thenReturn(true);
         org.junit.jupiter.api.Assertions.assertThrows(EmailAlreadyExistsException.class,
@@ -88,7 +88,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void addUser_EmptyFirstName_ThrowsMissingFieldException() {
+    void addUser_EmptyFirstName_ThrowsMissingFieldException() {
         UserRegistrationDTO userRegistration = prepareUserRegistrationDTO();
         userRegistration.setFirstName(null);
         org.junit.jupiter.api.Assertions.assertThrows(MissingFieldException.class,
@@ -96,7 +96,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void addUser_UserAddedSuccessfully() {
+    void addUser_UserAddedSuccessfully() {
         UserRegistrationDTO userRegistration = prepareUserRegistrationDTO();
 
         when(mockedUserRepository.existsByEmail(userRegistration.getEmail())).thenReturn(false);
@@ -120,20 +120,20 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void deleteUser_ThrowsMissingFieldException() {
+    void deleteUser_ThrowsMissingFieldException() {
         org.junit.jupiter.api.Assertions.assertThrows(MissingFieldException.class, () -> userService.deleteUser(null),
                 "User id is missing");
     }
 
     @Test
-    public void deleteUser_ThrowsUserNotFoundException() {
+    void deleteUser_ThrowsUserNotFoundException() {
         UUID randomId = UUID.randomUUID();
         org.junit.jupiter.api.Assertions.assertThrows(UserNotFoundException.class,
                 () -> userService.deleteUser(randomId), "User not found");
     }
 
     @Test
-    public void deleteUser_Successfully() {
+    void deleteUser_Successfully() {
         User user = prepareUser();
         user = userRepository.save(user);
         userService.deleteUser(user.getId());
@@ -141,7 +141,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void getUser_ThrowsUserNotFoundException() {
+    void getUser_ThrowsUserNotFoundException() {
         UUID randomId = UUID.randomUUID();
         org.junit.jupiter.api.Assertions.assertThrows(UserNotFoundException.class,
                 () -> userService.getUser(randomId), "User not found");

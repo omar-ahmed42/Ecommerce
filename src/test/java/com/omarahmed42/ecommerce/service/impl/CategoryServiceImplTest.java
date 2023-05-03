@@ -18,7 +18,7 @@ import com.omarahmed42.ecommerce.repository.CategoryRepository;
 import com.omarahmed42.ecommerce.service.CategoryService;
 
 @SpringBootTest
-public class CategoryServiceImplTest {
+class CategoryServiceImplTest {
 
     @Autowired
     private CategoryService categoryService;
@@ -41,7 +41,7 @@ public class CategoryServiceImplTest {
     }
 
     @Test
-    public void addCategorySuccessfully() {
+    void addCategorySuccessfully() {
         CategoryDTO categoryDTO = new CategoryDTO();
         categoryDTO.setName("Electronics");
 
@@ -54,7 +54,7 @@ public class CategoryServiceImplTest {
     }
 
     @Test
-    public void addCategory_ThrowsCategoryAlreadyExistsException() {
+    void addCategory_ThrowsCategoryAlreadyExistsException() {
         CategoryDTO categoryDTO = new CategoryDTO();
         categoryDTO.setName("Fashion");
         org.junit.jupiter.api.Assertions.assertThrows(CategoryAlreadyExistsException.class,
@@ -62,19 +62,19 @@ public class CategoryServiceImplTest {
     }
 
     @Test
-    public void deleteCategory_ThrowsCategoryNotFoundException() {
+    void deleteCategory_ThrowsCategoryNotFoundException() {
         assertThrows(CategoryNotFoundException.class, () -> categoryService.deleteCategory(99), "Category not found");
     }
 
     @Test
-    public void deleteCategorySuccessfully() {
+    void deleteCategorySuccessfully() {
         Category category = categoryRepository.save(new Category("Category to be deleted"));
         categoryService.deleteCategory(category.getId());
         assertTrue(categoryRepository.findById(category.getId()).isEmpty());
     }
 
     @Test
-    public void getCategory_ReturnsSuccessfully() {
+    void getCategory_ReturnsSuccessfully() {
         CategoryDTO expected = new CategoryDTO();
         expected.setId(category.getId());
         expected.setName("Fashion");

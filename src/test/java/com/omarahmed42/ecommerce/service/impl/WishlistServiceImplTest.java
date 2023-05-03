@@ -44,7 +44,7 @@ import com.omarahmed42.ecommerce.service.WishlistService;
 
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
-public class WishlistServiceImplTest {
+class WishlistServiceImplTest {
 
     @Autowired
     private WishlistService wishlistService;
@@ -115,7 +115,7 @@ public class WishlistServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addWishlist_DuplicateWishlists_ThrowsWishlistAlreadyExistsException() {
+    void addWishlist_DuplicateWishlists_ThrowsWishlistAlreadyExistsException() {
         doReturn(true).when(wishlistRepository).existsById(any(WishlistPK.class));
         UUID productId = product.getId();
         Assertions.assertThrows(WishlistAlreadyExistsException.class, () -> wishlistService.addWishlist(productId),
@@ -124,7 +124,7 @@ public class WishlistServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addWishlist_Valid_SavesWishlist() {
+    void addWishlist_Valid_SavesWishlist() {
 
         Assertions.assertEquals(0L, wishlistRepository.count());
 
@@ -139,21 +139,21 @@ public class WishlistServiceImplTest {
 
     @Test
     @WithAnonymousUser
-    public void addWishlist_AnonymousUser_ThrowsAccessDeniedException() {
+    void addWishlist_AnonymousUser_ThrowsAccessDeniedException() {
         UUID productId = product.getId();
         Assertions.assertThrows(AccessDeniedException.class, () -> wishlistService.addWishlist(productId));
     }
 
     @Test
     @WithMockUser(roles = "VERIFIED_VENDOR")
-    public void addWishlist_AuthenticatedButNotAuthorized_VerifiedVendor_ThrowsAccessDeniedException() {
+    void addWishlist_AuthenticatedButNotAuthorized_VerifiedVendor_ThrowsAccessDeniedException() {
         UUID productId = product.getId();
         Assertions.assertThrows(AccessDeniedException.class, () -> wishlistService.addWishlist(productId));
     }
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void deleteWishlist_ThrowsWishlistNotFoundException() {
+    void deleteWishlist_ThrowsWishlistNotFoundException() {
         UUID productId = product.getId();
         Assertions.assertThrows(WishlistNotFoundException.class, () -> wishlistService.deleteWishlist(productId),
                 "Wishlist not found");
@@ -161,7 +161,7 @@ public class WishlistServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void deleteWishlist_ExistingWishlist_Valid() {
+    void deleteWishlist_ExistingWishlist_Valid() {
         UUID productId = product.getId();
         wishlistRepository.save(new Wishlist(customer.getId(), productId));
         Assertions.assertEquals(1L, wishlistRepository.count());
@@ -176,14 +176,14 @@ public class WishlistServiceImplTest {
 
     @Test
     @WithMockUser(roles = "VERIFIED_VENDOR")
-    public void deleteWishlist_AuthenticatedButNotAuthorized_VerifiedVendor_ThrowsAccessDeniedException() {
+    void deleteWishlist_AuthenticatedButNotAuthorized_VerifiedVendor_ThrowsAccessDeniedException() {
         UUID productId = product.getId();
         Assertions.assertThrows(AccessDeniedException.class, () -> wishlistService.deleteWishlist(productId));
     }
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void getWishlist_ExistingWishlist_Valid_ReturnsProductResponse() {
+    void getWishlist_ExistingWishlist_Valid_ReturnsProductResponse() {
         UUID productId = product.getId();
         wishlistRepository.saveAndFlush(new Wishlist(customer.getId(), productId));
         Assertions.assertEquals(1L, wishlistRepository.count());
@@ -199,7 +199,7 @@ public class WishlistServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void getWishlist_NotFound_ThrowsWishlistNotFoundException() {
+    void getWishlist_NotFound_ThrowsWishlistNotFoundException() {
         UUID customerId = customer.getId();
         UUID productId = product.getId();
         Assertions.assertThrows(WishlistNotFoundException.class,

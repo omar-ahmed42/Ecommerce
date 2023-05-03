@@ -24,7 +24,7 @@ import com.omarahmed42.ecommerce.repository.VendorRepository;
 import com.omarahmed42.ecommerce.service.ProductService;
 
 @SpringBootTest
-public class ProductServiceImplTest {
+class ProductServiceImplTest {
 
     @Autowired
     private ProductService productService;
@@ -106,7 +106,7 @@ public class ProductServiceImplTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void addProduct_EmptyName_ThrowsMissingFieldException() {
+    void addProduct_EmptyName_ThrowsMissingFieldException() {
         ProductRequest productRequest = prepareProductRequest();
         productRequest.setName(null);
         UUID vendorId = vendor.getId();
@@ -117,7 +117,7 @@ public class ProductServiceImplTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void addProduct_SuccessfulllyReturnsProductResponse() {
+    void addProduct_SuccessfulllyReturnsProductResponse() {
         ProductRequest productRequest = prepareProductRequest();
         ProductResponse actual = productService.addProduct(vendor.getId(), productRequest);
         ProductResponse expected = prepareProductResponse(actual.getId());
@@ -131,7 +131,7 @@ public class ProductServiceImplTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void deleteProduct_ThrowsProductNotFoundException() {
+    void deleteProduct_ThrowsProductNotFoundException() {
         UUID nonExistentId = UUID.randomUUID();
         Assertions.assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(nonExistentId),
                 "Product not found");
@@ -139,7 +139,7 @@ public class ProductServiceImplTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void getProduct_SuccessfullyReturnsProductResponse() {
+    void getProduct_SuccessfullyReturnsProductResponse() {
         Product product = prepareProduct();
         product.setVendorId(vendor.getId());
         product = productRepository.save(product);
@@ -151,7 +151,7 @@ public class ProductServiceImplTest {
     }
     
     @Test
-    public void getProduct_ThrowsProductNotFound() {
+    void getProduct_ThrowsProductNotFound() {
         UUID nonExistentId = UUID.randomUUID();
         Assertions.assertThrows(ProductNotFoundException.class, () -> productService.getProduct(nonExistentId),
                 "Product not found");

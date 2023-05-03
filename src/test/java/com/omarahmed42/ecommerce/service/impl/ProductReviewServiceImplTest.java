@@ -35,7 +35,7 @@ import com.omarahmed42.ecommerce.repository.VendorRepository;
 import com.omarahmed42.ecommerce.service.ProductReviewService;
 
 @SpringBootTest
-public class ProductReviewServiceImplTest {
+class ProductReviewServiceImplTest {
 
     @Autowired
     private ProductReviewService productReviewService;
@@ -145,7 +145,7 @@ public class ProductReviewServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addProductReview_EmptyRating_ThrowsMissingFieldException() {
+    void addProductReview_EmptyRating_ThrowsMissingFieldException() {
         ProductReviewRequest productReviewRequest = new ProductReviewRequest();
         UUID productId = product.getId();
         Assertions.assertThrows(MissingFieldException.class,
@@ -156,7 +156,7 @@ public class ProductReviewServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addProductReview_RatingLessThanZero_ThrowsInvalidInputException() {
+    void addProductReview_RatingLessThanZero_ThrowsInvalidInputException() {
         ProductReviewRequest productReviewRequest = new ProductReviewRequest();
         productReviewRequest.setRating(-1);
 
@@ -170,7 +170,7 @@ public class ProductReviewServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addProductReview_RatingBiggerThanFive_ThrowsInvalidInputException() {
+    void addProductReview_RatingBiggerThanFive_ThrowsInvalidInputException() {
         ProductReviewRequest productReviewRequest = new ProductReviewRequest();
         productReviewRequest.setRating(6);
 
@@ -184,7 +184,7 @@ public class ProductReviewServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addProductReview_ZeroRating_ShouldSucceed() {
+    void addProductReview_ZeroRating_ShouldSucceed() {
         ProductReviewRequest productReviewRequest = new ProductReviewRequest();
         productReviewRequest.setRating(0);
 
@@ -195,7 +195,7 @@ public class ProductReviewServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addProductReview_FiveRating_ShouldSucceed() {
+    void addProductReview_FiveRating_ShouldSucceed() {
         ProductReviewRequest productReviewRequest = new ProductReviewRequest();
         productReviewRequest.setRating(5);
 
@@ -206,7 +206,7 @@ public class ProductReviewServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void deleteProductReview_AsProductReviewOwner() {
+    void deleteProductReview_AsProductReviewOwner() {
         ProductReview productReview = new ProductReview();
         productReview.setProductId(product.getId());
         productReview.setCustomerId(customer.getId());

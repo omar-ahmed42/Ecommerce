@@ -37,7 +37,7 @@ import com.omarahmed42.ecommerce.repository.VendorRepository;
 import com.omarahmed42.ecommerce.service.CartService;
 
 @SpringBootTest
-public class CartServiceImplTest {
+class CartServiceImplTest {
 
     @Autowired
     private CartService cartService;
@@ -143,7 +143,7 @@ public class CartServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addCartItem_ValidAsCustomer() {
+    void addCartItem_ValidAsCustomer() {
         CartItemDTO cartItemDTO = new CartItemDTO();
         cartItemDTO.setProductId(product.getId());
         cartItemDTO.setPrice(product.getPrice());
@@ -165,7 +165,7 @@ public class CartServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addCartItem_EmptyQuantity_ThrowsMissingFieldException() {
+    void addCartItem_EmptyQuantity_ThrowsMissingFieldException() {
         CartItemDTO cartItemDTO = new CartItemDTO();
         cartItemDTO.setProductId(product.getId());
         cartItemDTO.setPrice(product.getPrice());
@@ -177,7 +177,7 @@ public class CartServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void addCartItem_PriceLessThanZero_ThrowsInvalidInputException() {
+    void addCartItem_PriceLessThanZero_ThrowsInvalidInputException() {
         CartItemDTO cartItemDTO = new CartItemDTO();
         cartItemDTO.setProductId(product.getId());
         cartItemDTO.setPrice(BigDecimal.valueOf(-1));
@@ -189,7 +189,7 @@ public class CartServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void deleteCartItem_NonExistentCartItem_ThrowsCartItemNotFoundException() {
+    void deleteCartItem_NonExistentCartItem_ThrowsCartItemNotFoundException() {
         UUID randomId = UUID.randomUUID();
         org.junit.jupiter.api.Assertions.assertThrows(CartItemNotFoundException.class,
                 () -> cartService.deleteCartItem(randomId), "Cart item not found");
@@ -197,7 +197,7 @@ public class CartServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void deleteCartItem_ValidAsCustomer() {
+    void deleteCartItem_ValidAsCustomer() {
         Cartitems cartItem = new Cartitems(customer.getId(), product.getId());
         cartItem.setQuantity(3);
         cartItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(3)).setScale(2));
@@ -215,7 +215,7 @@ public class CartServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.admin@test.imagination")
-    public void getCartItem_NonExistentCartItem_ThrowsCartItemNotFoundException() {
+    void getCartItem_NonExistentCartItem_ThrowsCartItemNotFoundException() {
         UUID randomId = UUID.randomUUID();
         UUID randomId2 = UUID.randomUUID();
         org.junit.jupiter.api.Assertions.assertThrows(CartItemNotFoundException.class,
@@ -224,7 +224,7 @@ public class CartServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void getCartItem_ValidAsCustomer() {
+    void getCartItem_ValidAsCustomer() {
         CartItemDTO expected = new CartItemDTO();
         expected.setProductId(product.getId());
         expected.setPrice(product.getPrice().setScale(2));
@@ -243,7 +243,7 @@ public class CartServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    public void updateCartItem_ZeroQuantity_ValidAsCustomer() {
+    void updateCartItem_ZeroQuantity_ValidAsCustomer() {
         Cartitems cartItem = new Cartitems(customer.getId(), product.getId());
         cartItem.setQuantity(3);
         cartItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(3)).setScale(2));
