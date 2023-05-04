@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.joda.time.Instant;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +73,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     }
 
     @Override
-    @Secured("hasRole(Role.ADMIN.toString())")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteVerificationToken(UUID token) {
         verificationTokenRepository.deleteById(token);
     }
