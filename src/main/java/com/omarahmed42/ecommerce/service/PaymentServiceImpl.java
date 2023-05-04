@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.omarahmed42.ecommerce.DTO.OrderDetailsDTO;
 import com.omarahmed42.ecommerce.enums.PaymentStatus;
-import com.omarahmed42.ecommerce.enums.Status;
+import com.omarahmed42.ecommerce.enums.OrderStatus;
 import com.omarahmed42.ecommerce.exception.PaymentNotFoundException;
 import com.omarahmed42.ecommerce.model.OrderDetails;
 import com.omarahmed42.ecommerce.model.Payment;
@@ -111,7 +111,7 @@ public class PaymentServiceImpl implements PaymentService {
         ordersService
                 .updateOrderDetailsPartially(orderId, OrderDetailsDTO
                         .builder()
-                        .status(Status.COMPLETED)
+                        .orderStatus(OrderStatus.COMPLETED)
                         .build());
         Payment payment = retrievedPayment.get();
         payment.setPaymentStatus(PaymentStatus.COMPLETED);
@@ -128,7 +128,7 @@ public class PaymentServiceImpl implements PaymentService {
         ordersService
                 .updateOrderDetailsPartially(orderId, OrderDetailsDTO
                         .builder()
-                        .status(Status.FAILED)
+                        .orderStatus(OrderStatus.FAILED)
                         .build());
 
         Payment payment = retrievedPayment.get();

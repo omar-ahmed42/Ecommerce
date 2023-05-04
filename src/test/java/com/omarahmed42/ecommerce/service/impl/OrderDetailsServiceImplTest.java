@@ -28,20 +28,18 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import com.omarahmed42.ecommerce.DTO.BillingAddressDTO;
 import com.omarahmed42.ecommerce.DTO.CartItemDTO;
 import com.omarahmed42.ecommerce.DTO.OrderDetailsDTO;
-import com.omarahmed42.ecommerce.enums.Status;
+import com.omarahmed42.ecommerce.enums.OrderStatus;
 import com.omarahmed42.ecommerce.exception.InvalidInputException;
 import com.omarahmed42.ecommerce.exception.MissingFieldException;
 import com.omarahmed42.ecommerce.exception.OrderNotFoundException;
 import com.omarahmed42.ecommerce.model.BillingAddress;
 import com.omarahmed42.ecommerce.model.Customer;
-import com.omarahmed42.ecommerce.model.CustomerOrders;
 import com.omarahmed42.ecommerce.model.OrderDetails;
 import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.model.Role;
 import com.omarahmed42.ecommerce.model.User;
 import com.omarahmed42.ecommerce.model.Vendor;
 import com.omarahmed42.ecommerce.repository.BillingAddressRepository;
-import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
 import com.omarahmed42.ecommerce.repository.CustomerRepository;
 import com.omarahmed42.ecommerce.repository.OrderDetailsRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
@@ -81,9 +79,6 @@ class OrderDetailsServiceImplTest {
 
     @SpyBean
     private BillingAddressRepository billingAddressRepository;
-
-    @SpyBean
-    private CustomerOrdersRepository customerOrderRepository;
 
     @BeforeAll
     void init() {
@@ -131,7 +126,6 @@ class OrderDetailsServiceImplTest {
 
     @AfterEach
     void tearDown() {
-        customerOrderRepository.deleteAll();
         orderRepository.deleteAll();
         reset(orderRepository, billingAddressRepository, productRepository, userRepository, roleRepository);
     }
@@ -165,17 +159,17 @@ class OrderDetailsServiceImplTest {
         OrderDetails expected = new OrderDetails();
         expected.setId(actual.getId());
         expected.setTotalPrice(BigDecimal.valueOf(3).setScale(2));
-        expected.setStatus(Status.PENDING);
+        expected.setOrderStatus(OrderStatus.PENDING);
 
         verify(productRepository).findAllById(ArgumentMatchers.<UUID>anySet());
         verify(productRepository).saveAll(anyIterable());
         verify(billingAddressRepository).save(any(BillingAddress.class));
 
         verify(orderRepository).save(any(OrderDetails.class));
-        verify(customerOrderRepository).save(any(CustomerOrders.class));
+        verify(customerRepository).getReferenceById(any(UUID.class));
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
-                .ignoringFields("purchaseDate", "billingAddressId", "createdAt", "customerOrdersById", "payment",
+                .ignoringFields("purchaseDate", "createdAt", "customer", "payment",
                         "orderItems",
                         "billingAddress")
                 .isEqualTo(expected);
@@ -187,7 +181,8 @@ class OrderDetailsServiceImplTest {
         UUID orderId = UUID.randomUUID();
 
         doReturn(Optional.empty()).when(orderRepository).findById(any(UUID.class));
-        Assertions.assertThrows(OrderNotFoundException.class, () -> orderService.getOrderDetails(orderId), "Order not found");
+        Assertions.assertThrows(OrderNotFoundException.class, () -> orderService.getOrderDetails(orderId),
+                "Order not found");
     }
 
     @Test
@@ -209,7 +204,7 @@ class OrderDetailsServiceImplTest {
         orders.setBillingAddress(billingAddress);
         orders.setPurchaseDate(Instant.now());
         orders.setTotalPrice(BigDecimal.ONE.setScale(2));
-        orders.setStatus(Status.PENDING);
+        orders.setOrderStatus(OrderStatus.PENDING);
         orders = orderRepository.saveAndFlush(orders);
         reset(orderRepository);
         return orders;
@@ -230,10 +225,11 @@ class OrderDetailsServiceImplTest {
         OrderDetailsDTO orderDetails = OrderDetailsDTO.builder().totalPrice(BigDecimal.valueOf(-1))
                 .purchaseDate(Instant.now()).billingAddressId(
                         billingAddress.getId())
-                .status(Status.PENDING).build();
+                .orderStatus(OrderStatus.PENDING).build();
         UUID orderId = UUID.randomUUID();
         Assertions.assertThrows(InvalidInputException.class,
-                () -> orderService.updateOrderDetailsPartially(orderId, orderDetails), "Total price cannot be less than 0");
+                () -> orderService.updateOrderDetailsPartially(orderId, orderDetails),
+                "Total price cannot be less than 0");
     }
 
     @Test
@@ -241,13 +237,13 @@ class OrderDetailsServiceImplTest {
         OrderDetailsDTO orderDetails = OrderDetailsDTO.builder()
                 .purchaseDate(Instant.now()).billingAddressId(
                         billingAddress.getId())
-                .status(Status.CANCELLED).build();
+                .orderStatus(OrderStatus.CANCELLED).build();
         OrderDetails order = saveOrder();
         UUID orderId = order.getId();
 
         OrderDetails expected = new OrderDetails();
         BeanUtils.copyProperties(order, expected);
-        expected.setStatus(Status.CANCELLED);
+        expected.setOrderStatus(OrderStatus.CANCELLED);
 
         orderService.updateOrderDetailsPartially(orderId, orderDetails);
         verify(orderRepository).save(any(OrderDetails.class));

@@ -26,7 +26,7 @@ import org.springframework.data.util.Pair;
 
 import com.omarahmed42.ecommerce.DTO.OrderDetailsDTO;
 import com.omarahmed42.ecommerce.enums.PaymentStatus;
-import com.omarahmed42.ecommerce.enums.Status;
+import com.omarahmed42.ecommerce.enums.OrderStatus;
 import com.omarahmed42.ecommerce.model.BillingAddress;
 import com.omarahmed42.ecommerce.model.Customer;
 import com.omarahmed42.ecommerce.model.OrderDetails;
@@ -36,7 +36,6 @@ import com.omarahmed42.ecommerce.model.Role;
 import com.omarahmed42.ecommerce.model.User;
 import com.omarahmed42.ecommerce.model.Vendor;
 import com.omarahmed42.ecommerce.repository.BillingAddressRepository;
-import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
 import com.omarahmed42.ecommerce.repository.CustomerRepository;
 import com.omarahmed42.ecommerce.repository.OrderDetailsRepository;
 import com.omarahmed42.ecommerce.repository.PaymentRepository;
@@ -85,9 +84,6 @@ public class PaymentServiceImplTest {
 
     @SpyBean
     private BillingAddressRepository billingAddressRepository;
-
-    @SpyBean
-    private CustomerOrdersRepository customerOrderRepository;
 
     @BeforeEach
     void init() {
@@ -139,7 +135,7 @@ public class PaymentServiceImplTest {
         orders.setBillingAddress(billingAddress);
         orders.setPurchaseDate(Instant.now());
         orders.setTotalPrice(BigDecimal.ONE.setScale(2));
-        orders.setStatus(Status.PENDING);
+        orders.setOrderStatus(OrderStatus.PENDING);
         orders = orderRepository.saveAndFlush(orders);
         reset(orderRepository);
         return orders;
@@ -147,7 +143,6 @@ public class PaymentServiceImplTest {
 
     @AfterEach
     void tearDown() {
-        customerOrderRepository.deleteAll();
         paymentRepository.deleteAll();
         orderRepository.deleteAll();
         productRepository.deleteAll();
@@ -267,11 +262,11 @@ public class PaymentServiceImplTest {
         OrderDetails actual = orderRepository.findById(order.getId()).get();
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
-                .ignoringFields("createdAt", "customerOrdersById", "payment", "orderItems",
-                        "billingAddress", "purchaseDate", "status")
+                .ignoringFields("createdAt", "customer", "payment", "orderItems",
+                        "billingAddress", "purchaseDate", "orderStatus")
                 .isEqualTo(order);
 
-        Assertions.assertEquals(Status.COMPLETED, actual.getStatus());
+        Assertions.assertEquals(OrderStatus.COMPLETED, actual.getOrderStatus());
     }
 
     @Test
@@ -333,11 +328,11 @@ public class PaymentServiceImplTest {
         OrderDetails actual = orderRepository.findById(order.getId()).get();
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
-                .ignoringFields("createdAt", "customerOrdersById", "payment", "orderItems",
-                        "billingAddress", "purchaseDate", "status")
+                .ignoringFields("createdAt", "customer", "payment", "orderItems",
+                        "billingAddress", "purchaseDate", "orderStatus")
                 .isEqualTo(order);
 
-        Assertions.assertEquals(Status.FAILED, actual.getStatus());
+        Assertions.assertEquals(OrderStatus.FAILED, actual.getOrderStatus());
     }
 
 }

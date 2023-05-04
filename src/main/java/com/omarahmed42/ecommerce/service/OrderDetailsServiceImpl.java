@@ -22,18 +22,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.omarahmed42.ecommerce.DTO.BillingAddressDTO;
 import com.omarahmed42.ecommerce.DTO.CartItemDTO;
 import com.omarahmed42.ecommerce.DTO.OrderDetailsDTO;
-import com.omarahmed42.ecommerce.enums.Status;
+import com.omarahmed42.ecommerce.enums.OrderStatus;
 import com.omarahmed42.ecommerce.exception.InvalidInputException;
 import com.omarahmed42.ecommerce.exception.MissingFieldException;
 import com.omarahmed42.ecommerce.exception.MoreThanStockCapacityException;
 import com.omarahmed42.ecommerce.exception.OrderNotFoundException;
 import com.omarahmed42.ecommerce.model.BillingAddress;
-import com.omarahmed42.ecommerce.model.CustomerOrders;
 import com.omarahmed42.ecommerce.model.OrderDetails;
 import com.omarahmed42.ecommerce.model.OrderItem;
 import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.repository.BillingAddressRepository;
-import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
+import com.omarahmed42.ecommerce.repository.CustomerRepository;
 import com.omarahmed42.ecommerce.repository.OrderDetailsRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 
@@ -42,16 +41,16 @@ public class OrderDetailsServiceImpl implements OrderDetailsService {
 
     private final OrderDetailsRepository orderRepository;
     private final ProductRepository productRepository;
-    private final CustomerOrdersRepository customerOrdersRepository;
+    private final CustomerRepository customerRepository;
     private final BillingAddressRepository billingAddressRepository;
     private ModelMapper modelMapper;
 
     public OrderDetailsServiceImpl(OrderDetailsRepository orderRepository,
-            ProductRepository productRepository, CustomerOrdersRepository customerOrdersRepository,
+            ProductRepository productRepository, CustomerRepository customerRepository,
             BillingAddressRepository billingAddressRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
-        this.customerOrdersRepository = customerOrdersRepository;
+        this.customerRepository = customerRepository;
         this.billingAddressRepository = billingAddressRepository;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
@@ -128,12 +127,12 @@ public class OrderDetailsServiceImpl implements OrderDetailsService {
         OrderDetails order = new OrderDetails();
         order.setBillingAddress(billingAddress);
         order.setTotalPrice(totalPrice);
-        order.setStatus(Status.PENDING);
+        order.setOrderStatus(OrderStatus.PENDING);
         order.setPurchaseDate(Instant.now());
         order.addAllOrderItems(orderItems);
+        order.setCustomer(customerRepository.getReferenceById(userId));
         order = orderRepository.save(order);
 
-        customerOrdersRepository.save(new CustomerOrders(userId, order.getId()));
         return order;
     }
 

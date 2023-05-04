@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.omarahmed42.ecommerce.enums.Status;
+import com.omarahmed42.ecommerce.enums.OrderStatus;
 
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +16,5 @@ public class OrderDetailsDTO implements Serializable {
     private BigDecimal totalPrice;
     private Instant purchaseDate;
     private UUID billingAddressId;
-    private Status status;
+    private OrderStatus orderStatus;
 }

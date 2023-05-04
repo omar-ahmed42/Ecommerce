@@ -24,13 +24,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.omarahmed42.ecommerce.enums.Status;
+import com.omarahmed42.ecommerce.enums.OrderStatus;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -62,11 +61,12 @@ public class OrderDetails implements Serializable {
 
     @Basic
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private Status status;
+    @Column(name = "order_status", nullable = false)
+    private OrderStatus orderStatus;
 
-    @OneToOne(mappedBy = "orderDetails", fetch = FetchType.LAZY)
-    private CustomerOrders customerOrder;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", columnDefinition = "BINARY(16)")
+    private Customer customer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderDetails", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
@@ -102,12 +102,12 @@ public class OrderDetails implements Serializable {
         OrderDetails orders = (OrderDetails) o;
         return Objects.equals(id, orders.id) && Objects.equals(totalPrice, orders.totalPrice)
                 && Objects.equals(purchaseDate, orders.purchaseDate) && Objects.equals(createdAt, orders.createdAt)
-                && Objects.equals(status, orders.status);
+                && Objects.equals(orderStatus, orders.orderStatus);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(totalPrice, purchaseDate, createdAt, status);
+        int result = Objects.hash(totalPrice, purchaseDate, createdAt, orderStatus);
         result = 31 * result + id.hashCode();
         return result;
     }

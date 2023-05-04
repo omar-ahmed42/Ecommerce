@@ -56,9 +56,6 @@ public class Customer implements Serializable {
     private BillingAddress billingAddressByBillingAddressId;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
-    private Collection<CustomerOrders> customerOrders;
-
-    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private Collection<ProductReview> productReviews;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
