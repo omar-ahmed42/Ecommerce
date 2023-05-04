@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.omarahmed42.ecommerce.DTO.CategoryDTO;
-import com.omarahmed42.ecommerce.model.CategoryProductPK;
 import com.omarahmed42.ecommerce.service.CategoryProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,8 +34,7 @@ public class CategoryProductController {
     @DeleteMapping("/categories/{category-id}/products/{product-id}")
     public ResponseEntity<Void> deleteCategoryProduct(@PathVariable(name = "product-id") UUID productId,
             @PathVariable(name = "category-id") Integer categoryId) {
-        categoryProductService.deleteCategoryFromProduct(
-                new CategoryProductPK(categoryId, productId));
+        categoryProductService.deleteCategoryFromProduct(categoryId, productId);
         return ResponseEntity.noContent().build();
     }
 

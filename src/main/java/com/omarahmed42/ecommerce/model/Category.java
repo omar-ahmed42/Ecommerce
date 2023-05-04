@@ -1,7 +1,6 @@
 package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Objects;
 
 import javax.persistence.Access;
@@ -9,11 +8,9 @@ import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 import org.hibernate.envers.Audited;
 
@@ -29,9 +26,6 @@ public class Category implements Serializable {
     @Basic
     @Column(name = "name", nullable = false, length = 150)
     private String name;
-
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private Collection<CategoryProduct> categoryProducts;
 
     public Category() {
     }
@@ -78,13 +72,5 @@ public class Category implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
-    }
-
-    public Collection<CategoryProduct> getCategoryProducts() {
-        return categoryProducts;
-    }
-
-    public void setCategoryProducts(Collection<CategoryProduct> categoryProductsById) {
-        this.categoryProducts = categoryProductsById;
     }
 }

@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.Access;
@@ -18,6 +20,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -73,15 +77,16 @@ public class Product implements Serializable {
     @Column(name = "rating", precision = 0)
     private Double rating;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private Collection<CategoryProduct> categoryProducts;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendor_id", referencedColumnName = "user_id", columnDefinition = "BINARY(16)")
     private Vendor vendor;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private Collection<ProductMedia> productMedia = new ArrayList<>();
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "product_category", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories = new HashSet<>();
 
     public void addProductMedia(ProductMedia productMedia) {
         this.productMedia.add(productMedia);
@@ -105,9 +110,9 @@ public class Product implements Serializable {
         result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
         result = prime * result + ((modifiedAt == null) ? 0 : modifiedAt.hashCode());
         result = prime * result + ((rating == null) ? 0 : rating.hashCode());
-        result = prime * result + ((categoryProducts == null) ? 0 : categoryProducts.hashCode());
         result = prime * result + ((vendor == null) ? 0 : vendor.hashCode());
         result = prime * result + ((productMedia == null) ? 0 : productMedia.hashCode());
+        result = prime * result + ((categories == null) ? 0 : categories.hashCode());
         return result;
     }
 
@@ -157,11 +162,6 @@ public class Product implements Serializable {
                 return false;
         } else if (!rating.equals(other.rating))
             return false;
-        if (categoryProducts == null) {
-            if (other.categoryProducts != null)
-                return false;
-        } else if (!categoryProducts.equals(other.categoryProducts))
-            return false;
         if (vendor == null) {
             if (other.vendor != null)
                 return false;
@@ -172,8 +172,11 @@ public class Product implements Serializable {
                 return false;
         } else if (!productMedia.equals(other.productMedia))
             return false;
+        if (categories == null) {
+            if (other.categories != null)
+                return false;
+        } else if (!categories.equals(other.categories))
+            return false;
         return true;
     }
-
-    
 }
