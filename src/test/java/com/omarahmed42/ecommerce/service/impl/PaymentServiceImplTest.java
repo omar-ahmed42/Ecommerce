@@ -29,7 +29,7 @@ import com.omarahmed42.ecommerce.enums.PaymentStatus;
 import com.omarahmed42.ecommerce.enums.Status;
 import com.omarahmed42.ecommerce.model.BillingAddress;
 import com.omarahmed42.ecommerce.model.Customer;
-import com.omarahmed42.ecommerce.model.Orders;
+import com.omarahmed42.ecommerce.model.OrderDetails;
 import com.omarahmed42.ecommerce.model.Payment;
 import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.model.Role;
@@ -38,13 +38,13 @@ import com.omarahmed42.ecommerce.model.Vendor;
 import com.omarahmed42.ecommerce.repository.BillingAddressRepository;
 import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
 import com.omarahmed42.ecommerce.repository.CustomerRepository;
-import com.omarahmed42.ecommerce.repository.OrderRepository;
+import com.omarahmed42.ecommerce.repository.OrderDetailsRepository;
 import com.omarahmed42.ecommerce.repository.PaymentRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 import com.omarahmed42.ecommerce.repository.RoleRepository;
 import com.omarahmed42.ecommerce.repository.UserRepository;
 import com.omarahmed42.ecommerce.repository.VendorRepository;
-import com.omarahmed42.ecommerce.service.OrdersService;
+import com.omarahmed42.ecommerce.service.OrderDetailsService;
 import com.omarahmed42.ecommerce.service.PaymentService;
 import com.stripe.model.PaymentIntent;
 
@@ -58,15 +58,15 @@ public class PaymentServiceImplTest {
     private PaymentRepository paymentRepository;
 
     @SpyBean
-    private OrdersService orderService;
+    private OrderDetailsService orderService;
 
     @SpyBean
-    private OrderRepository orderRepository;
+    private OrderDetailsRepository orderRepository;
 
     private Customer customer;
     private Product product;
     private BillingAddress billingAddress;
-    private Orders order;
+    private OrderDetails order;
 
     @SpyBean
     private UserRepository userRepository;
@@ -105,7 +105,7 @@ public class PaymentServiceImplTest {
         product.setRating(4D);
         product.setStock(5);
         product.setPrice(BigDecimal.ONE.setScale(2));
-        product.setVendorId(vendor.getId());
+        product.setVendor(vendor);
         product = productRepository.saveAndFlush(product);
 
         billingAddress = new BillingAddress();
@@ -134,9 +134,9 @@ public class PaymentServiceImplTest {
         return user;
     }
 
-    private Orders saveOrder() {
-        Orders orders = new Orders();
-        orders.setBillingAddressId(billingAddress.getId());
+    private OrderDetails saveOrder() {
+        OrderDetails orders = new OrderDetails();
+        orders.setBillingAddress(billingAddress);
         orders.setPurchaseDate(Instant.now());
         orders.setTotalPrice(BigDecimal.ONE.setScale(2));
         orders.setStatus(Status.PENDING);
@@ -202,7 +202,7 @@ public class PaymentServiceImplTest {
         Payment actual = paymentRepository.findById(paymentIntent.getId()).get();
 
         Payment expected = new Payment();
-        expected.setOrderId(order.getId());
+        expected.setOrderDetails(order);
         expected.setPaymentIntentId(paymentIntent.getId());
         expected.setPaymentStatus(PaymentStatus.CREATED);
         expected.setPaymentAmount(1L);
@@ -210,7 +210,7 @@ public class PaymentServiceImplTest {
         Assertions.assertNotNull(actual.getCreatedAt());
 
         org.assertj.core.api.Assertions.assertThat(actual).usingRecursiveComparison()
-                .ignoringFields("orderByOrderId", "createdAt").isEqualTo(expected);
+                .ignoringFields("orderDetails", "createdAt").isEqualTo(expected);
     }
 
     @Test
@@ -225,7 +225,7 @@ public class PaymentServiceImplTest {
         String paymentId = paymentIntent.getId();
 
         Payment expectedPayment = new Payment();
-        expectedPayment.setOrderId(order.getId());
+        expectedPayment.setOrderDetails(order);
         expectedPayment.setPaymentStatus(PaymentStatus.PENDING);
         expectedPayment.setPaymentAmount(1L);
         expectedPayment.setPaymentIntentId(paymentId);
@@ -234,14 +234,14 @@ public class PaymentServiceImplTest {
 
         paymentService.handlePaymentIntent("payment_intent.succeeded", paymentIntent);
         verify(paymentRepository).findById(any(String.class));
-        verify(orderService).updateOrderPartially(any(UUID.class), any(OrderDetailsDTO.class));
+        verify(orderService).updateOrderDetailsPartially(any(UUID.class), any(OrderDetailsDTO.class));
         verify(paymentRepository).save(any(Payment.class));
 
         expectedPayment.setPaymentStatus(PaymentStatus.COMPLETED);
         Payment actual = paymentRepository.findById(paymentId).get();
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
-                .ignoringFields("createdAt", "orderByOrderId")
+                .ignoringFields("createdAt", "orderDetails")
                 .isEqualTo(expectedPayment);
     }
 
@@ -251,7 +251,7 @@ public class PaymentServiceImplTest {
         String paymentId = paymentIntent.getId();
 
         Payment expectedPayment = new Payment();
-        expectedPayment.setOrderId(order.getId());
+        expectedPayment.setOrderDetails(order);
         expectedPayment.setPaymentStatus(PaymentStatus.PENDING);
         expectedPayment.setPaymentAmount(1L);
         expectedPayment.setPaymentIntentId(paymentId);
@@ -260,15 +260,15 @@ public class PaymentServiceImplTest {
 
         paymentService.handlePaymentIntent("payment_intent.succeeded", paymentIntent);
         verify(paymentRepository).findById(any(String.class));
-        verify(orderService).updateOrderPartially(any(UUID.class), any(OrderDetailsDTO.class));
+        verify(orderService).updateOrderDetailsPartially(any(UUID.class), any(OrderDetailsDTO.class));
         verify(paymentRepository).save(any(Payment.class));
 
         expectedPayment.setPaymentStatus(PaymentStatus.COMPLETED);
-        Orders actual = orderRepository.findById(order.getId()).get();
+        OrderDetails actual = orderRepository.findById(order.getId()).get();
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
-                .ignoringFields("createdAt", "customerOrdersById", "payment", "productItemsById",
-                        "billingAddressByBillingAddressId", "purchaseDate", "status")
+                .ignoringFields("createdAt", "customerOrdersById", "payment", "orderItems",
+                        "billingAddress", "purchaseDate", "status")
                 .isEqualTo(order);
 
         Assertions.assertEquals(Status.COMPLETED, actual.getStatus());
@@ -286,7 +286,7 @@ public class PaymentServiceImplTest {
         String paymentId = paymentIntent.getId();
 
         Payment expectedPayment = new Payment();
-        expectedPayment.setOrderId(order.getId());
+        expectedPayment.setOrderDetails(order);
         expectedPayment.setPaymentStatus(PaymentStatus.PENDING);
         expectedPayment.setPaymentAmount(1L);
         expectedPayment.setPaymentIntentId(paymentId);
@@ -296,7 +296,7 @@ public class PaymentServiceImplTest {
         paymentService.handlePaymentIntent("payment_intent.payment_failed", paymentIntent);
 
         verify(paymentRepository).findById(any(String.class));
-        verify(orderService).updateOrderPartially(any(UUID.class), any(OrderDetailsDTO.class));
+        verify(orderService).updateOrderDetailsPartially(any(UUID.class), any(OrderDetailsDTO.class));
         verify(paymentRepository).save(any(Payment.class));
         verify(orderRepository).getReferenceById(any(UUID.class));
         verify(productRepository).saveAllAndFlush(anyList());
@@ -305,7 +305,7 @@ public class PaymentServiceImplTest {
         Payment actual = paymentRepository.findById(paymentId).get();
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
-                .ignoringFields("createdAt", "orderByOrderId")
+                .ignoringFields("createdAt", "orderDetails")
                 .isEqualTo(expectedPayment);
     }
 
@@ -315,7 +315,7 @@ public class PaymentServiceImplTest {
         String paymentId = paymentIntent.getId();
 
         Payment expectedPayment = new Payment();
-        expectedPayment.setOrderId(order.getId());
+        expectedPayment.setOrderDetails(order);
         expectedPayment.setPaymentStatus(PaymentStatus.PENDING);
         expectedPayment.setPaymentAmount(1L);
         expectedPayment.setPaymentIntentId(paymentId);
@@ -324,17 +324,17 @@ public class PaymentServiceImplTest {
 
         paymentService.handlePaymentIntent("payment_intent.payment_failed", paymentIntent);
         verify(paymentRepository).findById(any(String.class));
-        verify(orderService).updateOrderPartially(any(UUID.class), any(OrderDetailsDTO.class));
+        verify(orderService).updateOrderDetailsPartially(any(UUID.class), any(OrderDetailsDTO.class));
         verify(paymentRepository).save(any(Payment.class));
         verify(orderRepository).getReferenceById(any(UUID.class));
         verify(productRepository).saveAllAndFlush(anyIterable());
 
         expectedPayment.setPaymentStatus(PaymentStatus.FAILED);
-        Orders actual = orderRepository.findById(order.getId()).get();
+        OrderDetails actual = orderRepository.findById(order.getId()).get();
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
-                .ignoringFields("createdAt", "customerOrdersById", "payment", "productItemsById",
-                        "billingAddressByBillingAddressId", "purchaseDate", "status")
+                .ignoringFields("createdAt", "customerOrdersById", "payment", "orderItems",
+                        "billingAddress", "purchaseDate", "status")
                 .isEqualTo(order);
 
         Assertions.assertEquals(Status.FAILED, actual.getStatus());

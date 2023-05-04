@@ -28,11 +28,11 @@ public class Wishlist implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", referencedColumnName = "user_id", insertable = false, updatable = false)
-    private Customer customerByCustomerId;
+    private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Product productByProductId;
+    private Product product;
 
     public Wishlist() {
     }
@@ -75,19 +75,19 @@ public class Wishlist implements Serializable {
         return result;
     }
 
-    public Customer getCustomerByCustomerId() {
-        return customerByCustomerId;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setCustomerByCustomerId(Customer customerByCustomerId) {
-        this.customerByCustomerId = customerByCustomerId;
+    public void setCustomer(Customer customerByCustomerId) {
+        this.customer = customerByCustomerId;
     }
 
-    public Product getProductByProductId() {
-        return productByProductId;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductByProductId(Product productByProductId) {
-        this.productByProductId = productByProductId;
+    public void setProduct(Product productByProductId) {
+        this.product = productByProductId;
     }
 }

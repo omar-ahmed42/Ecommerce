@@ -9,16 +9,4 @@ import com.omarahmed42.ecommerce.model.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
-
-    @Override
-    boolean existsById(UUID id);
-
-    @Override
-    <S extends Product> S save(S entity);
-
-    @Override
-    void deleteById(UUID id);
-
-    @Override
-    void deleteAllInBatch(Iterable<Product> entities);
 }

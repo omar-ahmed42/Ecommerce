@@ -34,11 +34,11 @@ public class CustomerOrders implements Serializable{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
-    private Customer customerByCustomerId;
+    private Customer customer;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
-    private Orders ordersByOrderId;
+    private OrderDetails orderDetails;
 
     public CustomerOrders() {
     }

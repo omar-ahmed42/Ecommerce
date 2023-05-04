@@ -1,6 +1,5 @@
 package com.omarahmed42.ecommerce.repository;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,16 +12,8 @@ import com.omarahmed42.ecommerce.model.ProductMedia;
 
 @Repository
 public interface ProductMediaRepository extends JpaRepository<ProductMedia, UUID> {
-    @Override
-    <S extends ProductMedia> List<S> saveAll(Iterable<S> entities);
-
-    @Override
-    <S extends ProductMedia> S save(S entity);
-
-    @Override
-    void deleteById(UUID id);
-
     void deleteAllByProductId(UUID productId);
+
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE ProductMedia SET mediaUrl = :url WHERE id = :id")
     void updateURL(@Param("id") Byte id, @Param("url") String url);

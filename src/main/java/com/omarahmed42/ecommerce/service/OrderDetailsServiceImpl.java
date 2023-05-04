@@ -13,6 +13,7 @@ import java.util.UUID;
 import javax.persistence.LockModeType;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -28,24 +29,24 @@ import com.omarahmed42.ecommerce.exception.MoreThanStockCapacityException;
 import com.omarahmed42.ecommerce.exception.OrderNotFoundException;
 import com.omarahmed42.ecommerce.model.BillingAddress;
 import com.omarahmed42.ecommerce.model.CustomerOrders;
-import com.omarahmed42.ecommerce.model.Orders;
+import com.omarahmed42.ecommerce.model.OrderDetails;
+import com.omarahmed42.ecommerce.model.OrderItem;
 import com.omarahmed42.ecommerce.model.Product;
-import com.omarahmed42.ecommerce.model.ProductItem;
 import com.omarahmed42.ecommerce.repository.BillingAddressRepository;
 import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
-import com.omarahmed42.ecommerce.repository.OrderRepository;
+import com.omarahmed42.ecommerce.repository.OrderDetailsRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 
 @Service
-public class OrdersServiceImpl implements OrdersService {
+public class OrderDetailsServiceImpl implements OrderDetailsService {
 
-    private final OrderRepository orderRepository;
+    private final OrderDetailsRepository orderRepository;
     private final ProductRepository productRepository;
     private final CustomerOrdersRepository customerOrdersRepository;
     private final BillingAddressRepository billingAddressRepository;
     private ModelMapper modelMapper;
 
-    public OrdersServiceImpl(OrderRepository orderRepository,
+    public OrderDetailsServiceImpl(OrderDetailsRepository orderRepository,
             ProductRepository productRepository, CustomerOrdersRepository customerOrdersRepository,
             BillingAddressRepository billingAddressRepository) {
         this.orderRepository = orderRepository;
@@ -53,12 +54,12 @@ public class OrdersServiceImpl implements OrdersService {
         this.customerOrdersRepository = customerOrdersRepository;
         this.billingAddressRepository = billingAddressRepository;
         modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+        modelMapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @Override
     @Transactional
-    public void deleteOrder(UUID id) {
+    public void deleteOrderDetails(UUID id) {
         orderRepository
                 .findById(id)
                 .ifPresentOrElse(orderRepository::delete,
@@ -69,11 +70,11 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     @Transactional
-    public void updateOrderPartially(UUID id, OrderDetailsDTO orderDetailsDTO) {
+    public void updateOrderDetailsPartially(UUID id, OrderDetailsDTO orderDetailsDTO) {
         if (orderDetailsDTO.getTotalPrice() != null && orderDetailsDTO.getTotalPrice().compareTo(BigDecimal.ZERO) < 0)
             throw new InvalidInputException("Total price cannot be less than 0");
 
-        Orders order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+        OrderDetails order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
         modelMapper.map(orderDetailsDTO, order);
         order.setId(id);
         orderRepository.save(order);
@@ -81,7 +82,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     @Transactional
-    public void updateOrder(Orders order) {
+    public void updateOrderDetails(OrderDetails order) {
         orderRepository
                 .findById(order.getId())
                 .ifPresentOrElse(presentOrder -> orderRepository.save(order),
@@ -91,7 +92,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Transactional(readOnly = true)
-    public Orders getOrder(UUID orderId) {
+    public OrderDetails getOrderDetails(UUID orderId) {
         return orderRepository
                 .findById(orderId)
                 .orElseThrow(OrderNotFoundException::new);
@@ -101,20 +102,20 @@ public class OrdersServiceImpl implements OrdersService {
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @PreAuthorize("principal.user.id == #userId")
-    public Orders addOrder(UUID userId, CartItemDTO[] cartItems, BillingAddressDTO billingAddressDTO) {
+    public OrderDetails addOrderDetails(UUID userId, CartItemDTO[] cartItems, BillingAddressDTO billingAddressDTO) {
         Map<UUID, Integer> productIdToQuantity = mapProductIdsToQuantity(cartItems);
         Set<UUID> productIds = productIdToQuantity.keySet();
         if (productIds.isEmpty())
             throw new MissingFieldException("Products ids are missing");
 
         List<Product> products = productRepository.findAllById(productIds);
-        List<ProductItem> orderItems = new ArrayList<>(products.size());
+        List<OrderItem> orderItems = new ArrayList<>(products.size());
 
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (Product product : products) {
             Integer quantity = productIdToQuantity.get(product.getId());
             updateStock(product, quantity);
-            ProductItem orderItem = new ProductItem(product.getId(), calculateSubTotal(product, quantity), quantity);
+            OrderItem orderItem = new OrderItem(product, calculateSubTotal(product, quantity), quantity);
             orderItems.add(orderItem);
             totalPrice = totalPrice.add(orderItem.getTotalPrice());
         }
@@ -124,8 +125,8 @@ public class OrdersServiceImpl implements OrdersService {
         BillingAddress billingAddress = modelMapper.map(billingAddressDTO, BillingAddress.class);
         billingAddress = billingAddressRepository.save(billingAddress);
 
-        Orders order = new Orders();
-        order.setBillingAddressId(billingAddress.getId());
+        OrderDetails order = new OrderDetails();
+        order.setBillingAddress(billingAddress);
         order.setTotalPrice(totalPrice);
         order.setStatus(Status.PENDING);
         order.setPurchaseDate(Instant.now());

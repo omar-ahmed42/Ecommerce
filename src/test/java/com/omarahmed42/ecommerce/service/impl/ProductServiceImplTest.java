@@ -141,7 +141,7 @@ class ProductServiceImplTest {
     @WithMockUser(roles = "ADMIN")
     void getProduct_SuccessfullyReturnsProductResponse() {
         Product product = prepareProduct();
-        product.setVendorId(vendor.getId());
+        product.setVendor(vendor);
         product = productRepository.save(product);
 
         ProductResponse expected = prepareProductResponse(product.getId());

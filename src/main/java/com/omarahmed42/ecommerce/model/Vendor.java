@@ -1,15 +1,14 @@
 package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 
@@ -20,17 +19,15 @@ import org.hibernate.envers.Audited;
 public class Vendor implements Serializable {
     @Id
     @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    @Access(AccessType.PROPERTY)
     private UUID id;
 
     @Column(name = "verified_vendor", nullable = false)
     private boolean verifiedVendor;
 
-    @OneToMany(mappedBy = "vendorByVendorId", fetch = FetchType.LAZY)
-    private Collection<Product> productsById;
-
     @OneToOne
     @PrimaryKeyJoinColumn(name = "user_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
-    private User userByUserId;
+    private User user;
 
     public Vendor() {
     }
@@ -72,20 +69,12 @@ public class Vendor implements Serializable {
         return result;
     }
 
-    public Collection<Product> getProductsById() {
-        return productsById;
+    public User getUser() {
+        return user;
     }
 
-    public void setProductsById(Collection<Product> productsById) {
-        this.productsById = productsById;
-    }
-
-    public User getUserByUserId() {
-        return userByUserId;
-    }
-
-    public void setUserByUserId(User userByUserId) {
-        this.userByUserId = userByUserId;
+    public void setUser(User userByUserId) {
+        this.user = userByUserId;
     }
 
     public boolean isVerifiedVendor() {

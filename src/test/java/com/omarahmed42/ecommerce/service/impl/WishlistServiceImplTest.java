@@ -86,7 +86,7 @@ class WishlistServiceImplTest {
         product.setRating(4D);
         product.setStock(5);
         product.setPrice(BigDecimal.ONE.setScale(2));
-        product.setVendorId(vendor.getId());
+        product.setVendor(vendor);
         product = productRepository.saveAndFlush(product);
     }
 

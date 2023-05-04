@@ -2,9 +2,10 @@ package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,31 +30,24 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class ProductReview implements Serializable {
     @Id
     @GeneratedValue
-    @Column(name = "id", nullable = false, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "id", nullable = false, columnDefinition = "BINARY(16)")
+    @Access(AccessType.PROPERTY)
     private UUID id;
-
-    @Basic
-    @Column(name = "product_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
-    private UUID productId;
-
-    @Basic
-    @Column(name = "customer_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
-    private UUID customerId;
 
     @Basic
     @Column(name = "rating", nullable = false, precision = 0)
     private double rating;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
-    private Product productByProductId;
+    @JoinColumn(name = "product_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
+    private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", insertable = false, updatable = false, nullable = false)
-    private Customer customerByCustomerId;
+    @JoinColumn(name = "customer_id", referencedColumnName = "user_id", columnDefinition = "BINARY(16)")
+    private Customer customer;
 
-    @OneToOne(mappedBy = "productReviewByProductReviewId", fetch = FetchType.LAZY, optional = true)
-    private ReviewComment reviewCommentsById;
+    @OneToOne(mappedBy = "productReview", fetch = FetchType.LAZY, optional = true)
+    private ReviewComment reviewComment;
 
     @Column(name = "created_at", updatable = false, precision = 9, scale = 6)
     @CreatedDate
@@ -69,22 +63,6 @@ public class ProductReview implements Serializable {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public UUID getProductId() {
-        return productId;
-    }
-
-    public void setProductId(UUID productId) {
-        this.productId = productId;
-    }
-
-    public UUID getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(UUID customerId) {
-        this.customerId = customerId;
     }
 
     public double getRating() {
@@ -104,46 +82,86 @@ public class ProductReview implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        ProductReview that = (ProductReview) o;
-        return Double.compare(that.rating, rating) == 0 && Objects.equals(id, that.id)
-                && Objects.equals(productId, that.productId) && Objects.equals(customerId, that.customerId);
-    }
-
-    @Override
     public int hashCode() {
-        int result = Objects.hash(rating);
-        result = 31 * result + id.hashCode();
-        result = 31 * result + productId.hashCode();
-        result = 31 * result + customerId.hashCode();
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        long temp;
+        temp = Double.doubleToLongBits(rating);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((product == null) ? 0 : product.hashCode());
+        result = prime * result + ((customer == null) ? 0 : customer.hashCode());
+        result = prime * result + ((reviewComment == null) ? 0 : reviewComment.hashCode());
+        result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
+        result = prime * result + ((modifiedAt == null) ? 0 : modifiedAt.hashCode());
         return result;
     }
 
-    public Product getProductByProductId() {
-        return productByProductId;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ProductReview other = (ProductReview) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (Double.doubleToLongBits(rating) != Double.doubleToLongBits(other.rating))
+            return false;
+        if (product == null) {
+            if (other.product != null)
+                return false;
+        } else if (!product.equals(other.product))
+            return false;
+        if (customer == null) {
+            if (other.customer != null)
+                return false;
+        } else if (!customer.equals(other.customer))
+            return false;
+        if (reviewComment == null) {
+            if (other.reviewComment != null)
+                return false;
+        } else if (!reviewComment.equals(other.reviewComment))
+            return false;
+        if (createdAt == null) {
+            if (other.createdAt != null)
+                return false;
+        } else if (!createdAt.equals(other.createdAt))
+            return false;
+        if (modifiedAt == null) {
+            if (other.modifiedAt != null)
+                return false;
+        } else if (!modifiedAt.equals(other.modifiedAt))
+            return false;
+        return true;
     }
 
-    public void setProductByProductId(Product productByProductId) {
-        this.productByProductId = productByProductId;
+    public Product getProduct() {
+        return product;
     }
 
-    public Customer getCustomerByCustomerId() {
-        return customerByCustomerId;
+    public void setProduct(Product productByProductId) {
+        this.product = productByProductId;
     }
 
-    public void setCustomerByCustomerId(Customer customerByCustomerId) {
-        this.customerByCustomerId = customerByCustomerId;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public ReviewComment getReviewCommentsById() {
-        return reviewCommentsById;
+    public void setCustomer(Customer customerByCustomerId) {
+        this.customer = customerByCustomerId;
     }
 
-    public void setReviewCommentsById(ReviewComment reviewCommentsById) {
-        this.reviewCommentsById = reviewCommentsById;
+    public ReviewComment getReviewComment() {
+        return reviewComment;
+    }
+
+    public void setReviewComment(ReviewComment reviewCommentsById) {
+        this.reviewComment = reviewCommentsById;
     }
 }

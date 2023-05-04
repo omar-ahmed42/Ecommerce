@@ -12,12 +12,6 @@ import com.omarahmed42.ecommerce.model.ReviewComment;
 
 @Repository
 public interface ReviewCommentRepository extends JpaRepository<ReviewComment, UUID> {
-    @Override
-    <S extends ReviewComment> S save(S entity);
-
-    @Override
-    void deleteById(UUID id);
-
     @Query(value = """
             SELECT c.user_id FROM customer c, product_review pr, review_comment rc WHERE rc.id = :id AND pr.id = rc.product_review_id LIMIT 1
             """, nativeQuery = true)

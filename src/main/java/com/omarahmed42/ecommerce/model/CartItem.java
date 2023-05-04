@@ -29,10 +29,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@IdClass(CartitemsPK.class)
+@IdClass(CartItemPK.class)
 @EntityListeners(AuditingEntityListener.class)
 @Audited
-public class Cartitems implements Serializable {
+public class CartItem implements Serializable {
     @Id
     @Column(name = "customer_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     private UUID customerId;
@@ -65,16 +65,16 @@ public class Cartitems implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", referencedColumnName = "user_id", insertable = false, updatable = false)
-    private Customer customerByCustomerId;
+    private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
-    private Product productByProductId;
+    private Product product;
 
-    public Cartitems() {
+    public CartItem() {
     }
 
-    public Cartitems(UUID customerId, UUID productId) {
+    public CartItem(UUID customerId, UUID productId) {
         this.customerId = customerId;
         this.productId = productId;
     }
@@ -85,7 +85,7 @@ public class Cartitems implements Serializable {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        Cartitems cartitems = (Cartitems) o;
+        CartItem cartitems = (CartItem) o;
         return Objects.equals(customerId, cartitems.customerId) && Objects.equals(productId, cartitems.productId);
     }
 

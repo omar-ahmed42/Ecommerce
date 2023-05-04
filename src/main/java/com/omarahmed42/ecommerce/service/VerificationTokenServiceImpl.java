@@ -46,13 +46,13 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         } else if (verificationToken.getStatus() == TokenStatus.VALID && isExpired(verificationToken.getExpiryDate())) {
             expireToken(verificationToken);
             applicationEventPublisher.publishEvent(
-                    new OnRegistrationEvent(userRepository.getReferenceById(verificationToken.getUserId())));
+                    new OnRegistrationEvent(userRepository.getReferenceById(verificationToken.getUser().getId())));
         } else if (verificationToken.getStatus() == TokenStatus.CONSUMED) {
             throw new TokenAlreadyConsumedException("This account has already been verified");
         } else if (verificationToken.getStatus() == TokenStatus.REVOKED) {
             throw new TokenRevokedException("This token has been revoked");
         } else {
-            verifyAccount(verificationToken.getUserId());
+            verifyAccount(verificationToken.getUser().getId());
         }
     }
 

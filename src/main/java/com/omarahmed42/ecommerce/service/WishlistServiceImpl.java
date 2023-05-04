@@ -3,6 +3,7 @@ package com.omarahmed42.ecommerce.service;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ public class WishlistServiceImpl implements WishlistService {
     public WishlistServiceImpl(WishlistRepository wishlistRepository) {
         this.wishlistRepository = wishlistRepository;
         modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+        modelMapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @Override

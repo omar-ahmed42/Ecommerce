@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +15,8 @@ import com.omarahmed42.ecommerce.exception.InvalidInputException;
 import com.omarahmed42.ecommerce.exception.MissingFieldException;
 import com.omarahmed42.ecommerce.exception.MoreThanStockCapacityException;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
-import com.omarahmed42.ecommerce.model.Cartitems;
-import com.omarahmed42.ecommerce.model.CartitemsPK;
+import com.omarahmed42.ecommerce.model.CartItem;
+import com.omarahmed42.ecommerce.model.CartItemPK;
 import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.repository.CartItemsRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
@@ -31,7 +32,8 @@ public class CartServiceImpl implements CartService {
         this.cartItemRepository = cartItemsRepository;
         this.productRepository = productRepository;
         modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+        modelMapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
+
     }
 
     @Override
@@ -48,7 +50,7 @@ public class CartServiceImpl implements CartService {
         if (product.getStock() < cartItemDTO.getQuantity())
             throw new MoreThanStockCapacityException("Requested product exceeds the available stock products");
 
-        Cartitems cartItem = new Cartitems(UserDetailsUtils.getAuthenticatedUser().getId(), cartItemDTO.getProductId());
+        CartItem cartItem = new CartItem(UserDetailsUtils.getAuthenticatedUser().getId(), cartItemDTO.getProductId());
         cartItem.setQuantity(cartItemDTO.getQuantity());
         cartItem.setPrice(product.getPrice());
         cartItem.setSubtotal(calculateSubtotal(cartItemDTO, product.getPrice()));
@@ -84,7 +86,7 @@ public class CartServiceImpl implements CartService {
     @PreAuthorize("hasRole('CUSTOMER')")
     public void deleteCartItem(UUID productId) {
         cartItemRepository.delete(cartItemRepository
-                .findById(new CartitemsPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId))
+                .findById(new CartItemPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId))
                 .orElseThrow(CartItemNotFoundException::new));
     }
 
@@ -92,7 +94,7 @@ public class CartServiceImpl implements CartService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('ADMIN') || (hasRole('CUSTOMER') && #userId == principal.user.id)")
     public CartItemDTO getCartItem(UUID userId, UUID productId) {
-        Cartitems cartItem = cartItemRepository.findById(new CartitemsPK(userId, productId))
+        CartItem cartItem = cartItemRepository.findById(new CartItemPK(userId, productId))
                 .orElseThrow(CartItemNotFoundException::new);
         return modelMapper.map(cartItem, CartItemDTO.class);
     }
@@ -102,7 +104,7 @@ public class CartServiceImpl implements CartService {
     @PreAuthorize("hasRole('CUSTOMER')")
     public void updateCartItem(UUID productId, CartItemDTO cartItemDTO) {
         validateCartItem(cartItemDTO);
-        CartitemsPK cartItemPK = new CartitemsPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId);
+        CartItemPK cartItemPK = new CartItemPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId);
         if (cartItemDTO.getQuantity() == 0) {
             cartItemRepository.deleteById(cartItemPK);
             return;

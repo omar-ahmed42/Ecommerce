@@ -3,6 +3,7 @@ package com.omarahmed42.ecommerce.service;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
         this.reviewCommentRepository = reviewCommentRepository;
         this.productReviewRepository = productReviewRepository;
         modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+        modelMapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @Override
@@ -49,14 +50,13 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
         if (!isOwner(productReview, authenticatedUser.getId()))
             throw new UnauthorizedAccessException(authenticatedUser.getId().toString(), "add", "a review comment");
         ReviewComment reviewComment = modelMapper.map(reviewCommentRequest, ReviewComment.class);
-        reviewComment.setProductReviewId(reviewId);
-        reviewComment.setProductReviewByProductReviewId(productReview);
+        reviewComment.setProductReview(productReview);
         reviewComment = reviewCommentRepository.save(reviewComment);
         return reviewComment.getId();
     }
 
     private boolean isOwner(ProductReview productReview, UUID userId) {
-        return productReview.getCustomerId().equals(userId);
+        return productReview.getCustomer().getId().equals(userId);
     }
 
     private void validateReviewComment(ReviewCommentRequest reviewCommentRequest) {
@@ -72,7 +72,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
     public void deleteReviewComment(UUID id) {
         ReviewComment reviewComment = reviewCommentRepository
                 .findById(id).orElseThrow(ReviewCommentNotFoundException::new);
-        UUID commentOwnerId = reviewComment.getProductReviewByProductReviewId().getCustomerId();
+        UUID commentOwnerId = reviewComment.getProductReview().getCustomer().getId();
         User authenticatedUser = UserDetailsUtils.getAuthenticatedUser();
         if (!UserDetailsUtils.hasRole(Role.ADMIN) && !commentOwnerId.equals(authenticatedUser.getId()))
             throw new UnauthorizedAccessException(authenticatedUser.getId().toString(), "delete", "a review comment");
@@ -87,7 +87,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
         ReviewComment reviewComment = reviewCommentRepository
                 .findById(id)
                 .orElseThrow(ReviewCommentNotFoundException::new);
-        UUID commentOwnerId = reviewComment.getProductReviewByProductReviewId().getCustomerId();
+        UUID commentOwnerId = reviewComment.getProductReview().getCustomer().getId();
         User authenticatedUser = UserDetailsUtils.getAuthenticatedUser();
         if (!commentOwnerId.equals(authenticatedUser.getId()))
             throw new UnauthorizedAccessException(authenticatedUser.getId().toString(), "update", "a review comment");

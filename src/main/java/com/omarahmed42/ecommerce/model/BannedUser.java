@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,6 +28,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class BannedUser implements Serializable {
     @Id
     @Column(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Access(AccessType.PROPERTY)
     private UUID userId;
 
     @Basic
@@ -56,7 +59,7 @@ public class BannedUser implements Serializable {
 
     @OneToOne
     @PrimaryKeyJoinColumn(name = "user_id", referencedColumnName = "id")
-    private User userByUserId;
+    private User user;
 
     public UUID getUserId() {
         return userId;
@@ -129,11 +132,11 @@ public class BannedUser implements Serializable {
         return result;
     }
 
-    public User getUserByUserId() {
-        return userByUserId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserByUserId(User userByUserId) {
-        this.userByUserId = userByUserId;
+    public void setUser(User userByUserId) {
+        this.user = userByUserId;
     }
 }

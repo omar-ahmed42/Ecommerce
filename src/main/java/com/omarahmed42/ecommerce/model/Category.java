@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,17 +20,18 @@ import org.hibernate.envers.Audited;
 @Entity
 @Audited
 public class Category implements Serializable {
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false, updatable = false)
+    @Access(AccessType.PROPERTY)
     private Integer id;
 
     @Basic
     @Column(name = "name", nullable = false, length = 150)
     private String name;
 
-    @OneToMany(mappedBy = "categoryByCategoryId", fetch = FetchType.LAZY)
-    private Collection<CategoryProduct> categoryProductsById;
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    private Collection<CategoryProduct> categoryProducts;
 
     public Category() {
     }
@@ -77,11 +80,11 @@ public class Category implements Serializable {
         return Objects.hash(id, name);
     }
 
-    public Collection<CategoryProduct> getCategoryProductsById() {
-        return categoryProductsById;
+    public Collection<CategoryProduct> getCategoryProducts() {
+        return categoryProducts;
     }
 
-    public void setCategoryProductsById(Collection<CategoryProduct> categoryProductsById) {
-        this.categoryProductsById = categoryProductsById;
+    public void setCategoryProducts(Collection<CategoryProduct> categoryProductsById) {
+        this.categoryProducts = categoryProductsById;
     }
 }

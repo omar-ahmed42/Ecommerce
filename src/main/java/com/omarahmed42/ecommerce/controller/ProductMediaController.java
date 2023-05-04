@@ -30,9 +30,9 @@ public class ProductMediaController {
     public ResponseEntity<String> addNewMedia(@PathVariable("product-id") UUID productId, @RequestBody Set<String> mediaUrls) {
         try {
             List<ProductMedia> productMedia = new ArrayList<>(mediaUrls.size());
-            mediaUrls
-                    .forEach(url ->
-                            productMedia.add(new ProductMedia(productId, url)));
+            // mediaUrls
+            //         .forEach(url ->
+            //                 productMedia.add(new ProductMedia(productId, url)));
             productMediaService.addProductMedia(productMedia);
             return ResponseEntity.status(201).build();
         } catch (Exception e) {

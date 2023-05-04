@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.UUID;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,18 +29,19 @@ import lombok.Setter;
 public class Customer implements Serializable {
     @Id
     @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    @Access(AccessType.PROPERTY)
     private UUID id;
 
     @Basic
     @Column(name = "billing_address_id", nullable = true, insertable = false, updatable = false, columnDefinition = "BINARY(16)")
     private UUID billingAddressId;
 
-    @OneToMany(mappedBy = "customerByCustomerId", fetch = FetchType.LAZY)
-    private Collection<Cartitems> cartitemsById;
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private Collection<CartItem> cartItems;
 
     @OneToOne
     @PrimaryKeyJoinColumn(name = "user_id", referencedColumnName = "id", columnDefinition = "BINARY(16)")
-    private User userByUserId;
+    private User user;
 
     public Customer() {
     }
@@ -52,14 +55,14 @@ public class Customer implements Serializable {
     @JoinColumn(name = "billing_address_id", referencedColumnName = "id", nullable = true)
     private BillingAddress billingAddressByBillingAddressId;
 
-    @OneToMany(mappedBy = "customerByCustomerId", fetch = FetchType.LAZY)
-    private Collection<CustomerOrders> customerOrdersById;
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private Collection<CustomerOrders> customerOrders;
 
-    @OneToMany(mappedBy = "customerByCustomerId", fetch = FetchType.LAZY)
-    private Collection<ProductReview> productReviewsById;
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private Collection<ProductReview> productReviews;
 
-    @OneToMany(mappedBy = "customerByCustomerId", fetch = FetchType.LAZY)
-    private Collection<Wishlist> wishlistsById;
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private Collection<Wishlist> wishlists;
 
     public UUID getId() {
         return this.id;

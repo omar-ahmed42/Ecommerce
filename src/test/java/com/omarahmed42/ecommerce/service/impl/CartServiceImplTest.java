@@ -21,8 +21,8 @@ import com.omarahmed42.ecommerce.DTO.CartItemDTO;
 import com.omarahmed42.ecommerce.exception.CartItemNotFoundException;
 import com.omarahmed42.ecommerce.exception.InvalidInputException;
 import com.omarahmed42.ecommerce.exception.MissingFieldException;
-import com.omarahmed42.ecommerce.model.Cartitems;
-import com.omarahmed42.ecommerce.model.CartitemsPK;
+import com.omarahmed42.ecommerce.model.CartItem;
+import com.omarahmed42.ecommerce.model.CartItemPK;
 import com.omarahmed42.ecommerce.model.Customer;
 import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.model.Role;
@@ -94,7 +94,7 @@ class CartServiceImplTest {
         customer = customerRepository.saveAndFlush(customer);
 
         product = prepareProduct();
-        product.setVendorId(vendor.getId());
+        product.setVendor(vendor);
         product = productRepository.saveAndFlush(product);
     }
 
@@ -151,14 +151,14 @@ class CartServiceImplTest {
 
         cartService.addCartItem(cartItemDTO);
 
-        Cartitems actual = cartItemsRepository.findById(new CartitemsPK(customer.getId(), product.getId())).get();
+        CartItem actual = cartItemsRepository.findById(new CartItemPK(customer.getId(), product.getId())).get();
 
-        Cartitems expected = new Cartitems(customer.getId(), product.getId());
+        CartItem expected = new CartItem(customer.getId(), product.getId());
         expected.setPrice(product.getPrice().setScale(2));
         expected.setQuantity(3);
         expected.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(3).setScale(2)));
         Assertions.assertThat(actual).usingRecursiveComparison()
-                .ignoringFields("createdAt", "modifiedAt", "customerByCustomerId", "productByProductId")
+                .ignoringFields("createdAt", "modifiedAt", "customer", "product")
                 .isEqualTo(expected);
 
     }
@@ -198,7 +198,7 @@ class CartServiceImplTest {
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
     void deleteCartItem_ValidAsCustomer() {
-        Cartitems cartItem = new Cartitems(customer.getId(), product.getId());
+        CartItem cartItem = new CartItem(customer.getId(), product.getId());
         cartItem.setQuantity(3);
         cartItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(3)).setScale(2));
         cartItem.setPrice(product.getPrice());
@@ -207,7 +207,7 @@ class CartServiceImplTest {
 
         cartService.deleteCartItem(product.getId());
 
-        verify(cartItemsRepository).delete(any(Cartitems.class));
+        verify(cartItemsRepository).delete(any(CartItem.class));
 
         long actual = cartItemsRepository.count();
         org.junit.jupiter.api.Assertions.assertEquals(0L, actual);
@@ -230,7 +230,7 @@ class CartServiceImplTest {
         expected.setPrice(product.getPrice().setScale(2));
         expected.setQuantity(3);
 
-        Cartitems cartItem = new Cartitems(customer.getId(), product.getId());
+        CartItem cartItem = new CartItem(customer.getId(), product.getId());
         cartItem.setQuantity(3);
         cartItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(3)).setScale(2));
         cartItem.setPrice(product.getPrice());
@@ -244,7 +244,7 @@ class CartServiceImplTest {
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
     void updateCartItem_ZeroQuantity_ValidAsCustomer() {
-        Cartitems cartItem = new Cartitems(customer.getId(), product.getId());
+        CartItem cartItem = new CartItem(customer.getId(), product.getId());
         cartItem.setQuantity(3);
         cartItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(3)).setScale(2));
         cartItem.setPrice(product.getPrice());
@@ -257,7 +257,7 @@ class CartServiceImplTest {
         cartItem = cartItemsRepository.saveAndFlush(cartItem);
         cartService.updateCartItem(product.getId(), cartItemDTO);
 
-        verify(cartItemsRepository).deleteById(any(CartitemsPK.class));
+        verify(cartItemsRepository).deleteById(any(CartItemPK.class));
         long actual = cartItemsRepository.count();
         org.junit.jupiter.api.Assertions.assertEquals(0L, actual);
     }

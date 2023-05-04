@@ -14,19 +14,23 @@ import com.omarahmed42.ecommerce.exception.ProductReviewNotFoundException;
 import com.omarahmed42.ecommerce.exception.UnauthorizedAccessException;
 import com.omarahmed42.ecommerce.model.ProductReview;
 import com.omarahmed42.ecommerce.model.User;
+import com.omarahmed42.ecommerce.repository.CustomerRepository;
+import com.omarahmed42.ecommerce.repository.ProductRepository;
 import com.omarahmed42.ecommerce.repository.ProductReviewRepository;
 import com.omarahmed42.ecommerce.util.UserDetailsUtils;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class ProductReviewServiceImpl implements ProductReviewService {
 
     private final ProductReviewRepository productReviewRepository;
+    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
+
     private static final int MIN_RATING = 0;
     private static final int MAX_RATING = 5;
-
-    public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository) {
-        this.productReviewRepository = productReviewRepository;
-    }
 
     @Override
     @Transactional
@@ -34,8 +38,8 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     public void addProductReview(UUID productId, ProductReviewRequest productReviewRequest) {
         validateProductReview(productReviewRequest);
         ProductReview productReview = new ProductReview();
-        productReview.setProductId(productId);
-        productReview.setCustomerId(UserDetailsUtils.getAuthenticatedUser().getId());
+        productReview.setProduct(productRepository.getReferenceById(productId));
+        productReview.setCustomer(customerRepository.getReferenceById(UserDetailsUtils.getAuthenticatedUser().getId()));
         productReview.setRating(productReviewRequest.getRating());
         productReviewRepository.save(productReview);
     }
@@ -53,7 +57,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     }
 
     private boolean isOwner(ProductReview productReview, UUID userId) {
-        return productReview.getCustomerId().equals(userId);
+        return productReview.getCustomer().getId().equals(userId);
     }
 
     @Override
@@ -64,7 +68,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         ProductReview productReview = productReviewRepository
                 .findById(id).orElseThrow(ProductReviewNotFoundException::new);
         UUID authenticatedUserId = UserDetailsUtils.getAuthenticatedUser().getId();
-        if (!productReview.getCustomerId().equals(authenticatedUserId))
+        if (!productReview.getCustomer().getId().equals(authenticatedUserId))
             throw new UnauthorizedAccessException(authenticatedUserId.toString(), "update",
                     "a product review");
         productReview.setRating(productReviewRequest.getRating());

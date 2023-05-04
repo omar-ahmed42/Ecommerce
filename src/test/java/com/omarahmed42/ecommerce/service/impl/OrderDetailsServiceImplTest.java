@@ -35,7 +35,7 @@ import com.omarahmed42.ecommerce.exception.OrderNotFoundException;
 import com.omarahmed42.ecommerce.model.BillingAddress;
 import com.omarahmed42.ecommerce.model.Customer;
 import com.omarahmed42.ecommerce.model.CustomerOrders;
-import com.omarahmed42.ecommerce.model.Orders;
+import com.omarahmed42.ecommerce.model.OrderDetails;
 import com.omarahmed42.ecommerce.model.Product;
 import com.omarahmed42.ecommerce.model.Role;
 import com.omarahmed42.ecommerce.model.User;
@@ -43,22 +43,22 @@ import com.omarahmed42.ecommerce.model.Vendor;
 import com.omarahmed42.ecommerce.repository.BillingAddressRepository;
 import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
 import com.omarahmed42.ecommerce.repository.CustomerRepository;
-import com.omarahmed42.ecommerce.repository.OrderRepository;
+import com.omarahmed42.ecommerce.repository.OrderDetailsRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 import com.omarahmed42.ecommerce.repository.RoleRepository;
 import com.omarahmed42.ecommerce.repository.UserRepository;
 import com.omarahmed42.ecommerce.repository.VendorRepository;
-import com.omarahmed42.ecommerce.service.OrdersService;
+import com.omarahmed42.ecommerce.service.OrderDetailsService;
 
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
-class OrdersServiceImplTest {
+class OrderDetailsServiceImplTest {
 
     @Autowired
-    private OrdersService orderService;
+    private OrderDetailsService orderService;
 
     @SpyBean
-    private OrderRepository orderRepository;
+    private OrderDetailsRepository orderRepository;
 
     private Customer customer;
     private Product product;
@@ -101,7 +101,7 @@ class OrdersServiceImplTest {
         product.setRating(4D);
         product.setStock(5);
         product.setPrice(BigDecimal.ONE.setScale(2));
-        product.setVendorId(vendor.getId());
+        product.setVendor(vendor);
         product = productRepository.saveAndFlush(product);
 
         billingAddress = new BillingAddress();
@@ -138,15 +138,15 @@ class OrdersServiceImplTest {
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    void addOrder_NoProducts_ThrowsMissingFieldException() {
+    void addOrderDetails_NoProducts_ThrowsMissingFieldException() {
         UUID customerId = customer.getId();
-        Assertions.assertThrows(MissingFieldException.class, () -> orderService.addOrder(customerId, null, null),
+        Assertions.assertThrows(MissingFieldException.class, () -> orderService.addOrderDetails(customerId, null, null),
                 "Products ids are missing");
     }
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    void addOrder_Valid() {
+    void addOrderDetails_Valid() {
         UUID customerId = customer.getId();
         CartItemDTO cartItem = new CartItemDTO();
         cartItem.setProductId(product.getId());
@@ -161,8 +161,8 @@ class OrdersServiceImplTest {
         billingAddressDTO.setCountry("FakeCountry");
         billingAddressDTO.setAddress("Fake address");
 
-        Orders actual = orderService.addOrder(customerId, items, billingAddressDTO);
-        Orders expected = new Orders();
+        OrderDetails actual = orderService.addOrderDetails(customerId, items, billingAddressDTO);
+        OrderDetails expected = new OrderDetails();
         expected.setId(actual.getId());
         expected.setTotalPrice(BigDecimal.valueOf(3).setScale(2));
         expected.setStatus(Status.PENDING);
@@ -171,42 +171,42 @@ class OrdersServiceImplTest {
         verify(productRepository).saveAll(anyIterable());
         verify(billingAddressRepository).save(any(BillingAddress.class));
 
-        verify(orderRepository).save(any(Orders.class));
+        verify(orderRepository).save(any(OrderDetails.class));
         verify(customerOrderRepository).save(any(CustomerOrders.class));
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
                 .ignoringFields("purchaseDate", "billingAddressId", "createdAt", "customerOrdersById", "payment",
-                        "productItemsById",
-                        "billingAddressByBillingAddressId")
+                        "orderItems",
+                        "billingAddress")
                 .isEqualTo(expected);
     }
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    void getOrders_ThrowsOrderNotFound() {
+    void getOrderDetails_ThrowsOrderNotFound() {
         UUID orderId = UUID.randomUUID();
 
         doReturn(Optional.empty()).when(orderRepository).findById(any(UUID.class));
-        Assertions.assertThrows(OrderNotFoundException.class, () -> orderService.getOrder(orderId), "Order not found");
+        Assertions.assertThrows(OrderNotFoundException.class, () -> orderService.getOrderDetails(orderId), "Order not found");
     }
 
     @Test
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
-    void getOrders_Valid_ShouldReturnOrder() {
-        Orders expected = saveOrder();
+    void getOrderDetails_Valid_ShouldReturnOrder() {
+        OrderDetails expected = saveOrder();
         UUID orderId = expected.getId();
 
-        Orders actual = orderService.getOrder(orderId);
+        OrderDetails actual = orderService.getOrderDetails(orderId);
         org.assertj.core.api.Assertions.assertThat(actual)
                 .usingRecursiveComparison()
-                .ignoringFields("createdAt", "customerOrdersById", "payment", "productItemsById",
-                        "billingAddressByBillingAddressId", "purchaseDate")
+                .ignoringFields("createdAt", "customerOrdersById", "payment", "orderItems",
+                        "billingAddress", "purchaseDate")
                 .isEqualTo(expected);
     }
 
-    private Orders saveOrder() {
-        Orders orders = new Orders();
-        orders.setBillingAddressId(billingAddress.getId());
+    private OrderDetails saveOrder() {
+        OrderDetails orders = new OrderDetails();
+        orders.setBillingAddress(billingAddress);
         orders.setPurchaseDate(Instant.now());
         orders.setTotalPrice(BigDecimal.ONE.setScale(2));
         orders.setStatus(Status.PENDING);
@@ -216,67 +216,67 @@ class OrdersServiceImplTest {
     }
 
     @Test
-    void updateOrderPartially_NonExistentOrder_ThrowsOrderNotFoundException() {
+    void updateOrderDetailsPartially_NonExistentOrder_ThrowsOrderNotFoundException() {
         UUID orderId = UUID.randomUUID();
 
         OrderDetailsDTO emptyOrderDetails = OrderDetailsDTO.builder().build();
         Assertions.assertThrows(OrderNotFoundException.class,
-                () -> orderService.updateOrderPartially(orderId, emptyOrderDetails),
+                () -> orderService.updateOrderDetailsPartially(orderId, emptyOrderDetails),
                 "Order not found");
     }
 
     @Test
-    void updateOrderPartially_PriceLessThanZero_ThrowsInvalidInputException() {
+    void updateOrderDetailsPartially_PriceLessThanZero_ThrowsInvalidInputException() {
         OrderDetailsDTO orderDetails = OrderDetailsDTO.builder().totalPrice(BigDecimal.valueOf(-1))
                 .purchaseDate(Instant.now()).billingAddressId(
                         billingAddress.getId())
                 .status(Status.PENDING).build();
         UUID orderId = UUID.randomUUID();
         Assertions.assertThrows(InvalidInputException.class,
-                () -> orderService.updateOrderPartially(orderId, orderDetails), "Total price cannot be less than 0");
+                () -> orderService.updateOrderDetailsPartially(orderId, orderDetails), "Total price cannot be less than 0");
     }
 
     @Test
-    void updateOrderPartially_WithoutTotalPrice_ShouldUpdateSuccessfully() {
+    void updateOrderDetailsPartially_WithoutTotalPrice_ShouldUpdateSuccessfully() {
         OrderDetailsDTO orderDetails = OrderDetailsDTO.builder()
                 .purchaseDate(Instant.now()).billingAddressId(
                         billingAddress.getId())
                 .status(Status.CANCELLED).build();
-        Orders order = saveOrder();
+        OrderDetails order = saveOrder();
         UUID orderId = order.getId();
 
-        Orders expected = new Orders();
+        OrderDetails expected = new OrderDetails();
         BeanUtils.copyProperties(order, expected);
         expected.setStatus(Status.CANCELLED);
 
-        orderService.updateOrderPartially(orderId, orderDetails);
-        verify(orderRepository).save(any(Orders.class));
+        orderService.updateOrderDetailsPartially(orderId, orderDetails);
+        verify(orderRepository).save(any(OrderDetails.class));
 
-        Orders actual = orderRepository.findById(orderId).get();
+        OrderDetails actual = orderRepository.findById(orderId).get();
 
         org.assertj.core.api.Assertions.assertThat(actual).usingRecursiveComparison()
-                .ignoringFields("createdAt", "customerOrdersById", "payment", "productItemsById",
-                        "billingAddressByBillingAddressId", "purchaseDate")
+                .ignoringFields("createdAt", "customerOrdersById", "payment", "orderItems",
+                        "billingAddress", "purchaseDate")
                 .isEqualTo(expected);
 
     }
 
     @Test
-    void deleteOrder_NonExistentOrder_ThrowsOrderNotFound() {
+    void deleteOrderDetails_NonExistentOrder_ThrowsOrderNotFound() {
         UUID randomOrderId = UUID.randomUUID();
-        Assertions.assertThrows(OrderNotFoundException.class, () -> orderService.deleteOrder(randomOrderId),
+        Assertions.assertThrows(OrderNotFoundException.class, () -> orderService.deleteOrderDetails(randomOrderId),
                 "Order not found");
     }
 
     @Test
-    void deleteOrder_ValidOrderId_ShouldBeDeleted() {
-        Orders orders = saveOrder();
+    void deleteOrderDetails_ValidOrderId_ShouldBeDeleted() {
+        OrderDetails orders = saveOrder();
 
         long countBefore = orderRepository.count();
         Assertions.assertEquals(1L, countBefore);
 
-        orderService.deleteOrder(orders.getId());
-        verify(orderRepository).delete(any(Orders.class));
+        orderService.deleteOrderDetails(orders.getId());
+        verify(orderRepository).delete(any(OrderDetails.class));
 
         long actual = orderRepository.count();
         Assertions.assertEquals(0L, actual);

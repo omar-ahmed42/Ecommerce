@@ -7,7 +7,7 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-public class CartitemsPK implements Serializable {
+public class CartItemPK implements Serializable {
     @Column(name = "customer_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     @Id
     private UUID customerId;
@@ -16,10 +16,10 @@ public class CartitemsPK implements Serializable {
     @Id
     private UUID productId;
 
-    public CartitemsPK() {
+    public CartItemPK() {
     }
 
-    public CartitemsPK(UUID customerId, UUID productItemId) {
+    public CartItemPK(UUID customerId, UUID productItemId) {
         this.customerId = customerId;
         this.productId = productItemId;
     }
@@ -44,7 +44,7 @@ public class CartitemsPK implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CartitemsPK that = (CartitemsPK) o;
+        CartItemPK that = (CartItemPK) o;
         return Objects.equals(customerId, that.customerId) && Objects.equals(productId, that.productId);
     }
 

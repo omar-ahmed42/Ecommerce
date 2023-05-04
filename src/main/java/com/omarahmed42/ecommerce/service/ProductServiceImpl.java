@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
         this.vendorRepository = vendorRepository;
         this.productMediaService = productMediaService;
         modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+        modelMapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @Override
@@ -48,9 +49,8 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse addProduct(UUID vendorId, ProductRequest productRequest) {
         ProductValidation.validateProduct(productRequest);
         Product product = modelMapper.map(productRequest, Product.class);
-        // Vendor vendor = vendorRepository.getReferenceById(vendorId);
-        product.setVendorId(vendorId);
-        // product.setVendorByVendorId(vendor);
+        Vendor vendor = vendorRepository.getReferenceById(vendorId);
+        product.setVendor(vendor);
         product = productRepository.save(product);
 
         addProductMedia(product.getId(), productRequest);
@@ -70,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
     private List<ProductMedia> createProductMedias(UUID productId, Set<String> mediaUrls) {
         List<ProductMedia> productMedia = new ArrayList<>(mediaUrls.size());
         for (String url : mediaUrls) {
-            productMedia.add(new ProductMedia(productId, url));
+            productMedia.add(new ProductMedia(productRepository.getReferenceById(productId), url));
         }
         return productMedia;
     }
@@ -107,7 +107,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private boolean isProductOwner(Product product, User authenticatedUser) {
-        return product.getVendorId().equals(authenticatedUser.getId());
+        return product.getVendor().getId().equals(authenticatedUser.getId());
     }
 
     @Override

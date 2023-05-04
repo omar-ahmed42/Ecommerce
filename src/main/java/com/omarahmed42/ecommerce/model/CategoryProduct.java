@@ -28,11 +28,11 @@ public class CategoryProduct implements Serializable{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
-    private Category categoryByCategoryId;
+    private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", referencedColumnName = "id", insertable = false, updatable = false, nullable = false)
-    private Product productByProductId;
+    private Product product;
 
     public CategoryProduct() {
     }
@@ -73,19 +73,19 @@ public class CategoryProduct implements Serializable{
         return result;
     }
 
-    public Category getCategoryByCategoryId() {
-        return categoryByCategoryId;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setCategoryByCategoryId(Category categoryByCategoryId) {
-        this.categoryByCategoryId = categoryByCategoryId;
+    public void setCategory(Category categoryByCategoryId) {
+        this.category = categoryByCategoryId;
     }
 
-    public Product getProductByProductId() {
-        return productByProductId;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductByProductId(Product productByProductId) {
-        this.productByProductId = productByProductId;
+    public void setProduct(Product productByProductId) {
+        this.product = productByProductId;
     }
 }

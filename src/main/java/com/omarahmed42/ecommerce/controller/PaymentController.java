@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.omarahmed42.ecommerce.DTO.CartItemDTO;
 import com.omarahmed42.ecommerce.DTO.CreatePayment;
 import com.omarahmed42.ecommerce.DTO.CreatePaymentResponse;
-import com.omarahmed42.ecommerce.model.Orders;
-import com.omarahmed42.ecommerce.service.OrdersService;
+import com.omarahmed42.ecommerce.model.OrderDetails;
+import com.omarahmed42.ecommerce.service.OrderDetailsService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
@@ -20,10 +20,10 @@ import com.stripe.param.PaymentIntentCreateParams;
 @RequestMapping(value = "/v1", consumes = "application/json", produces = "application/json")
 public class PaymentController {
 
-    private final OrdersService ordersService;
+    private final OrderDetailsService ordersService;
     private static ModelMapper modelMapper = new ModelMapper();
 
-    public PaymentController(OrdersService ordersService) {
+    public PaymentController(OrderDetailsService ordersService) {
         this.ordersService = ordersService;
         modelMapper.getConfiguration().setSkipNullEnabled(true);
     }
@@ -34,7 +34,7 @@ public class PaymentController {
         CartItemDTO[] cartItems = createPayment.getItems();
         if (cartItems.length == 0)
             return ResponseEntity.ok().build();
-        Orders order = ordersService.addOrder(createPayment.getUserId(), cartItems, createPayment.getBillingAddress());
+        OrderDetails order = ordersService.addOrderDetails(createPayment.getUserId(), cartItems, createPayment.getBillingAddress());
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount(order.getTotalPrice().longValueExact() * 100L)
                 .setCurrency("usd")

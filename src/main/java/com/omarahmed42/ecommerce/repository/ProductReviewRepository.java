@@ -11,13 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.omarahmed42.ecommerce.model.ProductReview;
 
 @Repository
-public interface ProductReviewRepository extends JpaRepository<ProductReview, UUID>{
-    @Override
-    <S extends ProductReview> S save(S entity);
-
-    @Override
-    void deleteById(UUID id);
-
+public interface ProductReviewRepository extends JpaRepository<ProductReview, UUID> {
     @Query(value = """
             SELECT productReview.customer_id FROM Product_Review productReview WHERE productReview.id = :id LIMIT 1
             """, nativeQuery = true)

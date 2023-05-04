@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,7 +18,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
@@ -35,6 +36,7 @@ public class User implements Serializable {
     @Id
     @GeneratedValue
     @Column(name = "id", nullable = false, columnDefinition = "BINARY(16)")
+    @Access(AccessType.PROPERTY)
     private UUID id;
 
     @Basic
@@ -77,9 +79,6 @@ public class User implements Serializable {
     @Basic
     @Column(name = "phone_number", nullable = false, length = 15)
     private String phoneNumber;
-
-    @OneToOne(mappedBy = "userByUserId", fetch = FetchType.LAZY)
-    private BannedUser bannedUserById;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

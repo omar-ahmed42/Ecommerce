@@ -49,7 +49,7 @@ class CategoryServiceImplTest {
 
         Category expected = new Category(1, "Electronics");
         Category actual = categoryRepository.findByName("Electronics").get();
-        Assertions.assertThat(actual).usingRecursiveComparison().ignoringFields("categoryProductsById", "id")
+        Assertions.assertThat(actual).usingRecursiveComparison().ignoringFields("categoryProducts", "id")
                 .isEqualTo(expected);
     }
 

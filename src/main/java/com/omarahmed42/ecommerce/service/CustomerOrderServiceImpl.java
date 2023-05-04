@@ -13,16 +13,16 @@ import com.omarahmed42.ecommerce.model.CustomerOrders;
 import com.omarahmed42.ecommerce.model.CustomerOrdersPK;
 import com.omarahmed42.ecommerce.repository.CustomerOrdersRepository;
 import com.omarahmed42.ecommerce.repository.CustomerRepository;
-import com.omarahmed42.ecommerce.repository.OrderRepository;
+import com.omarahmed42.ecommerce.repository.OrderDetailsRepository;
 
 @Service
 public class CustomerOrderServiceImpl implements CustomerOrderService {
 
     private final CustomerOrdersRepository customerOrdersRepository;
     private final CustomerRepository customerRepository;
-    private final OrderRepository orderRepository;
+    private final OrderDetailsRepository orderRepository;
 
-    public CustomerOrderServiceImpl(CustomerOrdersRepository customerOrdersRepository, CustomerRepository customerRepository, OrderRepository orderRepository) {
+    public CustomerOrderServiceImpl(CustomerOrdersRepository customerOrdersRepository, CustomerRepository customerRepository, OrderDetailsRepository orderRepository) {
         this.customerOrdersRepository = customerOrdersRepository;
         this.customerRepository = customerRepository;
         this.orderRepository = orderRepository;

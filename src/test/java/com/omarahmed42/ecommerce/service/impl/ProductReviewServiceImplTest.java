@@ -95,7 +95,7 @@ class ProductReviewServiceImplTest {
         customer = customerRepository.saveAndFlush(customer);
 
         product = prepareProduct();
-        product.setVendorId(vendor.getId());
+        product.setVendor(vendor);
         product = productRepository.saveAndFlush(product);
     }
 
@@ -208,8 +208,8 @@ class ProductReviewServiceImplTest {
     @WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION, userDetailsServiceBeanName = "customUserDetailsService", value = "not.a.real.email.customer@test.imagination")
     void deleteProductReview_AsProductReviewOwner() {
         ProductReview productReview = new ProductReview();
-        productReview.setProductId(product.getId());
-        productReview.setCustomerId(customer.getId());
+        productReview.setProduct(product);
+        productReview.setCustomer(customer);
         productReview.setRating(4);
 
         productReview = productReviewRepository.saveAndFlush(productReview);

@@ -111,12 +111,12 @@ class ReviewCommentServiceImplTest {
         differentCustomer = customerRepository.saveAndFlush(differentCustomer);
 
         product = prepareProduct();
-        product.setVendorId(vendor.getId());
+        product.setVendor(vendor);
         product = productRepository.saveAndFlush(product);
 
         productReview = new ProductReview();
-        productReview.setProductId(product.getId());
-        productReview.setCustomerId(customer.getId());
+        productReview.setProduct(product);
+        productReview.setCustomer(customer);
         productReview.setRating(4);
 
         productReview = productReviewRepository.saveAndFlush(productReview);
@@ -239,8 +239,7 @@ class ReviewCommentServiceImplTest {
         ReviewComment reviewComment = new ReviewComment();
         reviewComment.setTitle("My title");
         reviewComment.setContent("This is my content");
-        reviewComment.setProductReviewId(productReview.getId());
-        reviewComment.setProductReviewByProductReviewId(productReview);
+        reviewComment.setProductReview(productReview);
         reviewComment = reviewCommentRepository.saveAndFlush(reviewComment);
 
         UUID reviewId = reviewComment.getId();
@@ -256,8 +255,7 @@ class ReviewCommentServiceImplTest {
         ReviewComment reviewComment = new ReviewComment();
         reviewComment.setTitle("My title");
         reviewComment.setContent("This is my content");
-        reviewComment.setProductReviewId(productReview.getId());
-        reviewComment.setProductReviewByProductReviewId(productReview);
+        reviewComment.setProductReview(productReview);
         reviewComment = reviewCommentRepository.saveAndFlush(reviewComment);
 
         Assertions.assertEquals(1L, reviewCommentRepository.count());
@@ -286,8 +284,7 @@ class ReviewCommentServiceImplTest {
         ReviewComment reviewComment = new ReviewComment();
         reviewComment.setTitle("My title");
         reviewComment.setContent("This is my content");
-        reviewComment.setProductReviewId(productReview.getId());
-        reviewComment.setProductReviewByProductReviewId(productReview);
+        reviewComment.setProductReview(productReview);
         reviewComment = reviewCommentRepository.saveAndFlush(reviewComment);
 
         ReviewCommentResponse actual = reviewCommentService.getReviewComment(reviewComment.getId());

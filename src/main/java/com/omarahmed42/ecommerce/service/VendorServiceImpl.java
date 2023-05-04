@@ -26,7 +26,7 @@ public class VendorServiceImpl implements VendorService {
     @Override
     public void addVendor(Vendor vendor) {
         userRepository
-                .findById(vendor.getUserByUserId().getId())
+                .findById(vendor.getUser().getId())
                 .ifPresentOrElse(presentUser -> vendorRepository.save(vendor),
                         () -> {throw new UserNotFoundException("User not found");});
     }
@@ -46,9 +46,9 @@ public class VendorServiceImpl implements VendorService {
     @Override
     public void updateVendor(Vendor vendor) {
         Vendor vendorById = vendorRepository
-                .findById(vendor.getUserByUserId().getId())
+                .findById(vendor.getUser().getId())
                 .orElseThrow(() -> new VendorNotFoundException("Vendor not found"));
-        if (vendorById.getUserByUserId().getId() != vendor.getUserByUserId().getId() && userRepository.findById(vendorById.getUserByUserId().getId()).isEmpty()){
+        if (vendorById.getUser().getId() != vendor.getUser().getId() && userRepository.findById(vendorById.getUser().getId()).isEmpty()){
             throw new UserNotFoundException("User not found");
         }
 

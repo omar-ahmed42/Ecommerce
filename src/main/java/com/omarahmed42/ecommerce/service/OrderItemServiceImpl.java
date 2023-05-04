@@ -6,28 +6,28 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.omarahmed42.ecommerce.exception.ProductItemNotFoundException;
+import com.omarahmed42.ecommerce.exception.OrderItemNotFoundException;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
-import com.omarahmed42.ecommerce.model.ProductItem;
-import com.omarahmed42.ecommerce.repository.ProductItemRepository;
+import com.omarahmed42.ecommerce.model.OrderItem;
+import com.omarahmed42.ecommerce.repository.OrderItemRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 
 @Service
-public class ProductItemServiceImpl implements ProductItemService {
+public class OrderItemServiceImpl implements OrderItemService {
 
-    private final ProductItemRepository productItemRepository;
+    private final OrderItemRepository productItemRepository;
     private final ProductRepository productRepository;
 
-    public ProductItemServiceImpl(ProductItemRepository productItemRepository, ProductRepository productRepository) {
+    public OrderItemServiceImpl(OrderItemRepository productItemRepository, ProductRepository productRepository) {
         this.productItemRepository = productItemRepository;
         this.productRepository = productRepository;
     }
 
     @Transactional
     @Override
-    public void addProductItem(ProductItem productItem) {
+    public void addOrderItem(OrderItem productItem) {
         productRepository
-                .findById(productItem.getProductId())
+                .findById(productItem.getProduct().getId())
                 .ifPresentOrElse(
                         presentProduct -> productItemRepository.save(productItem),
                         () -> {
@@ -37,26 +37,26 @@ public class ProductItemServiceImpl implements ProductItemService {
 
     @Transactional
     @Override
-    public void deleteProductItem(ProductItem productItem) {
+    public void deleteOrderItem(OrderItem productItem) {
         productItemRepository
                 .findById(productItem.getId())
                 .ifPresentOrElse(
                         productItemRepository::delete,
                         () -> {
-                            throw new ProductItemNotFoundException("Product item not found");
+                            throw new OrderItemNotFoundException("Order item not found");
                         }
                 );
     }
 
     @Transactional
     @Override
-    public void updateProductItem(ProductItem productItem) {
-        Optional<ProductItem> productItemById = productItemRepository.findById(productItem.getId());
+    public void updateOrderItem(OrderItem productItem) {
+        Optional<OrderItem> productItemById = productItemRepository.findById(productItem.getId());
 
         if (productItemById.isEmpty()) {
-            throw new ProductItemNotFoundException("Product item not found");
-        } else if (productItemById.get().getProductId() != productItem.getProductId()
-                && productRepository.findById(productItem.getProductId()).isEmpty()) {
+            throw new OrderItemNotFoundException("Order item not found");
+        } else if (productItemById.get().getProduct().getId() != productItem.getProduct().getId()
+                && productRepository.findById(productItem.getProduct().getId()).isEmpty()) {
             throw new ProductNotFoundException("Product not found");
         }
 
@@ -65,9 +65,9 @@ public class ProductItemServiceImpl implements ProductItemService {
 
     @Transactional
     @Override
-    public ProductItem getProductItem(UUID productItemId) {
+    public OrderItem getOrderItem(UUID productItemId) {
         return productItemRepository
                 .findById(productItemId)
-                .orElseThrow(() -> new ProductItemNotFoundException("Product item not found"));
+                .orElseThrow(() -> new OrderItemNotFoundException("Order item not found"));
     }
 }

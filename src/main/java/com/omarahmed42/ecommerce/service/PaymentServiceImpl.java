@@ -15,11 +15,11 @@ import com.omarahmed42.ecommerce.DTO.OrderDetailsDTO;
 import com.omarahmed42.ecommerce.enums.PaymentStatus;
 import com.omarahmed42.ecommerce.enums.Status;
 import com.omarahmed42.ecommerce.exception.PaymentNotFoundException;
-import com.omarahmed42.ecommerce.model.Orders;
+import com.omarahmed42.ecommerce.model.OrderDetails;
 import com.omarahmed42.ecommerce.model.Payment;
 import com.omarahmed42.ecommerce.model.Product;
-import com.omarahmed42.ecommerce.model.ProductItem;
-import com.omarahmed42.ecommerce.repository.OrderRepository;
+import com.omarahmed42.ecommerce.model.OrderItem;
+import com.omarahmed42.ecommerce.repository.OrderDetailsRepository;
 import com.omarahmed42.ecommerce.repository.PaymentRepository;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 import com.stripe.model.PaymentIntent;
@@ -31,8 +31,8 @@ import lombok.RequiredArgsConstructor;
 public class PaymentServiceImpl implements PaymentService {
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
-    private final OrdersService ordersService;
-    private final OrderRepository orderRepository;
+    private final OrderDetailsService ordersService;
+    private final OrderDetailsRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final ProductRepository productRepository;
 
@@ -96,7 +96,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         Map<String, String> metadata = paymentIntent.getMetadata();
         UUID orderId = UUID.fromString(metadata.get(ORDER_ID));
-        Payment payment = new Payment(paymentIntent.getId(), paymentIntent.getAmount(), PaymentStatus.CREATED, orderId);
+        Payment payment = new Payment(paymentIntent.getId(), paymentIntent.getAmount(), PaymentStatus.CREATED, orderRepository.getReferenceById(orderId));
         paymentRepository.save(payment);
     }
 
@@ -109,7 +109,7 @@ public class PaymentServiceImpl implements PaymentService {
         Map<String, String> metadata = paymentIntent.getMetadata();
         UUID orderId = UUID.fromString(metadata.get(ORDER_ID));
         ordersService
-                .updateOrderPartially(orderId, OrderDetailsDTO
+                .updateOrderDetailsPartially(orderId, OrderDetailsDTO
                         .builder()
                         .status(Status.COMPLETED)
                         .build());
@@ -126,7 +126,7 @@ public class PaymentServiceImpl implements PaymentService {
         Map<String, String> metadata = paymentIntent.getMetadata();
         UUID orderId = UUID.fromString(metadata.get(ORDER_ID));
         ordersService
-                .updateOrderPartially(orderId, OrderDetailsDTO
+                .updateOrderDetailsPartially(orderId, OrderDetailsDTO
                         .builder()
                         .status(Status.FAILED)
                         .build());
@@ -138,11 +138,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void updateProductStock(UUID orderId) {
-        Orders order = orderRepository.getReferenceById(orderId);
-        List<ProductItem> productItemsById = order.getProductItemsById();
+        OrderDetails order = orderRepository.getReferenceById(orderId);
+        List<OrderItem> productItemsById = order.getOrderItems();
         List<Product> products = new ArrayList<>(productItemsById.size());
-        for (ProductItem productItem : productItemsById) {
-            Product product = productItem.getProductByProductId();
+        for (OrderItem productItem : productItemsById) {
+            Product product = productItem.getProduct();
             int stock = product.getStock() + productItem.getQuantity();
             product.setStock(stock);
             products.add(product);

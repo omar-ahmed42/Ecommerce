@@ -13,12 +13,6 @@ import com.omarahmed42.ecommerce.model.WishlistPK;
 
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, WishlistPK> {
-    @Override
-    <S extends Wishlist> S save(S entity);
-
-    @Override
-    void deleteById(WishlistPK wishlistPK);
-
-    @Query("SELECT w.productByProductId FROM Wishlist w WHERE w.customerId = :#{#wishlistPK.customerId} AND w.productId = :#{#wishlistPK.productId}")
+    @Query("SELECT w.product FROM Wishlist w WHERE w.customerId = :#{#wishlistPK.customerId} AND w.productId = :#{#wishlistPK.productId}")
     Optional<Product> findProductByWishlistPK(@Param("wishlistPK") WishlistPK wishlistPK);
 }

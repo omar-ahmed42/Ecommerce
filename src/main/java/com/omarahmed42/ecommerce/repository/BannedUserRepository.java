@@ -9,9 +9,4 @@ import com.omarahmed42.ecommerce.model.BannedUser;
 
 @Repository
 public interface BannedUserRepository extends JpaRepository<BannedUser, UUID> {
-    @Override
-    <S extends BannedUser> S save(S entity);
-
-    @Override
-    void deleteById(UUID id);
 }

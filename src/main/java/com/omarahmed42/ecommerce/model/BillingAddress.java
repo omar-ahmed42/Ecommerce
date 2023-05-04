@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,6 +28,7 @@ public class BillingAddress implements Serializable {
     @Id
     @GeneratedValue
     @Column(name = "id", columnDefinition = "BINARY(16)")
+    @Access(AccessType.PROPERTY)
     private UUID id;
 
     @Basic
@@ -42,9 +45,6 @@ public class BillingAddress implements Serializable {
 
     @OneToMany(mappedBy = "billingAddressByBillingAddressId", fetch = FetchType.LAZY)
     private Collection<Customer> customersById;
-
-    @OneToMany(mappedBy = "billingAddressByBillingAddressId", fetch = FetchType.LAZY)
-    private Collection<Orders> ordersById;
 
     @Override
     public boolean equals(Object o) {

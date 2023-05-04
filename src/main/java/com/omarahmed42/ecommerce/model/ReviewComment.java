@@ -2,9 +2,10 @@ package com.omarahmed42.ecommerce.model;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,11 +27,8 @@ public class ReviewComment implements Serializable {
     @Id
     @GeneratedValue
     @Column(name = "id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
+    @Access(AccessType.PROPERTY)
     private UUID id;
-
-    @Basic
-    @Column(name = "product_review_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")
-    private UUID productReviewId;
 
     @Basic
     @Column(name = "title", nullable = false)
@@ -41,8 +39,8 @@ public class ReviewComment implements Serializable {
     private String content;
 
     @OneToOne
-    @JoinColumn(name = "product_review_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
-    private ProductReview productReviewByProductReviewId;
+    @JoinColumn(name = "product_review_id", referencedColumnName = "id", nullable = false, columnDefinition = "BINARY(16)")
+    private ProductReview productReview;
 
     @Column(name = "created_at", updatable = false, precision = 9, scale = 6)
     @CreatedDate
@@ -65,14 +63,6 @@ public class ReviewComment implements Serializable {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public UUID getProductReviewId() {
-        return productReviewId;
-    }
-
-    public void setProductReviewId(UUID productReviewId) {
-        this.productReviewId = productReviewId;
     }
 
     public String getTitle() {
@@ -100,29 +90,65 @@ public class ReviewComment implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        ReviewComment that = (ReviewComment) o;
-        return Objects.equals(id, that.id) && Objects.equals(productReviewId, that.productReviewId)
-                && Objects.equals(title, that.title) && Objects.equals(content, that.content);
-    }
-
-    @Override
     public int hashCode() {
-        int result = Objects.hash(title, content);
-        result = 31 * result + id.hashCode();
-        result = 31 * result + productReviewId.hashCode();
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + ((content == null) ? 0 : content.hashCode());
+        result = prime * result + ((productReview == null) ? 0 : productReview.hashCode());
+        result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
+        result = prime * result + ((modifiedAt == null) ? 0 : modifiedAt.hashCode());
         return result;
     }
 
-    public ProductReview getProductReviewByProductReviewId() {
-        return productReviewByProductReviewId;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ReviewComment other = (ReviewComment) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (title == null) {
+            if (other.title != null)
+                return false;
+        } else if (!title.equals(other.title))
+            return false;
+        if (content == null) {
+            if (other.content != null)
+                return false;
+        } else if (!content.equals(other.content))
+            return false;
+        if (productReview == null) {
+            if (other.productReview != null)
+                return false;
+        } else if (!productReview.equals(other.productReview))
+            return false;
+        if (createdAt == null) {
+            if (other.createdAt != null)
+                return false;
+        } else if (!createdAt.equals(other.createdAt))
+            return false;
+        if (modifiedAt == null) {
+            if (other.modifiedAt != null)
+                return false;
+        } else if (!modifiedAt.equals(other.modifiedAt))
+            return false;
+        return true;
     }
 
-    public void setProductReviewByProductReviewId(ProductReview productReviewByProductReviewId) {
-        this.productReviewByProductReviewId = productReviewByProductReviewId;
+    public ProductReview getProductReview() {
+        return productReview;
+    }
+
+    public void setProductReview(ProductReview productReviewByProductReviewId) {
+        this.productReview = productReviewByProductReviewId;
     }
 }
