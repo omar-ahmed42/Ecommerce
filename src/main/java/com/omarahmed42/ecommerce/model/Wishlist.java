@@ -12,8 +12,11 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.envers.Audited;
+
 @Entity
 @IdClass(WishlistPK.class)
+@Audited
 public class Wishlist implements Serializable {
     @Id
     @Column(name = "customer_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")

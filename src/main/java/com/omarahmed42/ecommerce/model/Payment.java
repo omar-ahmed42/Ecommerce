@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -27,6 +28,7 @@ import lombok.Data;
 @Data
 @Table(name = "payment")
 @EntityListeners(AuditingEntityListener.class)
+@Audited
 public class Payment implements Serializable {
 
     @Id
@@ -48,6 +50,7 @@ public class Payment implements Serializable {
 
     @Column(name = "order_id", columnDefinition = "BINARY(16)")
     private UUID orderId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", updatable = false, insertable = false, referencedColumnName = "id")
     private Orders orderByOrderId;

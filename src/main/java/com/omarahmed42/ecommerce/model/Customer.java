@@ -15,12 +15,15 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 
+import org.hibernate.envers.Audited;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@Audited
 public class Customer implements Serializable {
     @Id
     @Column(name = "user_id", columnDefinition = "BINARY(16)")

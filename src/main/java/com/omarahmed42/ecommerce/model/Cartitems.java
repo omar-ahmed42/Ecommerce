@@ -18,6 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,6 +31,7 @@ import lombok.Setter;
 @Entity
 @IdClass(CartitemsPK.class)
 @EntityListeners(AuditingEntityListener.class)
+@Audited
 public class Cartitems implements Serializable {
     @Id
     @Column(name = "customer_id", nullable = false, updatable = false, columnDefinition = "BINARY(16)")

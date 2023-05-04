@@ -17,6 +17,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 
+import org.hibernate.envers.Audited;
+
 import com.omarahmed42.ecommerce.enums.TokenStatus;
 
 import lombok.Getter;
@@ -25,6 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Audited
 public class VerificationToken implements Serializable {
     @Id
     @GeneratedValue

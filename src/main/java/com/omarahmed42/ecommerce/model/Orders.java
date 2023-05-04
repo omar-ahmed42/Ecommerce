@@ -24,6 +24,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -36,6 +37,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
+@Audited
 public class Orders implements Serializable {
     @Id
     @GeneratedValue
@@ -67,7 +69,7 @@ public class Orders implements Serializable {
     @OneToOne(mappedBy = "ordersByOrderId", fetch = FetchType.LAZY)
     private CustomerOrders customerOrdersById;
 
-    @OneToOne(mappedBy = "orderByOrderId", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "orderByOrderId", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Payment payment;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "ordersById", orphanRemoval = true, cascade = CascadeType.ALL)

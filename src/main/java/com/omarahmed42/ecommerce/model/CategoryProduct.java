@@ -12,8 +12,11 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.envers.Audited;
+
 @Entity
 @IdClass(CategoryProductPK.class)
+@Audited
 public class CategoryProduct implements Serializable{
     @Id
     @Column(name = "category_id", nullable = false, insertable = false, updatable = false)

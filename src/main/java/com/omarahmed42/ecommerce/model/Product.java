@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -31,6 +32,7 @@ import lombok.Setter;
 @Entity
 @DynamicUpdate
 @EntityListeners(AuditingEntityListener.class)
+@Audited
 public class Product implements Serializable {
     @Id
     @GeneratedValue

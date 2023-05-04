@@ -13,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
+import org.hibernate.envers.Audited;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +22,7 @@ import lombok.Setter;
 @IdClass(CustomerOrdersPK.class)
 @Getter
 @Setter
+@Audited
 public class CustomerOrders implements Serializable{
     @Id
     @Column(name = "customer_id", updatable = false, columnDefinition = "BINARY(16)")

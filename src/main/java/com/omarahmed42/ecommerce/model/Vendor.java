@@ -13,7 +13,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 
+import org.hibernate.envers.Audited;
+
 @Entity
+@Audited
 public class Vendor implements Serializable {
     @Id
     @Column(name = "user_id", columnDefinition = "BINARY(16)")
