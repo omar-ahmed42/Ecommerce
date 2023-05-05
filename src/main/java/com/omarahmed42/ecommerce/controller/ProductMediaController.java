@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.omarahmed42.ecommerce.model.ProductMedia;
 import com.omarahmed42.ecommerce.service.ProductMediaService;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 @RestController
 @RequestMapping("/v1")
+@Hidden
 public class ProductMediaController {
     private final ProductMediaService productMediaService;
 
@@ -27,33 +30,26 @@ public class ProductMediaController {
     }
 
     @PostMapping("/products/{product-id}/media")
-    public ResponseEntity<String> addNewMedia(@PathVariable("product-id") UUID productId, @RequestBody Set<String> mediaUrls) {
-        try {
-            List<ProductMedia> productMedia = new ArrayList<>(mediaUrls.size());
-            // mediaUrls
-            //         .forEach(url ->
-            //                 productMedia.add(new ProductMedia(productId, url)));
-            productMediaService.addProductMedia(productMedia);
-            return ResponseEntity.status(201).build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<String> addNewMedia(@PathVariable("product-id") UUID productId,
+            @RequestBody Set<String> mediaUrls) {
+        List<ProductMedia> productMedia = new ArrayList<>(mediaUrls.size());
+        // mediaUrls
+        // .forEach(url ->
+        // productMedia.add(new ProductMedia(productId, url)));
+        productMediaService.addProductMedia(productMedia);
+        return ResponseEntity.status(201).build();
     }
 
     @DeleteMapping("/media")
     public ResponseEntity<String> deleteMedia(@RequestParam("id") Set<UUID> mediaProductIds) {
-        try {
-            List<ProductMedia> productMediaCollection = new ArrayList<>();
-            mediaProductIds
-                    .forEach(id -> {
-                        ProductMedia productMedia = new ProductMedia();
-                        productMedia.setId(id);
-                        productMediaCollection.add(productMedia);
-                    });
-            productMediaService.deleteProductMedia(productMediaCollection);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        List<ProductMedia> productMediaCollection = new ArrayList<>();
+        mediaProductIds
+                .forEach(id -> {
+                    ProductMedia productMedia = new ProductMedia();
+                    productMedia.setId(id);
+                    productMediaCollection.add(productMedia);
+                });
+        productMediaService.deleteProductMedia(productMediaCollection);
+        return ResponseEntity.noContent().build();
     }
 }

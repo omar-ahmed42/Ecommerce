@@ -3,7 +3,6 @@ package com.omarahmed42.ecommerce.controller;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,16 +14,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.omarahmed42.ecommerce.DTO.BannedUserDTO;
-import com.omarahmed42.ecommerce.exception.BannedUserNotFoundException;
 import com.omarahmed42.ecommerce.model.BannedUser;
 import com.omarahmed42.ecommerce.service.BannedUserService;
 
-    /*
-      No testing has been done for this controller yet
-     */
-    
+import io.swagger.v3.oas.annotations.Hidden;
+
+/*
+  No testing has been done for this controller yet
+ */
+
 @RestController
 @RequestMapping("/v1")
+@Hidden
 public class BannedUserController {
     private final BannedUserService bannedUserService;
     private final ModelMapper modelMapper = new ModelMapper();
@@ -42,44 +43,23 @@ public class BannedUserController {
 
     @DeleteMapping("/users/bans/{bannedUserId}")
     public ResponseEntity<String> deleteBannedUser(@PathVariable(name = "bannedUserId") UUID bannedUserId) {
-        try {
-            bannedUserService.deleteBannedUser(bannedUserId);
-            return ResponseEntity.noContent().build();
-        } catch (BannedUserNotFoundException bannedUserNotFoundException) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        bannedUserService.deleteBannedUser(bannedUserId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/users/bans/{bannedUserId}")
-    public ResponseEntity<String> getBannedUser(@PathVariable(name = "bannedUserId") UUID bannedUserId) {
-        try {
-            BannedUser bannedUser = bannedUserService.getBannedUser(bannedUserId);
-            BannedUserDTO bannedUserDTO = modelMapper.map(bannedUser, BannedUserDTO.class);
-            String response = new JSONObject()
-                    .put("success", true)
-                    .put("msg", bannedUserDTO)
-                    .toString();
-            return ResponseEntity.ok(response);
-        } catch (BannedUserNotFoundException bannedUserNotFoundException) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<BannedUserDTO> getBannedUser(@PathVariable(name = "bannedUserId") UUID bannedUserId) {
+        BannedUser bannedUser = bannedUserService.getBannedUser(bannedUserId);
+        BannedUserDTO bannedUserDTO = modelMapper.map(bannedUser, BannedUserDTO.class);
+        return ResponseEntity.ok(bannedUserDTO);
     }
 
     @PutMapping("/users/bans/{bannedUserId}")
-    public ResponseEntity<String> updateBannedUser(@PathVariable(name = "bannedUserId") UUID bannedUserId, BannedUserDTO bannedUserDTO) {
-        try {
-            BannedUser bannedUser = modelMapper.map(bannedUserDTO, BannedUser.class);
-            bannedUser.setUserId(bannedUserId);
-            bannedUserService.updateBannedUser(bannedUser);
-            return ResponseEntity.noContent().build();
-        } catch (BannedUserNotFoundException bannedUserNotFoundException) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<String> updateBannedUser(@PathVariable(name = "bannedUserId") UUID bannedUserId,
+            BannedUserDTO bannedUserDTO) {
+        BannedUser bannedUser = modelMapper.map(bannedUserDTO, BannedUser.class);
+        bannedUser.setUserId(bannedUserId);
+        bannedUserService.updateBannedUser(bannedUser);
+        return ResponseEntity.noContent().build();
     }
 }
