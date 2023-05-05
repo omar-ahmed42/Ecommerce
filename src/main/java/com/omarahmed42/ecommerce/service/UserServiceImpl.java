@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.ADMIN.toString()) || isAnonymous()")
+    @PreAuthorize("hasRole('ADMIN') || isAnonymous()")
     public void addUser(UserRegistrationDTO userRegistrationDTO) {
         validateUser(userRegistrationDTO);
         User user = modelMapper.map(userRegistrationDTO, User.class);
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @Secured("hasRole(Role.ADMIN.toString())")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(UUID id) {
         if (ObjectUtils.isEmpty(id))
             throw new MissingFieldException("User id is missing");
@@ -78,6 +78,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN') || principal.user.id == #userId")
     public void updateUser(UUID userId, UserRegistrationDTO userRegistrationDTO) {
         User user = userRepository
                 .findById(userId)

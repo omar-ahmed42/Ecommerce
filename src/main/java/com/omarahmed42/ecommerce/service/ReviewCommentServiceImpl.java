@@ -96,7 +96,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ReviewCommentResponse getReviewComment(UUID commentId) {
         ReviewComment reviewComment = reviewCommentRepository
                 .findById(commentId)
