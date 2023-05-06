@@ -6,14 +6,21 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.omarahmed42.ecommerce.DTO.PageResponse;
+import com.omarahmed42.ecommerce.DTO.ProductFilter;
 import com.omarahmed42.ecommerce.DTO.ProductRequest;
 import com.omarahmed42.ecommerce.DTO.ProductResponse;
+import com.omarahmed42.ecommerce.enums.ProductSort;
 import com.omarahmed42.ecommerce.enums.Role;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
 import com.omarahmed42.ecommerce.exception.UnauthorizedAccessException;
@@ -23,6 +30,8 @@ import com.omarahmed42.ecommerce.model.User;
 import com.omarahmed42.ecommerce.model.Vendor;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
 import com.omarahmed42.ecommerce.repository.VendorRepository;
+import com.omarahmed42.ecommerce.specification.ProductSpecification;
+import com.omarahmed42.ecommerce.util.PageUtils;
 import com.omarahmed42.ecommerce.util.UserDetailsUtils;
 import com.omarahmed42.ecommerce.validation.ProductValidation;
 
@@ -118,4 +127,17 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(ProductNotFoundException::new);
         return modelMapper.map(product, ProductResponse.class);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<ProductResponse> getProducts(Integer page, Integer size, ProductSort sortOrder,
+            ProductFilter filter) {
+        Pageable pageable = PageRequest.of(page - 1, size, PageUtils.getSortOrder(sortOrder));
+        Page<Product> products = productRepository.findAll(ProductSpecification.buildSpecification(filter), pageable);
+        List<ProductResponse> productResponse = modelMapper.map(products.getContent(),
+                new TypeToken<List<ProductResponse>>() {
+                }.getType());
+        return new PageResponse<>(products, productResponse);
+    }
+
 }
