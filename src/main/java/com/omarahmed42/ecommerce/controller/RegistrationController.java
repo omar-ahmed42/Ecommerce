@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class RegistrationController {
         private final VerificationTokenService verificationTokenService;
 
-        @GetMapping("/confirm")
+        @GetMapping(value = "/confirm", consumes = "*/*")
         @Operation(summary = "Confirms registration by consuming a verification token")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "OK"),

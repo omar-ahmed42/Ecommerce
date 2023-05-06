@@ -33,7 +33,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/users")
+    @PostMapping(value = "/users")
     @Operation(summary = "Creates a user account")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -50,7 +50,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping(value = "/users/{id}", consumes = "*/*")
     @Operation(summary = "Retrieves a user by id")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -60,7 +60,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping(value = "/users/{id}", consumes = "*/*")
     @Operation(summary = "Deletes a user by id")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -73,7 +73,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/users/{id}")
+    @PatchMapping(value = "/users/{id}")
     @Operation(summary = "Updates a user")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),

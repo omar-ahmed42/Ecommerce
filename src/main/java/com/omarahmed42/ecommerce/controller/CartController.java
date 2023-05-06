@@ -30,7 +30,7 @@ public class CartController {
 
     private final CartService cartService;
 
-    @PostMapping("/carts")
+    @PostMapping(value = "/carts")
     @Operation(summary = "Creates a new cart item")
     @ApiResponse(responseCode = "201", description = "Created")
     @ApiResponse(responseCode = "400", description = "Requested product exceeds the available stock products")
@@ -45,7 +45,7 @@ public class CartController {
         return ResponseEntity.status(201).build();
     }
 
-    @PutMapping("/carts/{product-id}")
+    @PutMapping(value ="/carts/{product-id}")
     @Operation(summary = "Updates a cart item")
     @ApiResponse(responseCode = "204", description = "No Content")
     @ApiResponse(responseCode = "400", description = "Requested product exceeds the available stock products")
@@ -61,7 +61,7 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/carts/{product-id}")
+    @DeleteMapping(value = "/carts/{product-id}", consumes = "*/*")
     @Operation(summary = "Deletes a cart item")
     @ApiResponse(responseCode = "204", description = "No Content")
     @ApiResponse(responseCode = "403", description = "Access Denied")
@@ -71,7 +71,7 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/customers/{customer-id}/carts/{product-id}")
+    @GetMapping(value = "/customers/{customer-id}/carts/{product-id}", consumes = "*/*")
     @Operation(summary = "Retrieves a cart item")
     @ApiResponse(responseCode = "200", description = "OK")
     @ApiResponse(responseCode = "403", description = "Access Denied")

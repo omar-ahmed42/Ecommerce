@@ -50,7 +50,7 @@ public class ReviewCommentController {
                 return ResponseEntity.created(URI.create("/reviews/" + reviewId + "/comments/" + commentId)).build();
         }
 
-        @DeleteMapping("/reviews/{review-id}/comments/{comment-id}")
+        @DeleteMapping(value = "/reviews/{review-id}/comments/{comment-id}", consumes = "*/*")
         @Operation(summary = "Deletes a review comment")
         @ApiResponses({
                         @ApiResponse(responseCode = "204", description = "No Content"),
@@ -83,7 +83,7 @@ public class ReviewCommentController {
                 return ResponseEntity.noContent().build();
         }
 
-        @GetMapping(value = "/reviews/{review-id}/comments/{comment-id}")
+        @GetMapping(value = "/reviews/{review-id}/comments/{comment-id}", consumes = "*/*")
         @Operation(summary = "Updates a review comment")
         @ApiResponses({
                         @ApiResponse(responseCode = "204", description = "No Content"),

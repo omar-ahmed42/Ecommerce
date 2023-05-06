@@ -47,7 +47,7 @@ public class CategoryProductController {
                 return ResponseEntity.status(201).build();
         }
 
-        @DeleteMapping("/categories/{category-id}/products/{product-id}")
+        @DeleteMapping(value = "/categories/{category-id}/products/{product-id}", consumes = "*/*")
         @Operation(summary = "Remove an already existing category from a product (unassociate a category from a product)")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "204", description = "No content"),
@@ -62,7 +62,7 @@ public class CategoryProductController {
                 return ResponseEntity.noContent().build();
         }
 
-        @GetMapping(value = "/products/{product-id}/categories")
+        @GetMapping(value = "/products/{product-id}/categories", consumes = "*/*")
         @Operation(summary = "Retrieves categories assigned to a product")
         @ApiResponse(responseCode = "200", description = "OK")
         public ResponseEntity<List<CategoryDTO>> getCategoriesOfProduct(

@@ -43,7 +43,7 @@ public class ProductReviewController {
                 return ResponseEntity.status(201).build();
         }
 
-        @DeleteMapping("/products/{product-id}/reviews/{review-id}")
+        @DeleteMapping(value = "/products/{product-id}/reviews/{review-id}", consumes = "*/*")
         @Operation(summary = "Deletes a product review")
         @ApiResponses({
                         @ApiResponse(responseCode = "204", description = "No Content"),
