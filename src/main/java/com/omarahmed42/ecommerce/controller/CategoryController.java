@@ -66,7 +66,7 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/categories/{id}")
+    @GetMapping(value = "/categories/{id}", consumes = "*/*")
     @Operation(summary = "Retrieves a category by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
