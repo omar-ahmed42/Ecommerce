@@ -1,5 +1,6 @@
 package com.omarahmed42.ecommerce.util;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -14,25 +15,29 @@ public class UserDetailsUtils {
     }
 
     public static User getAuthenticatedUser() {
-        return ((CustomUserDetails) getPrincipal()).getUser();
+        return isAuthenticated() ? ((CustomUserDetails) getPrincipal()).getUser() : null;
     }
 
     public static boolean hasGrantedAuthority(String authorityName) {
-        return ((CustomUserDetails) getPrincipal())
+        return isAuthenticated() && ((CustomUserDetails) getPrincipal())
                 .getAuthorities().contains(new SimpleGrantedAuthority(authorityName));
     }
 
     public static boolean hasRole(String roleName) {
-        return ((CustomUserDetails) getPrincipal()).getAuthorities()
+        return isAuthenticated() && ((CustomUserDetails) getPrincipal()).getAuthorities()
                 .contains(new SimpleGrantedAuthority(ROLE_PREFIX + roleName));
     }
 
     public static boolean hasRole(Role role) {
-        return ((CustomUserDetails) getPrincipal()).getAuthorities()
+        return isAuthenticated() && ((CustomUserDetails) getPrincipal()).getAuthorities()
                 .contains(new SimpleGrantedAuthority(ROLE_PREFIX + role.toString()));
     }
 
     public static Object getPrincipal() {
         return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    public static boolean isAuthenticated() {
+        return !(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken);
     }
 }
