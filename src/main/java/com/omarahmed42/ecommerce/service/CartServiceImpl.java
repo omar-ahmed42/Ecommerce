@@ -103,6 +103,7 @@ public class CartServiceImpl implements CartService {
     @Transactional
     @PreAuthorize("hasRole('CUSTOMER')")
     public void updateCartItem(UUID productId, CartItemDTO cartItemDTO) {
+        cartItemDTO.setProductId(productId);
         validateCartItem(cartItemDTO);
         CartItemPK cartItemPK = new CartItemPK(UserDetailsUtils.getAuthenticatedUser().getId(), productId);
         if (cartItemDTO.getQuantity() == 0) {

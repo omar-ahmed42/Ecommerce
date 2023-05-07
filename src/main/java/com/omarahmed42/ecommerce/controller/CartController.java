@@ -55,7 +55,7 @@ public class CartController {
     @ApiResponse(responseCode = "422", description = "Quantity is missing")
     @ApiResponse(responseCode = "422", description = "Price is missing")
     @ApiResponse(responseCode = "422", description = "Price cannot be less than 0")
-    public ResponseEntity<Void> updateCartItem(@PathVariable UUID productId,
+    public ResponseEntity<Void> updateCartItem(@PathVariable(name = "product-id") UUID productId,
             @Parameter(name = "cart item") @RequestBody CartItemDTO cartItemDTO) {
         cartService.updateCartItem(productId, cartItemDTO);
         return ResponseEntity.noContent().build();
