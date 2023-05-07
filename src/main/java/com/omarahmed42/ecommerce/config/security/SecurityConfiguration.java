@@ -59,7 +59,7 @@ public class SecurityConfiguration {
 
                 .antMatchers(HttpMethod.GET, "/v1/confirm").permitAll()
 
-                .antMatchers(HttpMethod.POST, "/v1/users").access("hasRole(Role.ADMIN.toString()) || isAnonymous()")
+                .antMatchers(HttpMethod.POST, "/v1/users").access("hasRole('ADMIN') || isAnonymous()")
                 .antMatchers(HttpMethod.GET, "/v1/users/{id}").permitAll()
                 .antMatchers(HttpMethod.DELETE, "/v1/users/{id}").hasRole(Role.ADMIN.toString())
                 .antMatchers(HttpMethod.PATCH, "/v1/users/{id}").authenticated()
@@ -76,6 +76,7 @@ public class SecurityConfiguration {
                 .antMatchers(HttpMethod.DELETE, "/v1/wishlist/{product-id}").hasRole(Role.CUSTOMER.toString())
                 .antMatchers(HttpMethod.GET, "/v1/customer/{customer-id}/wishlist/{product-id}")
                 .hasAnyRole(Role.ADMIN.toString(), Role.CUSTOMER.toString())
+                .antMatchers(HttpMethod.GET, "/v1/customer/{customer-id}/wishlist").hasAnyRole(Role.ADMIN.toString(), Role.CUSTOMER.toString())
                 .antMatchers(HttpMethod.POST, "/v1/products/{product-id}/reviews").hasRole(Role.CUSTOMER.toString())
                 .antMatchers(HttpMethod.DELETE, "/v1/products/{product-id}/reviews/{review-id}")
                 .hasAnyRole(Role.ADMIN.toString(), Role.CUSTOMER.toString())
@@ -90,7 +91,6 @@ public class SecurityConfiguration {
 
                 .and()
                 .formLogin()
-                .loginPage("/login")
                 .usernameParameter("email")
                 .loginProcessingUrl("/v1/login")
                 .permitAll()
