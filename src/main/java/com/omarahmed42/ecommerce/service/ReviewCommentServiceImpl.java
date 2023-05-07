@@ -44,6 +44,9 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
     @PreAuthorize("hasRole('CUSTOMER')")
     public UUID addReviewComment(UUID reviewId, ReviewCommentRequest reviewCommentRequest) {
         validateReviewComment(reviewCommentRequest);
+        System.out.println("UUID: " + reviewId);
+        System.out.println("UUID_to_string: " + reviewId.toString());
+        System.out.println("UUID Class: " + reviewId.getClass());
         ProductReview productReview = productReviewRepository.findById(reviewId)
                 .orElseThrow(ProductReviewNotFoundException::new);
         User authenticatedUser = UserDetailsUtils.getAuthenticatedUser();
@@ -91,7 +94,7 @@ public class ReviewCommentServiceImpl implements ReviewCommentService {
         User authenticatedUser = UserDetailsUtils.getAuthenticatedUser();
         if (!commentOwnerId.equals(authenticatedUser.getId()))
             throw new UnauthorizedAccessException(authenticatedUser.getId().toString(), "update", "a review comment");
-        reviewComment = modelMapper.map(reviewCommentRequest, ReviewComment.class);
+        modelMapper.map(reviewCommentRequest, reviewComment);
         reviewCommentRepository.save(reviewComment);
     }
 
