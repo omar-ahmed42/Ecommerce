@@ -11,12 +11,14 @@ import org.springframework.data.jpa.domain.Specification;
 import com.omarahmed42.ecommerce.DTO.ProductFilter;
 import com.omarahmed42.ecommerce.model.Product;
 
+import io.micrometer.core.instrument.util.StringUtils;
+
 public class ProductSpecification {
     private ProductSpecification() {
     }
 
     public static Specification<Product> hasName(String name) {
-        return (root, query, cb) -> cb.equal(root.get("name"), name);
+        return (root, query, cb) -> StringUtils.isBlank(name) ? cb.conjunction() : cb.equal(root.get("name"), name);
     }
 
     public static Specification<Product> hasPriceBetween(BigDecimal low, BigDecimal high) {
