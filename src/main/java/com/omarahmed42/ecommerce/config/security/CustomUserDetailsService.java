@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.omarahmed42.ecommerce.exception.UserNotFoundException;
+import com.omarahmed42.ecommerce.exception.BadUsernameException;
 import com.omarahmed42.ecommerce.model.User;
 import com.omarahmed42.ecommerce.repository.UserRepository;
 
@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository
                 .findByEmail(email)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(BadUsernameException::new);
         return new CustomUserDetails(user);
     }
 }

@@ -92,7 +92,6 @@ public class SecurityConfiguration {
                 .and()
                 .formLogin()
                 .usernameParameter("email")
-                .loginProcessingUrl("/v1/login")
                 .permitAll()
                 .and()
                 .logout()

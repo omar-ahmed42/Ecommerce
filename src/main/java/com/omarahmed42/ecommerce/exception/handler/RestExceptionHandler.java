@@ -4,11 +4,13 @@ import java.io.Serializable;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.omarahmed42.ecommerce.exception.AlreadyExistsException;
+import com.omarahmed42.ecommerce.exception.BadUsernameException;
 import com.omarahmed42.ecommerce.exception.NotFoundException;
 import com.omarahmed42.ecommerce.exception.TokenAlreadyConsumedException;
 import com.omarahmed42.ecommerce.exception.TokenExpiredException;
@@ -79,6 +81,18 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleTokenRevokedException(TokenRevokedException tokenRevokedException) {
         logError(tokenRevokedException);
         return ResponseEntity.badRequest().body(new ErrorMessage(tokenRevokedException.getMessage()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorMessage> handleBadCredentialSException(BadCredentialsException badCredentialsException) {
+        logError(badCredentialsException);
+        return ResponseEntity.status(401).body(new ErrorMessage("Incorrect email or password"));
+    }
+    
+    @ExceptionHandler(BadUsernameException.class)
+    public ResponseEntity<ErrorMessage> handleBadCredentialSException(BadUsernameException badUsernameException) {
+        logError(badUsernameException);
+        return ResponseEntity.status(401).body(new ErrorMessage("Incorrect email or password"));
     }
 
     @ExceptionHandler(Exception.class)
