@@ -32,7 +32,7 @@ public class WishlistController {
 
         private final WishlistService wishlistService;
 
-        @PostMapping(value = "/products/{product-id}/wishlist")
+        @PostMapping(value = "/products/{product-id}/wishlist", consumes = "*/*")
         @Operation(summary = "Creates a new wishlist item using product id")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "OK"),

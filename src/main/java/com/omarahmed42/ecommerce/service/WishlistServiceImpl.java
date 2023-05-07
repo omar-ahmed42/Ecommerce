@@ -74,9 +74,9 @@ public class WishlistServiceImpl implements WishlistService {
     @PreAuthorize("hasRole('ADMIN') || (hasRole('CUSTOMER') && (principal.user.id == #customerId))")
     public PageResponse<ProductResponse> getWishlistItems(UUID customerId, Integer page, Integer size,
             ProductSort sortOrder) {
-        Pageable pageable = PageRequest.of(page - 1, size, PageUtils.getSortOrder(sortOrder));
+        Pageable pageable = PageRequest.of(page - 1, size, PageUtils.getSortOrder(sortOrder, "product"));
         Page<Product> products = wishlistRepository
-                .findAllProductByCustomer(customerRepository.getReferenceById(customerId), pageable);
+                .findAllProductsByCustomer(customerRepository.getReferenceById(customerId), pageable);
         List<ProductResponse> productResponse = modelMapper.map(products.getContent(),
                 new TypeToken<List<ProductResponse>>() {
                 }.getType());

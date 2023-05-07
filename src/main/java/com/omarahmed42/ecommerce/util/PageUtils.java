@@ -10,6 +10,7 @@ public class PageUtils {
     private static final String RATING = "rating";
     private static final String PRICE = "price";
     private static final String NAME = "name";
+    private static final String DOT = ".";
 
     private PageUtils() {
     }
@@ -35,6 +36,21 @@ public class PageUtils {
             case NAME_ASC -> Sort.by(Direction.ASC, NAME);
             case NAME_DESC -> Sort.by(Direction.DESC, NAME);
             default -> Sort.by(Direction.DESC, RATING);
+        };
+    }
+    
+    public static Sort getSortOrder(ProductSort sortOrder, String targetEntityAlias) {
+        if (sortOrder == null)
+            return Sort.by(Direction.DESC, RATING);
+
+        return switch (sortOrder) {
+            case RATING_ASC -> Sort.by(Direction.ASC, targetEntityAlias + DOT + RATING);
+            case RATING_DESC -> Sort.by(Direction.DESC, targetEntityAlias + DOT + RATING);
+            case PRICE_ASC -> Sort.by(Direction.ASC, targetEntityAlias + DOT + PRICE);
+            case PRICE_DESC -> Sort.by(Direction.DESC, targetEntityAlias + DOT + PRICE);
+            case NAME_ASC -> Sort.by(Direction.ASC, targetEntityAlias + DOT + NAME);
+            case NAME_DESC -> Sort.by(Direction.DESC, targetEntityAlias + DOT + NAME);
+            default -> Sort.by(Direction.DESC, targetEntityAlias + DOT + RATING);
         };
     }
 }

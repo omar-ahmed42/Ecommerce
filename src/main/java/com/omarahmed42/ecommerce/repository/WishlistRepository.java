@@ -19,5 +19,6 @@ public interface WishlistRepository extends JpaRepository<Wishlist, WishlistPK> 
     @Query("SELECT w.product FROM Wishlist w WHERE w.customerId = :#{#wishlistPK.customerId} AND w.productId = :#{#wishlistPK.productId}")
     Optional<Product> findProductByWishlistPK(@Param("wishlistPK") WishlistPK wishlistPK);
 
-    Page<Product> findAllProductByCustomer(Customer referenceById, Pageable pageable);
+    @Query("SELECT w.product FROM Wishlist w WHERE w.customer =  :#{#customer}")
+    Page<Product> findAllProductsByCustomer(@Param("customer") Customer customer, Pageable pageable);
 }
