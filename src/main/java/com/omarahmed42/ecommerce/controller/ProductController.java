@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.omarahmed42.ecommerce.DTO.PageResponse;
 import com.omarahmed42.ecommerce.DTO.ProductFilter;
@@ -43,7 +44,7 @@ public class ProductController {
         @Operation(summary = "Creates a new product")
         @ApiResponse(responseCode = "201", description = "Created")
         public ResponseEntity<Void> addProduct(@RequestBody ProductRequest product,
-                        @PathVariable(name = "vendorId") UUID vendorId) {
+                        @PathVariable(name = "vendor-id") UUID vendorId) {
                 UUID id = productService.addProduct(vendorId, product).getId();
                 return ResponseEntity.created(URI.create("/products/" + id.toString())).build();
         }
