@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -84,15 +85,21 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorMessage> handleBadCredentialSException(BadCredentialsException badCredentialsException) {
+    public ResponseEntity<ErrorMessage> handleBadCredentialsException(BadCredentialsException badCredentialsException) {
         logError(badCredentialsException);
         return ResponseEntity.status(401).body(new ErrorMessage("Incorrect email or password"));
     }
-    
+
     @ExceptionHandler(BadUsernameException.class)
-    public ResponseEntity<ErrorMessage> handleBadCredentialSException(BadUsernameException badUsernameException) {
+    public ResponseEntity<ErrorMessage> handleBadUsernameException(BadUsernameException badUsernameException) {
         logError(badUsernameException);
         return ResponseEntity.status(401).body(new ErrorMessage("Incorrect email or password"));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorMessage> handleAccessDeniedException(AccessDeniedException accessDeniedException) {
+        logError(accessDeniedException);
+        return ResponseEntity.status(403).body(new ErrorMessage("Access Denied"));
     }
 
     @ExceptionHandler(Exception.class)

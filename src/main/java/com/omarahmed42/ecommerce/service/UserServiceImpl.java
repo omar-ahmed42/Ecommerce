@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService {
                 .findById(userId)
                 .orElseThrow(UserNotFoundException::new);
         addRoles(user, userRegistrationDTO.getAssignedRoles());
-        modelMapper.map(user, userRegistrationDTO.getAssignedRoles());
+        modelMapper.map(userRegistrationDTO, user);
         userRepository.save(user);
     }
 
