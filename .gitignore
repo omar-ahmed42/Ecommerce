@@ -37,3 +37,6 @@ src/main/resources/env.properties
 *.gz
 *.tmp
 *.log
+*.env
+*.txt
+env.properties
