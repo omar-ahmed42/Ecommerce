@@ -1,8 +1,6 @@
 package com.omarahmed42.ecommerce.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -14,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import com.omarahmed42.ecommerce.DTO.PageResponse;
 import com.omarahmed42.ecommerce.DTO.ProductFilter;
@@ -25,7 +22,6 @@ import com.omarahmed42.ecommerce.enums.Role;
 import com.omarahmed42.ecommerce.exception.ProductNotFoundException;
 import com.omarahmed42.ecommerce.exception.UnauthorizedAccessException;
 import com.omarahmed42.ecommerce.model.Product;
-import com.omarahmed42.ecommerce.model.ProductMedia;
 import com.omarahmed42.ecommerce.model.User;
 import com.omarahmed42.ecommerce.model.Vendor;
 import com.omarahmed42.ecommerce.repository.ProductRepository;
@@ -40,14 +36,11 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final VendorRepository vendorRepository;
-    private final ProductMediaService productMediaService;
     private ModelMapper modelMapper;
 
-    public ProductServiceImpl(ProductRepository productRepository, VendorRepository vendorRepository,
-            ProductMediaService productMediaService) {
+    public ProductServiceImpl(ProductRepository productRepository, VendorRepository vendorRepository) {
         this.productRepository = productRepository;
         this.vendorRepository = vendorRepository;
-        this.productMediaService = productMediaService;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setSkipNullEnabled(true).setMatchingStrategy(MatchingStrategies.STRICT);
     }
@@ -62,26 +55,7 @@ public class ProductServiceImpl implements ProductService {
         product.setVendor(vendor);
         product = productRepository.save(product);
 
-        addProductMedia(product.getId(), productRequest);
-
         return modelMapper.map(product, ProductResponse.class);
-    }
-
-    private void addProductMedia(UUID id, ProductRequest productRequest) {
-        Set<String> mediaURLs = productRequest.getMediaURLs();
-        if (CollectionUtils.isEmpty(mediaURLs))
-            return;
-
-        List<ProductMedia> productMedia = createProductMedias(id, mediaURLs);
-        productMediaService.addProductMedia(productMedia);
-    }
-
-    private List<ProductMedia> createProductMedias(UUID productId, Set<String> mediaUrls) {
-        List<ProductMedia> productMedia = new ArrayList<>(mediaUrls.size());
-        for (String url : mediaUrls) {
-            productMedia.add(new ProductMedia(productRepository.getReferenceById(productId), url));
-        }
-        return productMedia;
     }
 
     @Override
