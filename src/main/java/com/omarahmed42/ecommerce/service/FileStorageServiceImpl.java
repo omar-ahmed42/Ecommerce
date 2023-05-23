@@ -23,16 +23,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
 
-    private final Path root = Paths.get("uploads/");
+    private final Path root = Paths.get("/uploads/");
 
     @Override
     public AttachmentInfo save(MultipartFile file, String path) {
         try {
             Path filePath = this.root.resolve(path);
             Path directoryPath = this.root.resolve(FilenameUtils.getFullPath(path));
-            if (Files.notExists(directoryPath)) {
+            if (Files.notExists(directoryPath))
                 Files.createDirectories(directoryPath);
-            }
+            
             Files.copy(file.getInputStream(), filePath);
             return new AttachmentInfo(FilenameUtils.getBaseName(path), file.getSize(), filePath.toString());
         } catch (Exception e) {

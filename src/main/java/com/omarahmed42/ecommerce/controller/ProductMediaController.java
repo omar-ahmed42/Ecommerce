@@ -38,7 +38,7 @@ public class ProductMediaController {
 
     @DeleteMapping("/products/{product-id}/media/{id}")
     public ResponseEntity<Void> deleteMedia(@PathVariable("product-id") UUID productId,
-            @RequestParam("id") UUID mediaId) {
+            @PathVariable("id") UUID mediaId) {
         productMediaService.deleteProductMedia(mediaId);
         return ResponseEntity.noContent().build();
     }
