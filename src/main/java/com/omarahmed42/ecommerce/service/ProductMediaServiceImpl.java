@@ -33,7 +33,7 @@ public class ProductMediaServiceImpl implements ProductMediaService, AttachmentS
     private final FileStorageService storageService;
     private final ProductRepository productRepository;
 
-    @Value("storage.uploads.path.product.media")
+    @Value("${storage.uploads.path.product.media}")
     private String productMediaStoragePath;
     private ModelMapper modelMapper;
 
@@ -52,8 +52,8 @@ public class ProductMediaServiceImpl implements ProductMediaService, AttachmentS
     public void addProductMedia(UUID productId, AttachmentInfo attachmentInfo) {
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         UUID authenticatedUserId = UserDetailsUtils.getAuthenticatedUser().getId();
-        if (UserDetailsUtils.hasRole(Role.ADMIN)
-                || isProductOwner(product, authenticatedUserId))
+        if (!UserDetailsUtils.hasRole(Role.ADMIN)
+                && !isProductOwner(product, authenticatedUserId))
             throw new UnauthorizedAccessException(authenticatedUserId.toString(), "upload", "a product media");
 
         ProductMedia productMedia = new ProductMedia(attachmentInfo.getFilename(), attachmentInfo.getSize(),
@@ -100,9 +100,9 @@ public class ProductMediaServiceImpl implements ProductMediaService, AttachmentS
     @Override
     @PreAuthorize("hasRole('ADMIN') || hasRole('VERIFIED_VENDOR')")
     public AttachmentInfo saveAttachment(MultipartFile file) {
-        String fileExtension = FilenameUtils.getExtension(file.getName());
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
         if (fileExtension == null || !isValidExtension(fileExtension))
-            throw new UnsupportedFileExtensionException();
+            throw new UnsupportedFileExtensionException("Unsupported file extension, provided value: " + fileExtension);
 
         String filename = UUID.randomUUID().toString() + "." + fileExtension;
         String filePath = productMediaStoragePath + File.separator + filename;
